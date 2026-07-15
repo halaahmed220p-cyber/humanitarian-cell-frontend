@@ -5,18 +5,23 @@ export default function News() {
   const [news, setNews] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/news')
-      .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.json();
-      })
-      .then((data) => {
-        // التعديل الأول: نأخذ أول 3 أخبار فقط عند حفظ البيانات في الـ State
-        const topThreeNews = Array.isArray(data) ? data.slice(0, 3) : [];
-        setNews(topThreeNews);
-      })
-      .catch((err) => console.error("Error:", err));
-  }, []);
+  // استخدام الرابط من إعدادات Vercel أو الرابط المباشر لـ Render كاحتياطي
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
+  
+  fetch(`${baseUrl}/api/news`)
+    .then((res) => {
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    })
+    .then((data) => {
+      const topThreeNews = Array.isArray(data) ? data.slice(0, 3) : [];
+      setNews(topThreeNews);
+    })
+    .catch((err) => {
+      console.error("Error:", err);
+      // إضافة حالة لتعريف المستخدم بوجود خطأ بدلاً من تعليقه في "جاري التحميل"
+    });
+}, []);
 
   // دالة ذكية لاختصار النص لضمان تناسق شكل كروت الأخبار بالصفحة
   const truncateText = (text, wordLimit = 25) => {
