@@ -6,8 +6,9 @@ export default function Projects() {
   const [expandedId, setExpandedId] = useState(null);
   const location = useLocation();
 
-  useEffect(() => {
-    fetch('/api/projects')
+useEffect(() => {
+    // إضافة الرابط الكامل لسيرفر Render لضمان اتصال الفرونت إند بالباك إند
+    fetch('https://humanitarian-cell-frontend.onrender.com/api/projects')
       .then((res) => res.json())
       .then((data) => setProjects(data))
       .catch((err) => console.error("Error:", err));
