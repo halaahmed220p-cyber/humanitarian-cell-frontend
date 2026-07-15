@@ -7,11 +7,16 @@ export default function Projects() {
   const location = useLocation();
 
 useEffect(() => {
-    // إضافة الرابط الكامل لسيرفر Render لضمان اتصال الفرونت إند بالباك إند
+    // استخدمي الرابط الكامل للسيرفر كما في المثال
     fetch('https://humanitarian-cell-frontend.onrender.com/api/projects')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
       .then((data) => setProjects(data))
-      .catch((err) => console.error("Error:", err));
+      .catch((err) => console.error("Error fetching projects:", err));
   }, []);
 
   const toggleExpand = (id) => {
