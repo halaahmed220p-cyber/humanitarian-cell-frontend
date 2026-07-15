@@ -4,19 +4,12 @@ import { Link } from 'react-router-dom';
 export default function News() {
   const [news, setNews] = useState([]);
 
-  useEffect(() => {
-    fetch('http://localhost:3000/api/news')
-      .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.json();
-      })
-      .then((data) => {
-        // التعديل الأول: نأخذ أول 3 أخبار فقط عند حفظ البيانات في الـ State
-        const topThreeNews = Array.isArray(data) ? data.slice(0, 3) : [];
-        setNews(topThreeNews);
-      })
-      .catch((err) => console.error("Error:", err));
-  }, []);
+ useEffect(() => {
+  fetch('https://humanitarian-cell-backend.onrender.com/api/news') // تأكدي من هذا الرابط تماماً
+    .then((res) => res.json())
+    .then((data) => setNews(data))
+    .catch((err) => console.error("Error fetching news:", err));
+}, []);
 
   // دالة ذكية لاختصار النص لضمان تناسق شكل كروت الأخبار بالصفحة
   const truncateText = (text, wordLimit = 25) => {
