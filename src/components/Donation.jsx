@@ -274,7 +274,7 @@ const Donation = () => {
                       <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#005a9c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ color: '#fff', fontSize: '0.7rem', fontWeight: '900' }}>KIB</span>
                       </div>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#1a2a4a' }}>الكريمي موني</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#1a2a4a' }}>الكريمي </span>
                     </label>
 
                     {/* خيار الفيزا */}
