@@ -35,8 +35,12 @@ export default function NewsPage() {
   };
 
   // 1. جلب البيانات عند تحميل الصفحة
+  // 1. جلب البيانات عند تحميل الصفحة
   useEffect(() => {
-    fetch('/api/news') 
+    // استخدمي الرابط الكامل للسيرفر الخاص بكِ على Render
+    const API_BASE_URL = 'https://humanitarian-cell-backend.onrender.com';
+
+    fetch(`${API_BASE_URL}/api/news`) 
       .then((res) => {
         if (!res.ok) throw new Error('فشل في جلب بيانات الأخبار');
         return res.json();
@@ -51,7 +55,7 @@ export default function NewsPage() {
         setLoadingNews(false);
       });
 
-    fetch('/api/reports') 
+    fetch(`${API_BASE_URL}/api/reports`) 
       .then((res) => {
         if (!res.ok) throw new Error('فشل في جلب بيانات التقارير');
         return res.json();
