@@ -38,23 +38,27 @@ const Donation = () => {
 
   // جلب المشاريع من السيرفر/قاعدة البيانات عند تحميل الصفحة
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/api/projects/active');
-        setProjects(response.data || []);
-        setLoading(false);
-      } catch (error) {
-        console.error("خطأ أثناء جلب المشاريع:", error);
-        setProjects([
-          { id: '1', title: 'سلة الغذاء للأسر المتعففة', description: 'توفير السلال الغذائية الأساسية لتمكين العائلات الأكثر احتياجاً من لقمة العيش الكريمة.', target: 15000, raised: 9750 },
-          { id: '2', title: 'كفالة ورعاية الأيتام', description: 'توفير الدعم المالي والتعليمي والصحي للأيتام لضمان مستقبل مشرق وآمن لهم.', target: 20000, raised: 8000 }
-        ]);
-        setLoading(false);
-      }
-    };
+  const fetchProjects = async () => {
+    try {
+      // نستخدم المتغير الذي وضعناه في Vercel
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
+      
+      const response = await axios.get(`${baseUrl}/api/projects/active`);
+      setProjects(response.data || []);
+      setLoading(false);
+    } catch (error) {
+      console.error("خطأ أثناء جلب المشاريع:", error);
+      // البيانات الاحتياطية (Static Data) تظهر فقط في حال فشل الاتصال
+      setProjects([
+        { id: '1', title: 'سلة الغذاء للأسر المتعففة', description: 'توفير السلال الغذائية الأساسية لتمكين العائلات الأكثر احتياجاً من لقمة العيش الكريمة.', target: 15000, raised: 9750 },
+        { id: '2', title: 'كفالة ورعاية الأيتام', description: 'توفير الدعم المالي والتعليمي والصحي للأيتام لضمان مستقبل مشرق وآمن لهم.', target: 20000, raised: 8000 }
+      ]);
+      setLoading(false);
+    }
+  };
 
-    fetchProjects();
-  }, []);
+  fetchProjects();
+}, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
