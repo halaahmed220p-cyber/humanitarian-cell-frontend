@@ -17,7 +17,11 @@ const pool = new Pool({
 });
 
 // تفعيل CORS و JSON
-app.use(cors()); 
+app.use(cors({
+  origin: 'https://humanitarian-cell-frontend.vercel.app', // ضعي رابط موقعكِ هنا
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json());
 
 // ==========================================
