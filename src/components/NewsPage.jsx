@@ -38,13 +38,15 @@ export default function NewsPage() {
   // 1. جلب البيانات عند تحميل الصفحة
   useEffect(() => {
     // استخدمي الرابط الكامل للسيرفر الخاص بكِ على Render
-    const API_BASE_URL = 'https://humanitarian-cell-backend.onrender.com';
+   // تأكدي من وضع الرابط كاملاً مع https://
+const API_BASE_URL = 'https://humanitarian-cell-frontend.onrender.com';
 
-    fetch('https://humanitarian-cell-backend.onrender.com/api/news')
-      .then((res) => {
-        if (!res.ok) throw new Error('فشل في جلب بيانات الأخبار');
-        return res.json();
-      })
+fetch(`${API_BASE_URL}/api/news`) // سيصبح https://humanitarian-cell-backend.onrender.com/api/news
+  .then((res) => {
+    if (!res.ok) throw new Error('فشل في جلب بيانات الأخبار');
+    return res.json();
+  })
+  // ... باقي الكود
       .then((data) => {
         setNewsData(data);
         setLoadingNews(false);
