@@ -172,3 +172,17 @@ app.get('/api/news/ticker', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.post('/api/subscribe', async (req, res) => {
+  const { email } = req.body;
+  try {
+    await pool.query('INSERT INTO subscribers (email) VALUES ($1)', [email]);
+    res.status(200).json({ message: 'تم الاشتراك بنجاح!' });
+  } catch (err) {
+    if (err.code === '23505') { // خطأ تكرار الإيميل
+      res.status(400).json({ message: 'هذا البريد الإلكتروني مشترك بالفعل.' });
+    } else {
+      res.status(500).json({ message: 'حدث خطأ، حاول مجدداً لاحقاً.' });
+    }
+  }
+});

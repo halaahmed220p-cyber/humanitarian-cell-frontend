@@ -1197,3 +1197,18 @@
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
 }
+
+.newsletter-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ddd;
+}
+.newsletter-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #d4af37; /* ذهبي الخلية */
+  color: white;
+  border: none;
+  cursor: pointer;
+}

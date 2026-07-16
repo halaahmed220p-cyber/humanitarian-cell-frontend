@@ -1,11 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [subMessage, setSubMessage] = useState('');
+
   const handleSubmit = (e) => {
     e.preventDefault();
     alert('تم استلام رسالتك، شكراً لتواصلك معنا!');
+  };
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('https://humanitarian-cell-backend.onrender.com/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      setSubMessage(data.message);
+      if (response.ok) setEmail('');
+    } catch (err) {
+      setSubMessage('حدث خطأ في الاتصال بالسيرفر.');
+    }
   };
 
   return (
@@ -31,45 +50,32 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* الروابط السريعة المحدثة لتطابق الهيدر تماماً */}
+          {/* الروابط السريعة */}
           <div className="footer-column">
             <h4>روابط سريعة</h4>
             <ul>
-              <li>
-                <Link 
-                  to="/" 
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                >
-                  <i className="fas fa-chevron-left"></i> الرئيسية
-                </Link>
-              </li>
-              <li>
-                <HashLink smooth to="/#about">
-                  <i className="fas fa-chevron-left"></i> من نحن
-                </HashLink>
-              </li>
-              <li>
-                <Link 
-                  to="/projects" 
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                >
-                  <i className="fas fa-chevron-left"></i> المشاريع
-                </Link>
-              </li>
-              {/* تم دمج الأخبار والتقارير في أيقونة ورابط واحد يوجه للصفحة المستقلة */}
-              <li>
-                <Link 
-                  to="/news" 
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                >
-                  <i className="fas fa-chevron-left"></i> الأخبار والتقارير
-                </Link>
-              </li>
+              <li><Link to="/" onClick={() => window.scrollTo(0,0)}><i className="fas fa-chevron-left"></i> الرئيسية</Link></li>
+              <li><HashLink smooth to="/#about"><i className="fas fa-chevron-left"></i> من نحن</HashLink></li>
+              <li><Link to="/projects" onClick={() => window.scrollTo(0,0)}><i className="fas fa-chevron-left"></i> المشاريع</Link></li>
+              <li><Link to="/news" onClick={() => window.scrollTo(0,0)}><i className="fas fa-chevron-left"></i> الأخبار والتقارير</Link></li>
             </ul>
           </div>
 
-          {/* التواصل */}
+          {/* النشرة البريدية ونموذج التواصل */}
           <div className="footer-column">
+            <h4>النشرة البريدية</h4>
+            <form onSubmit={handleSubscribe} className="newsletter-form" style={{ marginBottom: '20px' }}>
+              <input 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="أدخل بريدك الإلكتروني" 
+                required 
+              />
+              <button type="submit">اشترك</button>
+              {subMessage && <p style={{ fontSize: '12px', marginTop: '5px' }}>{subMessage}</p>}
+            </form>
+
             <h4>تواصل معنا</h4>
             <div className="footer-contact">
               <p><i className="fas fa-envelope"></i> info@hac-yemen.org</p>
@@ -78,16 +84,14 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* نموذج التواصل */}
+          {/* نموذج التواصل السريع */}
           <div className="footer-column">
             <h4>نموذج التواصل السريع</h4>
             <form className="contact-form" onSubmit={handleSubmit}>
               <input type="text" placeholder="الاسم الكامل" required />
               <input type="email" placeholder="بريدك الإلكتروني" required />
               <textarea placeholder="رسالتك..." required></textarea>
-              <button type="submit">
-                <i className="fas fa-paper-plane"></i> إرسال الرسالة
-              </button>
+              <button type="submit"><i className="fas fa-paper-plane"></i> إرسال</button>
             </form>
           </div>
         </div>
