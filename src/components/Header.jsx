@@ -4,12 +4,23 @@ import { HashLink } from 'react-router-hash-link';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeAnchor, setActiveAnchor] = useState(''); 
+  const [activeAnchor, setActiveAnchor] = useState('');
+  const [tickerNews, setTickerNews] = useState([]); // حالة جديدة لجلب أخبار الشريط
   const location = useLocation();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // تحديث الرابط النشط عند تغيير الصفحة أو الهاش في الرابط
+  // جلب الأخبار العاجلة من السيرفر عند تحميل الصفحة
+  useEffect(() => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
+    
+    fetch(`${baseUrl}/api/news/ticker`)
+      .then(res => res.json())
+      .then(data => setTickerNews(data))
+      .catch(err => console.error("Error fetching ticker news:", err));
+  }, []);
+
+  // تحديث الرابط النشط عند تغيير الصفحة أو الهاش
   useEffect(() => {
     if (location.hash) {
       setActiveAnchor(location.hash);
@@ -18,16 +29,11 @@ const Header = () => {
     }
   }, [location]);
 
-  // دالة ذكية للتمرير إلى الفوتر في نفس الصفحة الحالية فوراً دون الانتقال للرئيسية
   const handleContactClick = (e) => {
     e.preventDefault();
     setActiveAnchor('#footer');
     setIsMenuOpen(false);
-
-    // تحديث الهاش في الرابط الحالي دون إعادة تحميل الصفحة
     window.history.pushState(null, '', `${location.pathname}#footer`);
-
-    // التمرير مباشرة لأسفل الصفحة الحالية
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth'
@@ -38,7 +44,7 @@ const Header = () => {
     <header className="header" id="header">
       <div className="header-inner">
         <a href="/" className="logo" onClick={() => setActiveAnchor('')}>
-          <img src="logo.png" alt="شعار الخلية" style={{ width: '45px', height: '45px', objectFit: 'contain' }} />
+          <img src="/logo.png" alt="شعار الخلية" style={{ width: '45px', height: '45px', objectFit: 'contain' }} />
           <div className="logo-text">
             <span className="brand-ar">خلية الأعمال الإنسانية</span>
             <span className="brand-en">HUMANITARIAN ACTION CELL</span>
@@ -48,72 +54,32 @@ const Header = () => {
         <nav>
           <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} id="navMenu">
             <li>
-              <NavLink 
-                to="/" 
-                className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} 
-                end
-                onClick={() => setActiveAnchor('')}
-              >
+              <NavLink to="/" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} end onClick={() => setActiveAnchor('')}>
                 الرئيسية
               </NavLink>
             </li>
-            
-            {/* من نحن: تقود للصفحة الرئيسية ثم جزء من نحن كالمعتاد */}
             <li>
-              <HashLink 
-                smooth
-                to="/#about" 
-                className={activeAnchor === '#about' ? 'active' : ''}
-                onClick={() => {
-                  setActiveAnchor('#about');
-                  setIsMenuOpen(false);
-                }}
-              >
+              <HashLink smooth to="/#about" className={activeAnchor === '#about' ? 'active' : ''} onClick={() => { setActiveAnchor('#about'); setIsMenuOpen(false); }}>
                 من نحن
               </HashLink>
             </li>
-
             <li>
-              <NavLink 
-                to="/projects" 
-                className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")}
-                onClick={() => setActiveAnchor('')}
-              >
+              <NavLink to="/projects" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
                 المشاريع
               </NavLink>
             </li>
-
             <li>
-              <NavLink 
-                to="/news" 
-                className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")}
-                onClick={() => setActiveAnchor('')}
-              >
+              <NavLink to="/news" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
                 الأخبار والتقارير
               </NavLink>
             </li>
-
-            {/* تواصل معنا: تهبط لأسفل الصفحة المفتوحة حالياً مباشرة دون الخروج منها! */}
             <li>
-              <a 
-                href="#footer" 
-                className={activeAnchor === '#footer' ? 'active' : ''}
-                onClick={handleContactClick}
-              >
+              <a href="#footer" className={activeAnchor === '#footer' ? 'active' : ''} onClick={handleContactClick}>
                 تواصل معنا
               </a>
             </li>
-
-            {/* زر تبرع الآن */}
             <li>
-              <NavLink 
-                to="/donate" 
-                className="donate-btn"
-                onClick={() => {
-                  setActiveAnchor('');
-                  setIsMenuOpen(false);
-                }}
-              >
+              <NavLink to="/donate" className="donate-btn" onClick={() => { setActiveAnchor(''); setIsMenuOpen(false); }}>
                 تبرّع الآن
               </NavLink>
             </li>
@@ -124,6 +90,19 @@ const Header = () => {
           <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
         </button>
       </div>
+
+      {/* الشريط الإخباري الديناميكي */}
+      {tickerNews.length > 0 && (
+        <div className="news-ticker">
+          <div className="ticker-content">
+            {tickerNews.map((item, index) => (
+              <span key={index}>
+                {item.title} {index < tickerNews.length - 1 ? " | " : ""}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

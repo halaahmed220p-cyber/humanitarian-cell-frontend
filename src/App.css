@@ -1179,4 +1179,21 @@
                 grid-template-columns: 1fr;
             }
         }
-    
+    .news-ticker {
+  width: 100%;
+  overflow: hidden;
+  background-color: #f8f9fa; /* لون خلفية خفيف */
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.ticker-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker-move 20s linear infinite; /* حركة مستمرة */
+}
+
+@keyframes ticker-move {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}

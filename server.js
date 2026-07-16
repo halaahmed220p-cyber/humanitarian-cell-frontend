@@ -119,9 +119,11 @@ app.post('/api/donations', async (req, res) => {
 // ==========================================
 // 3. مسارات الأخبار (News)
 // ==========================================
+// جلب الأخبار العادية (غير العاجلة) فقط
 app.get('/api/news', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM news ORDER BY date_published DESC');
+    // نجلب الأخبار التي ليست عاجلة (is_urgent = false)
+    const result = await pool.query('SELECT * FROM news WHERE is_urgent = false OR is_urgent IS NULL ORDER BY date_published DESC');
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -157,4 +159,14 @@ app.get('/api/reports', async (req, res) => {
 // تشغيل الخادم والاعتماد على متغير الـ port
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+});
+
+// في ملف السيرفر (مثلاً app.js أو server.js)
+app.get('/api/news/ticker', (req, res) => {
+  // استعلام يجلب فقط الأخبار التي هي عاجلة
+  const sql = "SELECT title FROM NEWS WHERE is_urgent = 1 ORDER BY id DESC LIMIT 5";
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).send(err);
+    res.json(results);
+  });
 });
