@@ -162,11 +162,13 @@ app.listen(port, () => {
 });
 
 // في ملف السيرفر (مثلاً app.js أو server.js)
-app.get('/api/news/ticker', (req, res) => {
-  // استعلام يجلب فقط الأخبار التي هي عاجلة
-  const sql = "SELECT title FROM NEWS WHERE is_urgent = 1 ORDER BY id DESC LIMIT 5";
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json(results);
-  });
+app.get('/api/news/ticker', async (req, res) => {
+  try {
+    // قمت بتغيير title إلى name هنا
+    const result = await pool.query('SELECT name FROM news WHERE is_urgent = true ORDER BY date_published DESC LIMIT 5');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("DEBUG ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
