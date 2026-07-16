@@ -164,8 +164,8 @@ app.listen(port, () => {
 // في ملف السيرفر (مثلاً app.js أو server.js)
 app.get('/api/news/ticker', async (req, res) => {
   try {
-    // قمت بتغيير title إلى name هنا
-    const result = await pool.query('SELECT name FROM news WHERE is_urgent = true ORDER BY date_published DESC LIMIT 5');
+    // قمت بتغيير "name" إلى "title" ليطابق أعمدة الجدول لديكِ
+    const result = await pool.query('SELECT title FROM news WHERE is_urgent = true ORDER BY date_published DESC LIMIT 5');
     res.json(result.rows);
   } catch (err) {
     console.error("DEBUG ERROR:", err);
