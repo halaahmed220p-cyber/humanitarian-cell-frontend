@@ -173,7 +173,7 @@ app.get('/api/news/ticker', async (req, res) => {
   }
 });
 
-app.post('/api/subscribes', async (req, res) => {
+app.post('/api/subscribe', async (req, res) => {
   const { email } = req.body;
   try {
     await pool.query('INSERT INTO subscribers (email) VALUES ($1)', [email]);
