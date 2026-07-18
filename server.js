@@ -157,9 +157,7 @@ app.get('/api/reports', async (req, res) => {
 
 
 // تشغيل الخادم والاعتماد على متغير الـ port
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+
 
 // في ملف السيرفر (مثلاً app.js أو server.js)
 app.get('/api/news/ticker', async (req, res) => {
@@ -185,4 +183,8 @@ app.post('/api/subscribe', async (req, res) => {
       res.status(500).json({ message: 'حدث خطأ، حاول مجدداً لاحقاً.' });
     }
   }
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
