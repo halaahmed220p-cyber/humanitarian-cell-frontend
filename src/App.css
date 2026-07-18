@@ -1212,3 +1212,37 @@
   border: none;
   cursor: pointer;
 }
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.project-card {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-right: 5px solid #2c3e50; /* لمسة جمالية تدل على احترافية */
+}
+
+/* تأثير الذكاء عند مرور الماوس */
+.project-card:hover {
+  transform: translateY(-10px); /* البطاقة ترتفع قليلاً */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* زيادة الظل */
+  cursor: pointer;
+}
+
+.project-card h3 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.project-card small {
+  display: block;
+  margin-top: 10px;
+  color: #7f8c8d;
+  font-weight: bold;
+}

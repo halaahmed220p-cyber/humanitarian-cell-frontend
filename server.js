@@ -185,6 +185,22 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
+// مسار لجلب المشاريع بناءً على المحافظة
+app.get('/api/projects/:location', async (req, res) => {
+  try {
+    const { location } = req.params;
+    // استعلام لجلب المشاريع التي تتطابق مع المحافظة المختارة
+    const result = await pool.query(
+      'SELECT * FROM projects WHERE location = $1',
+      [location]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'حدث خطأ أثناء جلب مشاريع هذه المحافظة.' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
