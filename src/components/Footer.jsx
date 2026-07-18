@@ -14,7 +14,8 @@ const Footer = () => {
   const handleSubscribe = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://humanitarian-cell-backend.onrender.com/api/subscribe', {
+      // استخدمي الرابط الذي أثبتنا نجاحه في الـ Console
+      const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
