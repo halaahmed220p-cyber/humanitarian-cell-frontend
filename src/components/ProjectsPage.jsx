@@ -11,7 +11,7 @@ const ProjectsPage = () => {
     setLoading(true);
     try {
       // استبدلي هذا الرابط برابط الباك إند الخاص بكِ
-      const response = await fetch(`https://humanitarian-cell-backend.onrender.com/api/projects/${locationName}`);
+      const response = await fetch(`https://humanitarian-cell-ftontend.onrender.com/api/projects/${locationName}`);
       const data = await response.json();
       setProjects(data);
     } catch (err) {
