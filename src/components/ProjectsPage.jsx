@@ -35,24 +35,42 @@ const ProjectsPage = () => {
                     </div>
                 </div>
 
-                <aside className="hac-dash-sidebar">
-                    <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
-                    <div className="hac-dash-gov-list">
-                        {Object.entries(govData).map(([key, gov]) => (
-                            <div key={key} className="gov-list-item" onClick={() => handleSelectGovernorate(key)}>
-                                <span>{gov.name}</span>
-                                <span>{gov.projects} مشروع</span>
-                            </div>
-                        ))}
+              <aside className="hac-dash-sidebar">
+    <div className="hac-dash-panel">
+        <h3 className="sidebar-title">المحافظات</h3>
+        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
+        
+        {/* قائمة المحافظات */}
+        <div className="hac-dash-gov-list">
+            {Object.entries(govData).map(([key, gov]) => (
+                <div key={key} className="gov-list-item" onClick={() => handleSelectGovernorate(key)}>
+                    <span>{gov.name}</span>
+                    <span className="gov-stat">{gov.projects} مشروع</span>
+                </div>
+            ))}
+        </div>
+
+        {/* قسم مؤشر الأداء - يظهر فقط عند اختيار محافظة */}
+        {selectedGovProjects && (
+            <div className="hac-dash-performance-panel">
+                <h3>مؤشر الأداء: {govName}</h3>
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <span className="stat-value">{govData[Object.keys(govData).find(k => govData[k].name === govName)]?.projects || 0}</span>
+                        <span className="stat-label">المشاريع</span>
                     </div>
-                    
-                    {selectedGovProjects && (
-                        <div className="selected-gov-details">
-                            <h4>مشاريع {govName}</h4>
-                            <p>إجمالي المشاريع: {selectedGovProjects.length}</p>
-                        </div>
-                    )}
-                </aside>
+                    <div className="stat-card">
+                        <span className="stat-value">95</span>
+                        <span className="stat-label">مليون $</span>
+                    </div>
+                </div>
+                <div className="completion-bar">
+                    <span>نسبة الإنجاز: {govData[Object.keys(govData).find(k => govData[k].name === govName)]?.completion || 0}%</span>
+                </div>
+            </div>
+        )}
+    </div>
+</aside>
             </main>
         </div>
     );

@@ -156,3 +156,28 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     border: 1px solid #334155;
 }
+
+.hac-dash-performance-panel {
+    margin-top: 20px;
+    background: #0f172a;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.stat-card {
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-value { font-weight: bold; font-size: 1.2rem; display: block; }
+.stat-label { font-size: 0.8rem; color: #94a3b8; }
