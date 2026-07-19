@@ -157,12 +157,30 @@
     border: 1px solid #334155;
 }
 
+/* بطاقة الأداء الرئيسية */
 .hac-dash-performance-panel {
-    margin-top: 20px;
-    background: #0f172a;
-    padding: 15px;
-    border-radius: 12px;
+    background: #182130; /* لون أغمق قليلاً من الخلفية */
     border: 1px solid #334155;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* الأرقام الاحترافية */
+.stat-value {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.stat-label {
+    color: #94a3b8; /* رمادي فاتح */
+    font-size: 0.75rem;
+}
+
+/* جعل الشريط السفلي ذهبي */
+.completion-fill {
+    background: #d4af37; /* اللون الذهبي المميز */
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
 .stats-grid {
