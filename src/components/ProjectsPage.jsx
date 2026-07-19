@@ -71,26 +71,28 @@ const ProjectsPage = () => {
                 </div>
 
                 <aside className="hac-dash-sidebar">
-                    <div className="hac-dash-panel">
-                        {/* بطاقة مؤشر الأداء الجديدة */}
-                        <div className="hac-dash-indicator-card">
-                            <h4>إجمالي المشاريع في المحافظة</h4>
-                            <div className="hac-dash-indicator-value">
-                                {selectedGovProjects ? selectedGovProjects.length : "0"}
-                            </div>
-                        </div>
+    <div className="hac-dash-panel">
+        <h3 className="sidebar-title">المحافظات</h3>
+        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
+        
+        {/* تصنيفات الحالة */}
+        <div className="status-filters">
+            <button className="active">الكل</button>
+            <button>منفذة</button>
+            <button>قيد التنفيذ</button>
+        </div>
 
-                        <h3>{govName ? `مشاريع: ${govName}` : "اختر محافظة"}</h3>
-                        <div className="hac-dash-gov-list">
-                            {loading ? <p>جاري تحميل المشاريع...</p> : 
-                             selectedGovProjects ? (
-                                selectedGovProjects.length > 0 ? 
-                                selectedGovProjects.map(p => <div key={p.id} className="project-item">{p.title}</div>) 
-                                : <p>لا توجد مشاريع في هذه المحافظة.</p>
-                            ) : <p>يرجى النقر على محافظة من الخريطة.</p>}
-                        </div>
-                    </div>
-                </aside>
+        {/* قائمة المحافظات مع الإحصائيات */}
+        <div className="hac-dash-gov-list">
+            {Object.entries(govData).map(([key, gov]) => (
+                <div key={key} className="gov-list-item" onClick={() => handleSelectGovernorate(key)}>
+                    <span>{gov.name}</span>
+                    <span className="gov-stat">{gov.projects} مشروع</span>
+                </div>
+            ))}
+        </div>
+    </div>
+</aside>
             </main>
         </div>
     );

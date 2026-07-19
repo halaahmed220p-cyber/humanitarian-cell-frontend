@@ -105,3 +105,23 @@
     font-weight: 800;
     color: #ffffff;
 }
+
+.gov-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #1e293b;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.gov-list-item:hover { background: #334155; }
+.status-filters button {
+    background: #0f172a;
+    color: white;
+    border: 1px solid #334155;
+    padding: 5px 15px;
+    margin: 5px;
+    border-radius: 4px;
+}
