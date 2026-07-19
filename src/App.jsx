@@ -3,7 +3,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
 import Stats from './components/Stats';
-import Projects from './components/Projects';
+import ProjectsPage from './components/ProjectsPage';
 import News from './components/News';
 import Footer from './components/Footer';
 import NewsPage from './components/NewsPage';
@@ -37,7 +37,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         
         {/* صفحة المشاريع المستقلة */}
-        <Route path="/projects" element={<Projects />} /> 
+        <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/donate" element={<Donation />} />
       </Routes>
