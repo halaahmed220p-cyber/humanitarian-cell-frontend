@@ -248,3 +248,17 @@ body::before {
 @media (max-width: 1400px) { .main-container { grid-template-columns: 1fr 380px; padding: 20px; } }
 @media (max-width: 1200px) { .main-container { grid-template-columns: 1fr; height: auto; } .sidebar { flex-direction: row; flex-wrap: wrap; } .panel { flex: 1; min-width: 300px; } .map-section { height: 600px; } }
 @media (max-width: 768px) { .header { padding: 0 20px; height: auto; flex-direction: column; gap: 15px; padding: 15px; } .kpi-container { flex-wrap: wrap; justify-content: center; } .main-container { padding: 15px; } .title-section h1 { font-size: 1.2rem; } }
+.stats-section-container {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+/* تعديل عرض الكاردز لتناسب المساحة الجديدة */
+.kpi-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
