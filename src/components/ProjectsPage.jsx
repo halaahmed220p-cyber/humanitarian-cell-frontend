@@ -51,7 +51,7 @@ const ProjectsPage = () => {
     <div className="hac-dash-performance-panel">
         <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
         
-        {/* مصفوفة الـ 4 بطاقات (2x2) */}
+        {/* الشبكة الرباعية (Grid 2x2) */}
         <div className="stats-grid">
             <div className="stat-card">
                 <span className="stat-value">95</span>
@@ -71,8 +71,8 @@ const ProjectsPage = () => {
             </div>
         </div>
 
-        {/* الرسم البياني الدائري السفلي */}
-        <div className="chart-container" style={{ marginTop: '20px', textAlign: 'center' }}>
+        {/* الرسم البياني الدائري (المطابق للنموذج) */}
+        <div className="chart-container" style={{ marginTop: '20px' }}>
             <div className="donut-chart-placeholder">
                 <span className="percentage-text">{currentGov.completion}%</span>
             </div>
