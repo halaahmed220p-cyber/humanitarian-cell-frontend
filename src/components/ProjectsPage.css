@@ -138,3 +138,16 @@
         grid-template-columns: 1fr;
     }
 }
+/* تعديل الشبكة لتصبح 4 خانات كما في النموذج */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* مصفوفة مربعة */
+    gap: 10px;
+}
+
+.stat-card {
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
