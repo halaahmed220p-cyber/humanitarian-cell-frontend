@@ -1,25 +1,18 @@
 import React from 'react';
-import './ProjectsPage.css'; // تأكدي أن هذا الملف يحتوي على الـ CSS الذي نقلناه
+import './ProjectsPage.css';
 
 const ProjectsPage = () => {
     return (
         <div className="projects-page-wrapper">
-            {/* الهيدر الذي صممتِه */}
-            <header className="header">
-                <div className="logo-section">
-                    <div className="flag-container"><div className="flag-middle"><span>☪</span></div></div>
-                    <div className="title-section">
-                        <h1>منصة المشاريع التنموية</h1>
-                        <p>الجمهورية اليمنية - نظام متابعة المشاريع ومؤشرات الأداء</p>
-                    </div>
-                </div>
-                {/* حاوية الإحصائيات (KPIs) */}
+            
+            {/* قسم الإحصائيات: أصبح الآن قسماً مستقلاً داخل الصفحة بدلاً من هيدر */}
+            <div className="stats-section-container">
                 <div className="kpi-container">
                     <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-project-diagram"></i></div><div className="kpi-value" id="totalProjects">0</div><div className="kpi-label">إجمالي المشاريع</div></div>
                     <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-dollar-sign"></i></div><div className="kpi-value" id="totalBudget">$0</div><div className="kpi-label">الميزانية</div></div>
                     <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-chart-line"></i></div><div className="kpi-value" id="completionRate">0%</div><div className="kpi-label">نسبة الإنجاز</div></div>
                 </div>
-            </header>
+            </div>
 
             {/* الحاوية الرئيسية (الخريطة + القائمة الجانبية) */}
             <main className="main-container">
@@ -28,7 +21,6 @@ const ProjectsPage = () => {
                         <div className="card-header">
                             <div className="card-title"><i className="fas fa-globe-asia"></i><span>الخريطة التفاعلية</span></div>
                         </div>
-                        {/* هنا سيظهر الـ Map الخاص بـ Leaflet */}
                         <div id="map"></div>
                     </div>
                 </div>
