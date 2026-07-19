@@ -1,26 +1,15 @@
 import React from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import yemenData from './yemenMap.json'; // استيراد البيانات محلياً
 
-// هذا رابط لملف حدود محافظات اليمن (بصيغة TopoJSON)
-const YEMEN_GEO_URL = "https://raw.githubusercontent.com/yemen-data/yemen-topojson/master/yemen-governorates.json";
-
-const MapComponent = ({ onSelectLocation }) => {
+const MapComponent = () => {
   return (
-    <div className="map-container" style={{ width: "100%", maxWidth: "600px", margin: "auto" }}>
-      <ComposableMap projection="geoMercator" projectionConfig={{ scale: 2500, center: [48, 15] }}>
-        <Geographies geography={YEMEN_GEO_URL}>
+    <div style={{ width: '100%', height: '400px' }}>
+      <ComposableMap projection="geoMercator">
+        <Geographies geography={yemenData}>
           {({ geographies }) =>
             geographies.map((geo) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                onClick={() => onSelectLocation(geo.properties.NAME_1)} // إرسال اسم المحافظة عند الضغط
-                style={{
-                  default: { fill: "#D6D6DA", stroke: "#FFF", strokeWidth: 0.5 },
-                  hover: { fill: "#F53", cursor: "pointer" },
-                  pressed: { fill: "#E42" },
-                }}
-              />
+              <Geography key={geo.rsmKey} geography={geo} />
             ))
           }
         </Geographies>
