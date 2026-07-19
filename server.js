@@ -17,9 +17,11 @@ const pool = new Pool({
 });
 
 // تفعيل CORS و JSON
+// التعديل هنا: السماح بجميع النطاقات أو إضافة النطاق الذي تستخدمينه حالياً
 app.use(cors({
-  origin: 'https://humanitarian-cell-frontend.vercel.app', // ضعي رابط موقعكِ هنا
-  methods: ['GET', 'POST'],
+  origin: '*', // السماح لأي موقع بالاتصال (أو استبدلي '*' بـ ['https://humanitarian-cell-frontend.vercel.app', 'https://humanitarian-cell-frontend-qjaq8skoo-evosys.vercel.app'])
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 app.use(express.json());
