@@ -1,4 +1,5 @@
 /* عزل كامل للتنسيقات داخل هذا الكلاس فقط */
+@import 'leaflet/dist/leaflet.css';
 .projects-page-wrapper {
     font-family: 'Tajawal', sans-serif;
     background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
