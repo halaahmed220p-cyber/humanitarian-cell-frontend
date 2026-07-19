@@ -7,15 +7,14 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
     <MapContainer 
       center={[15.5, 45.5]} 
       zoom={6} 
-      style={{ height: "100%", width: "100%", borderRadius: "16px" }}
+      // تم تحديد الارتفاع بالبكسل ليظهر العنصر في الصفحة
+      style={{ height: "500px", width: "100%", borderRadius: "16px" }}
     >
-      {/* طبقة الخريطة الداكنة لتتناسب مع تصميمك */}
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
 
-      {/* رسم نقاط المحافظات بناءً على بياناتك */}
-      {Object.entries(governorateData).map(([key, gov]) => (
+      {Object.entries(governorateData || {}).map(([key, gov]) => (
         <CircleMarker
           key={key}
           center={gov.coords}
