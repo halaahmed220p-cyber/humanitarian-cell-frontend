@@ -18,7 +18,7 @@
     background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
     color: var(--text-white);
     padding: 20px;
-    margin-top: 80px; /* لتجنب التداخل مع الهيدر */
+    margin-top: 80px;
 }
 
 .hac-dash-main-container {
@@ -88,30 +88,32 @@
     margin-top: 20px;
 }
 
+/* الشبكة الرباعية (2x2) */
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
 .stat-card {
     background: var(--panel-bg);
-    padding: 15px;
-    border-radius: 12px;
+    padding: 12px;
+    border-radius: 8px;
     text-align: center;
+    border: 1px solid var(--border-color);
 }
 
 .stat-value {
     color: var(--text-white);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 800;
     display: block;
 }
 
 .stat-label {
     color: var(--text-muted);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     margin-top: 4px;
 }
 
@@ -137,17 +139,4 @@
     .hac-dash-main-container {
         grid-template-columns: 1fr;
     }
-}
-/* تعديل الشبكة لتصبح 4 خانات كما في النموذج */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* مصفوفة مربعة */
-    gap: 10px;
-}
-
-.stat-card {
-    background: #1e293b;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
 }
