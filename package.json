@@ -4,23 +4,27 @@
   "private": true,
   "proxy": "http://localhost:5000",
   "type": "module",
-"scripts": {
-  "dev": "vite",
-  "build": "npm install --legacy-peer-deps && vite build",
-  "preview": "vite preview"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "npm install --legacy-peer-deps && vite build",
+    "preview": "vite preview"
+  },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.3",
     "vite": "^8.1.1"
   },
   "dependencies": {
     "axios": "^1.18.1",
+    "chart.js": "^4.5.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "leaflet": "^1.9.4",
     "pg": "^8.22.0",
     "react": "^19.2.7",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.7",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.18.1",
     "react-router-hash-link": "^2.4.3",
     "react-simple-maps": "^3.0.0"
