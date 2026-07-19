@@ -7,17 +7,20 @@ export default function Projects() {
   const location = useLocation();
 
 useEffect(() => {
-    // استخدمي الرابط الكامل للسيرفر كما في المثال
-    fetch('https://humanitarian-cell-frontend.onrender.com/api/projects')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((data) => setProjects(data))
-      .catch((err) => console.error("Error fetching projects:", err));
-  }, []);
+  fetch('https://humanitarian-cell-frontend.onrender.com/api/projects')
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("البيانات المستلمة:", data); // تحققي من الكونسول
+      setProjects(data);
+    })
+    .catch((err) => {
+      console.error("خطأ في الاتصال:", err);
+      // إذا فشل الاتصال، ضعي بيانات تجريبية (Hardcoded) للتأكد أن التصميم يعمل
+      setProjects([
+        { id: 1, title: 'مشروع تجريبي', description: 'وصف تجريبي', status: 'جديد', location: 'تعز', icon: 'fa-book' }
+      ]);
+    });
+}, []);
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
