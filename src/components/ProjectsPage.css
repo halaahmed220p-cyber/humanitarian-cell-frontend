@@ -68,5 +68,7 @@
     min-height: auto;
     padding: 20px;
     width: 100%;
-    margin-top: 80px; /* هذا الهامش سيمنع التداخل مع الهيدر */
+    /* الهامش العلوي يجب أن يكون أكبر من ارتفاع الهيدر (80px) */
+    margin-top: 100px; 
+    padding-top: 20px;
 }
