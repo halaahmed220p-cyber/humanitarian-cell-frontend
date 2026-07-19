@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import MapComponent from '../components/MapComponent'; 
-import ProjectCard from './Projects'; // تأكدي أن اسم الملف هو Projects.jsx في نفس المجلد
+import ProjectCard from './Projects'; 
 
 const ProjectsPage = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // تم تصحيح الرابط بإضافة علامات الـ backticks (`)
   const fetchProjectsByLocation = async (locationName) => {
     setLoading(true);
     try {
       const response = await fetch(`https://humanitarian-cell-ftontend.onrender.com/api/projects/${locationName}`);
       const data = await response.json();
-      setProjects(data);
+      
+      // التعديل: التأكد دائماً أننا نضع مصفوفة في الحالة (State)
+      setProjects(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("خطأ في جلب المشاريع:", err);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
@@ -39,9 +41,11 @@ const ProjectsPage = () => {
             <p>جاري التحميل...</p>
           ) : (
             <div className="projects-grid">
-              {projects.length > 0 ? (
-                projects.map((project) => (
-                  <ProjectCard key={project.id} data={project} />
+              {/* التعديل: فحص وجود المصفوفة قبل الـ map */}
+              {projects && projects.length > 0 ? (
+                projects.map((project, index) => (
+                  // استخدام index كـ key احتياطي إذا لم يوجد id
+                  <ProjectCard key={project?.id || index} data={project || {}} />
                 ))
               ) : (
                 <p>لا توجد مشاريع في هذه المحافظة حالياً.</p>
