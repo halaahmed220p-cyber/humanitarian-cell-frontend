@@ -7,13 +7,13 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
     <MapContainer 
       center={[15.5, 45.5]} 
       zoom={6} 
-      // تم تحديد الارتفاع بالبكسل ليظهر العنصر في الصفحة
       style={{ height: "500px", width: "100%", borderRadius: "16px" }}
     >
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
 
+      {/* تحويل البيانات من المصفوفة (المجلوبة من الـ API) إلى Markers */}
       {Object.entries(governorateData || {}).map(([key, gov]) => (
         <CircleMarker
           key={key}
