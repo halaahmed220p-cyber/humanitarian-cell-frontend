@@ -61,3 +61,12 @@
         grid-template-columns: 1fr;
     }
 }
+.hac-dash-wrapper {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
+    color: #f8fafc;
+    min-height: auto;
+    padding: 20px;
+    width: 100%;
+    margin-top: 80px; /* هذا الهامش سيمنع التداخل مع الهيدر */
+}

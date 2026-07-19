@@ -39,14 +39,13 @@ function App() {
         {/* صفحة المشاريع: لوحة تحكم مستقلة بملء الشاشة وبدون تداخل */}
         // داخل ملف App.js
 <Route path="/projects" element={
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div>
         <Header />
-        <div style={{ flex: '1' }}>
-            <ProjectsPage />
-        </div>
+        <ProjectsPage />
         <Footer />
     </div>
 } />
+
       </Routes>
     </BrowserRouter>
   );
