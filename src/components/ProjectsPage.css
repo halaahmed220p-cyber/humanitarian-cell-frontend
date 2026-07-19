@@ -72,3 +72,36 @@
     margin-top: 100px; 
     padding-top: 20px;
 }
+
+/* تذييل الخريطة التفاعلية */
+.hac-dash-map-footer {
+    background: rgba(30, 41, 59, 0.9);
+    padding: 10px 20px;
+    border-radius: 0 0 16px 16px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #94a3b8;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* بطاقات مؤشرات الأداء في القائمة الجانبية */
+.hac-dash-indicator-card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border-right: 4px solid #d4af37; /* لمسة ذهبية */
+}
+
+.hac-dash-indicator-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.hac-dash-indicator-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+}
