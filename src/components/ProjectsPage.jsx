@@ -48,26 +48,26 @@ const ProjectsPage = () => {
                         </div>
 
                        {currentGov && (
-    <div className="performance-panel active">
-        <div className="card-header">
-            <h3>مؤشر الأداء: {currentGov.name}</h3>
-        </div>
-        <div className="performance-ring-container">
-            {/* الدائرة التحليلية */}
-            <div className="ring-wrapper">
-                 {/* يمكنكِ هنا إضافة الرسم البياني أو الاكتفاء بالبطاقات كما طلبتِ */}
-                 <div className="stat-value" style={{fontSize: '2rem'}}>{currentGov.completion}%</div>
+    <div className="hac-dash-performance-panel">
+        <h3>مؤشر الأداء: {currentGov.name}</h3>
+        
+        {/* البطاقات العلوية */}
+        <div className="stats-grid">
+            <div className="stat-card">
+                <span className="stat-value">95</span>
+                <span className="stat-label">مليون $</span>
             </div>
-            {/* البطاقات المربعة كما في صورتك */}
-            <div className="performance-stats">
-                <div className="perf-stat">
-                    <div className="perf-stat-value">95</div>
-                    <div className="perf-stat-label">مليون $</div>
-                </div>
-                <div className="perf-stat">
-                    <div className="perf-stat-value">{currentGov.projects}</div>
-                    <div className="perf-stat-label">المشاريع</div>
-                </div>
+            <div className="stat-card">
+                <span className="stat-value">{currentGov.projects}</span>
+                <span className="stat-label">المشاريع</span>
+            </div>
+        </div>
+
+        {/* الرسم البياني الدائري السفلي - لإضافة هذا الجزء */}
+        <div className="chart-container" style={{ marginTop: '20px' }}>
+            {/* هنا يجب استدعاء المكون الذي يرسم الدائرة، أو وضع صورة توضيحية مؤقتاً */}
+            <div className="donut-chart-placeholder">
+                <span className="percentage-text">{currentGov.completion}%</span>
             </div>
         </div>
     </div>

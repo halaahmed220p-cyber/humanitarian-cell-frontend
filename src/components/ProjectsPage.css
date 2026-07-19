@@ -268,3 +268,36 @@
     font-size: 0.75rem;
     color: #94a3b8;
 }
+
+/* تنسيق البطاقات المربعة */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: #0f172a; /* اللون الداكن المميز */
+    border: 1px solid #334155;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* تنسيق الرسم البياني (دائرة الإنجاز) */
+.donut-chart-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 8px solid #f59e0b; /* اللون الذهبي */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.percentage-text {
+    font-weight: 800;
+    font-size: 1.2rem;
+}
