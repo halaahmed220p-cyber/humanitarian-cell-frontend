@@ -1,10 +1,11 @@
 @import 'leaflet/dist/leaflet.css';
 
+/* تعديل الارتفاع ليتناسب مع وجود هيدر وفوتر */
 .hac-dash-wrapper {
     font-family: 'Tajawal', sans-serif;
     background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
     color: #f8fafc;
-    min-height: 100vh;
+    min-height: auto; 
     padding: 20px;
     width: 100%;
 }
@@ -14,6 +15,7 @@
     justify-content: center;
     gap: 20px;
     margin-bottom: 30px;
+    flex-wrap: wrap; /* للسماح للعناصر بالالتفاف في الشاشات الصغيرة */
 }
 
 .hac-dash-kpi-card {
@@ -33,7 +35,7 @@
 }
 
 .hac-dash-map-wrapper {
-    height: 500px; /* تحديد ارتفاع الخريطة لضمان ظهورها */
+    height: 450px; /* تم تقليله قليلاً ليناسب وجود الهيدر والفوتر */
     width: 100%;
     border-radius: 16px;
     overflow: hidden;
@@ -43,6 +45,7 @@
 .hac-dash-card-title {
     margin-bottom: 15px;
     font-size: 1.2rem;
+    color: #f8fafc;
 }
 
 .hac-dash-panel {
@@ -50,4 +53,11 @@
     padding: 20px;
     border-radius: 16px;
     height: 100%;
+}
+
+/* إضافة تنسيق للتجاوب مع الشاشات الصغيرة */
+@media (max-width: 900px) {
+    .hac-dash-main-container {
+        grid-template-columns: 1fr;
+    }
 }

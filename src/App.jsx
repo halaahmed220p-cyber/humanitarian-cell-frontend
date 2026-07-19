@@ -37,7 +37,16 @@ function App() {
         <Route path="/donate" element={<><Header /><Donation /><Footer /></>} />
         
         {/* صفحة المشاريع: لوحة تحكم مستقلة بملء الشاشة وبدون تداخل */}
-        <Route path="/projects" element={<ProjectsPage />} />
+        // داخل ملف App.js
+<Route path="/projects" element={
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Header />
+        <div style={{ flex: '1' }}>
+            <ProjectsPage />
+        </div>
+        <Footer />
+    </div>
+} />
       </Routes>
     </BrowserRouter>
   );
