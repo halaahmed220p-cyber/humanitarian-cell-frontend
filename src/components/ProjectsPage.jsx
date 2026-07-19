@@ -3,7 +3,7 @@ import MapComponent from './MapComponent';
 import './ProjectsPage.css';
 
 const ProjectsPage = () => {
-    // بيانات تجريبية (يتم تحديثها لاحقاً بربطها بالسيرفر)
+    // تم تحديث البيانات لتشمل المحافظات التي تظهر في النموذج
     const [govData] = useState({
         taiz: { name: 'تعز', coords: [13.57, 44.01], projects: 18, completion: 65 },
         sanaa: { name: 'صنعاء', coords: [15.36, 44.19], projects: 15, completion: 75 },
@@ -15,84 +15,44 @@ const ProjectsPage = () => {
     });
 
     const [selectedGovProjects, setSelectedGovProjects] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [govName, setGovName] = useState("");
 
-    // دالة التعامل مع النقر على المحافظة
     const handleSelectGovernorate = (govId) => {
-        setLoading(true);
-        setGovName(govData[govId]?.name || "المحافظة");
-        
-        fetch(`http://localhost:3000/api/projects/${govId}`)
-            .then(res => res.json())
-            .then(data => {
-                setSelectedGovProjects(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("خطأ:", err);
-                setLoading(false);
-            });
+        setGovName(govData[govId]?.name);
+        // محاكاة جلب البيانات
+        setSelectedGovProjects([{ id: 1, title: 'مشروع تجريبي 1' }, { id: 2, title: 'مشروع تجريبي 2' }]);
     };
 
     return (
         <div className="hac-dash-wrapper">
-            <header className="hac-dash-stats-header">
-                <div className="hac-dash-kpi-container">
-                    <div className="hac-dash-kpi-card">
-                        <div className="hac-dash-kpi-value">207</div>
-                        <div className="hac-dash-kpi-label">إجمالي المشاريع</div>
-                    </div>
-                    <div className="hac-dash-kpi-card">
-                        <div className="hac-dash-kpi-value">1002$</div>
-                        <div className="hac-dash-kpi-label">الميزانية</div>
-                    </div>
-                    <div className="hac-dash-kpi-card">
-                        <div className="hac-dash-kpi-value">58%</div>
-                        <div className="hac-dash-kpi-label">نسبة الإنجاز</div>
-                    </div>
-                </div>
-            </header>
-
             <main className="hac-dash-main-container">
                 <div className="hac-dash-map-section">
-                    <h2 className="hac-dash-card-title">الخريطة التفاعلية للجمهورية اليمنية</h2>
                     <div className="hac-dash-map-wrapper">
-                        <MapComponent 
-                            governorateData={govData} 
-                            onSelectGovernorate={handleSelectGovernorate} 
-                        />
-                        {/* تذييل الخريطة الاحترافي */}
-                        <div className="hac-dash-map-footer">
-                            <span>اضغط على أي محافظة لعرض مشاريعها</span>
-                            <span>تحريك الخريطة: اسحب بالفأرة</span>
-                        </div>
+                        <MapComponent governorateData={govData} onSelectGovernorate={handleSelectGovernorate} />
+                    </div>
+                    <div className="hac-dash-map-footer">
+                        اضغط على أي محافظة لعرض مشاريعها | تكبير/تصغير باستخدام عجلة الفأرة
                     </div>
                 </div>
 
                 <aside className="hac-dash-sidebar">
-    <div className="hac-dash-panel">
-        <h3 className="sidebar-title">المحافظات</h3>
-        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
-        
-        {/* تصنيفات الحالة */}
-        <div className="status-filters">
-            <button className="active">الكل</button>
-            <button>منفذة</button>
-            <button>قيد التنفيذ</button>
-        </div>
-
-        {/* قائمة المحافظات مع الإحصائيات */}
-        <div className="hac-dash-gov-list">
-            {Object.entries(govData).map(([key, gov]) => (
-                <div key={key} className="gov-list-item" onClick={() => handleSelectGovernorate(key)}>
-                    <span>{gov.name}</span>
-                    <span className="gov-stat">{gov.projects} مشروع</span>
-                </div>
-            ))}
-        </div>
-    </div>
-</aside>
+                    <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
+                    <div className="hac-dash-gov-list">
+                        {Object.entries(govData).map(([key, gov]) => (
+                            <div key={key} className="gov-list-item" onClick={() => handleSelectGovernorate(key)}>
+                                <span>{gov.name}</span>
+                                <span>{gov.projects} مشروع</span>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {selectedGovProjects && (
+                        <div className="selected-gov-details">
+                            <h4>مشاريع {govName}</h4>
+                            <p>إجمالي المشاريع: {selectedGovProjects.length}</p>
+                        </div>
+                    )}
+                </aside>
             </main>
         </div>
     );

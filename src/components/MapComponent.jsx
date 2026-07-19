@@ -7,6 +7,8 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
     <MapContainer 
       center={[15.5, 45.5]} 
       zoom={6} 
+      dragging={true}
+    scrollWheelZoom={true}
       style={{ height: "100%", width: "100%", borderRadius: "16px" }} // تم ضبطها لـ 100% لتملأ الحاوية الخارجية
     >
       <TileLayer
