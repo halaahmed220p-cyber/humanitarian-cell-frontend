@@ -1,275 +1,93 @@
+/* =========================================================
+   ملف تنسيقات لوحة تحكم المشاريع التنموية (EVOSYS)
+   ========================================================= */
+
 @import 'leaflet/dist/leaflet.css';
 
-/* تعديل الارتفاع ليتناسب مع وجود هيدر وفوتر */
+:root {
+    --bg-dark: #0f172a;
+    --panel-bg: #1e293b;
+    --accent-gold: #d4af37;
+    --text-white: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+}
+
 .hac-dash-wrapper {
     font-family: 'Tajawal', sans-serif;
     background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
-    color: #f8fafc;
-    min-height: auto; 
+    color: var(--text-white);
     padding: 20px;
-    width: 100%;
-}
-
-.hac-dash-kpi-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 30px;
-    flex-wrap: wrap; /* للسماح للعناصر بالالتفاف في الشاشات الصغيرة */
-}
-
-.hac-dash-kpi-card {
-    background: rgba(30,41,59,0.8);
-    padding: 20px;
-    border-radius: 16px;
-    text-align: center;
-    min-width: 150px;
+    margin-top: 80px; /* لتجنب التداخل مع الهيدر */
 }
 
 .hac-dash-main-container {
     display: grid;
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 1fr 400px;
     gap: 24px;
     max-width: 1400px;
     margin: 0 auto;
 }
 
+/* الخريطة */
 .hac-dash-map-wrapper {
-    height: 450px; /* تم تقليله قليلاً ليناسب وجود الهيدر والفوتر */
+    height: 450px;
     width: 100%;
-    border-radius: 16px;
+    border-radius: 16px 16px 0 0;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid var(--border-color);
 }
 
-.hac-dash-card-title {
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    color: #f8fafc;
-}
-
-.hac-dash-panel {
-    background: rgba(30,41,59,0.8);
-    padding: 20px;
-    border-radius: 16px;
-    height: 100%;
-}
-
-/* إضافة تنسيق للتجاوب مع الشاشات الصغيرة */
-@media (max-width: 900px) {
-    .hac-dash-main-container {
-        grid-template-columns: 1fr;
-    }
-}
-.hac-dash-wrapper {
-    font-family: 'Tajawal', sans-serif;
-    background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
-    color: #f8fafc;
-    min-height: auto;
-    padding: 20px;
-    width: 100%;
-    /* الهامش العلوي يجب أن يكون أكبر من ارتفاع الهيدر (80px) */
-    margin-top: 100px; 
-    padding-top: 20px;
-}
-
-.hac-dash-sidebar {
-    background: #1e293b;
-    border-radius: 12px;
-    padding: 20px;
-    color: #f8fafc;
-}
-
-/* تذييل الخريطة التفاعلية */
 .hac-dash-map-footer {
-    background: #1e293b;
+    background: var(--panel-bg);
     padding: 15px;
     text-align: center;
     border-radius: 0 0 12px 12px;
     font-size: 14px;
-    color: #94a3b8;
-    border-top: 1px solid #334155;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
 }
 
-/* بطاقات مؤشرات الأداء في القائمة الجانبية */
-.hac-dash-indicator-card {
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    border-right: 4px solid #d4af37; /* لمسة ذهبية */
-}
-.selected-gov-details {
-    background: #0f172a;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    border: 1px solid #334155;
+/* القائمة الجانبية (Sidebar) */
+.hac-dash-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.hac-dash-indicator-card h4 {
-    margin: 0 0 10px 0;
-    font-size: 14px;
-    color: #cbd5e1;
-}
-
-.hac-dash-indicator-value {
-    font-size: 20px;
-    font-weight: 800;
-    color: #ffffff;
+.hac-dash-panel {
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
 }
 
 .gov-list-item {
     display: flex;
     justify-content: space-between;
     padding: 12px;
-    background: #0f172a;
+    background: var(--bg-dark);
     margin-bottom: 8px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     border-right: 3px solid transparent;
+    transition: all 0.3s;
 }
-.gov-list-item:hover {
+
+.gov-list-item:hover, .gov-list-item.active {
     background: #334155;
-    border-right: 3px solid #d4af37;
-}
-.status-filters button {
-    background: #0f172a;
-    color: white;
-    border: 1px solid #334155;
-    padding: 5px 15px;
-    margin: 5px;
-    border-radius: 4px;
+    border-right: 3px solid var(--accent-gold);
 }
 
-/* النافذة المنبثقة فوق الخريطة */
-.map-info-card {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 12px;
-    color: white;
-    width: 250px;
-    z-index: 1000;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    border: 1px solid #334155;
-}
-
-/* بطاقة الأداء الرئيسية */
+/* بطاقات مؤشر الأداء (Performance Panel) */
 .hac-dash-performance-panel {
-    background: #182130; /* لون أغمق قليلاً من الخلفية */
-    border: 1px solid #334155;
-    padding: 20px;
-    border-radius: 12px;
-}
-
-/* الأرقام الاحترافية */
-.stat-value {
-    color: #ffffff;
-    font-size: 1.5rem;
-    font-weight: 800;
-}
-
-.stat-label {
-    color: #94a3b8; /* رمادي فاتح */
-    font-size: 0.75rem;
-}
-
-/* جعل الشريط السفلي ذهبي */
-.completion-fill {
-    background: #d4af37; /* اللون الذهبي المميز */
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.stat-card {
-    background: #1e293b;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.stat-value { font-weight: bold; font-size: 1.2rem; display: block; }
-.stat-label { font-size: 0.8rem; color: #94a3b8; }
-.performance-chart-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 15px;
-}
-
-.donut-chart {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: conic-gradient(#f59e0b var(--percent), #1e293b 0);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.donut-chart::before {
-    content: "";
-    width: 70px;
-    height: 70px;
     background: #0f172a;
-    border-radius: 50%;
-    position: absolute;
-}
-
-.donut-chart span { position: relative; font-weight: bold; }
-
-.completion-bar { background: #0f172a; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 10px; position: relative; }
-.completion-fill { background: #d4af37; height: 100%; transition: width 0.5s ease; }
-/* بطاقات مؤشر الأداء - التنسيق المربع المطابق */
-.performance-panel {
-    background: #1e293b;
+    border: 1px solid var(--border-color);
     padding: 20px;
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
     margin-top: 20px;
 }
 
-.performance-ring-container {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.performance-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    width: 100%;
-}
-
-.perf-stat {
-    background: rgba(15, 23, 42, 0.5);
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.perf-stat-value {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #ffffff;
-}
-
-.perf-stat-label {
-    font-size: 0.75rem;
-    color: #94a3b8;
-}
-
-/* تنسيق البطاقات المربعة */
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -278,26 +96,45 @@
 }
 
 .stat-card {
-    background: #0f172a; /* اللون الداكن المميز */
-    border: 1px solid #334155;
+    background: var(--panel-bg);
     padding: 15px;
     border-radius: 12px;
     text-align: center;
 }
 
-/* تنسيق الرسم البياني (دائرة الإنجاز) */
+.stat-value {
+    color: var(--text-white);
+    font-size: 1.3rem;
+    font-weight: 800;
+    display: block;
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+/* الرسم البياني الدائري (Donut Chart) */
 .donut-chart-placeholder {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
-    border: 8px solid #f59e0b; /* اللون الذهبي */
-    margin: 0 auto;
+    border: 8px solid var(--accent-gold);
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto;
 }
 
 .percentage-text {
-    font-weight: 800;
+    font-weight: 900;
     font-size: 1.2rem;
+}
+
+/* التجاوب */
+@media (max-width: 900px) {
+    .hac-dash-main-container {
+        grid-template-columns: 1fr;
+    }
 }

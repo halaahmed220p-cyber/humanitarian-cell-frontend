@@ -47,31 +47,31 @@ const ProjectsPage = () => {
                             ))}
                         </div>
 
-                       {currentGov && (
-    <div className="hac-dash-performance-panel">
-        <h3>مؤشر الأداء: {currentGov.name}</h3>
-        
-        {/* البطاقات العلوية */}
-        <div className="stats-grid">
-            <div className="stat-card">
-                <span className="stat-value">95</span>
-                <span className="stat-label">مليون $</span>
-            </div>
-            <div className="stat-card">
-                <span className="stat-value">{currentGov.projects}</span>
-                <span className="stat-label">المشاريع</span>
-            </div>
-        </div>
+                        {currentGov && (
+                            <div className="hac-dash-performance-panel">
+                                <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
+                                
+                                {/* البطاقات الإحصائية المربعة */}
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <span className="stat-value">95</span>
+                                        <span className="stat-label">مليون $</span>
+                                    </div>
+                                    <div className="stat-card">
+                                        <span className="stat-value">{currentGov.projects}</span>
+                                        <span className="stat-label">المشاريع</span>
+                                    </div>
+                                </div>
 
-        {/* الرسم البياني الدائري السفلي - لإضافة هذا الجزء */}
-        <div className="chart-container" style={{ marginTop: '20px' }}>
-            {/* هنا يجب استدعاء المكون الذي يرسم الدائرة، أو وضع صورة توضيحية مؤقتاً */}
-            <div className="donut-chart-placeholder">
-                <span className="percentage-text">{currentGov.completion}%</span>
-            </div>
-        </div>
-    </div>
-)}
+                                {/* مؤشر النسبة الدائري */}
+                                <div className="chart-container">
+                                    <div className="donut-chart-placeholder">
+                                        <span className="percentage-text">{currentGov.completion}%</span>
+                                    </div>
+                                    <span className="chart-label">نسبة الإنجاز</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </aside>
             </main>
