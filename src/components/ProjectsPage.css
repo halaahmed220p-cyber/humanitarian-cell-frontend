@@ -1,53 +1,53 @@
-/* عزل كامل للتنسيقات داخل هذا الكلاس فقط */
 @import 'leaflet/dist/leaflet.css';
-.projects-page-wrapper {
+
+.hac-dash-wrapper {
     font-family: 'Tajawal', sans-serif;
     background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
     color: #f8fafc;
-    min-height: 80vh;
+    min-height: 100vh;
     padding: 20px;
     width: 100%;
 }
 
-.projects-page-wrapper .stats-section-container {
-    padding: 20px 40px;
+.hac-dash-kpi-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
-}
-
-.projects-page-wrapper .kpi-container {
-    display: flex;
     gap: 20px;
-    width: 100%;
-    max-width: 1200px;
-    justify-content: center;
+    margin-bottom: 30px;
 }
 
-.projects-page-wrapper .main-container {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 24px;
-    padding: 24px 40px;
-    max-width: 1800px;
-    margin: 0 auto;
-    height: 70vh; /* ارتفاع محدد ليناسب وجود الهيدر والفوتر */
-}
-
-/* باقي التنسيقات (الخريطة والبانلز) */
-.projects-page-wrapper .map-card, 
-.projects-page-wrapper .panel {
-    background: rgba(30,41,59,0.85);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px;
-    padding: 24px;
-}
-
-.projects-page-wrapper #map {
-    height: 100%;
-    min-height: 300px;
+.hac-dash-kpi-card {
+    background: rgba(30,41,59,0.8);
+    padding: 20px;
     border-radius: 16px;
+    text-align: center;
+    min-width: 150px;
 }
 
-/* التنسيقات الفرعية الأخرى (مثل .gov-item, .project-card) احتفظي بها كما هي في ملفك السابق */
+.hac-dash-main-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hac-dash-map-wrapper {
+    height: 500px; /* تحديد ارتفاع الخريطة لضمان ظهورها */
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.hac-dash-card-title {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.hac-dash-panel {
+    background: rgba(30,41,59,0.8);
+    padding: 20px;
+    border-radius: 16px;
+    height: 100%;
+}

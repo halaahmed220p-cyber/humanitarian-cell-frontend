@@ -1,30 +1,42 @@
-import React, { useEffect } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState } from 'react';
+import MapComponent from './MapComponent';
 import './ProjectsPage.css';
 
 const ProjectsPage = () => {
-    useEffect(() => {
-        // نضع الكود داخل setTimeout لضمان تحميل العنصر في الدوم
-        const timer = setTimeout(() => {
-            const mapContainer = document.getElementById('map');
-            if (mapContainer && !mapContainer._leaflet_id) {
-                const map = L.map('map').setView([15.5, 45.5], 6);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-            }
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
+    // بيانات تجريبية (يتم استبدالها لاحقاً ببيانات الـ API)
+    const [govData] = useState({
+        taiz: { name: 'تعز', coords: [13.57, 44.01], projects: 18, completion: 65 },
+        sanaa: { name: 'صنعاء', coords: [15.36, 44.19], projects: 15, completion: 75 }
+    });
 
     return (
-        <div className="projects-page-wrapper">
-            <div className="main-container">
-                <div className="map-card">
-                    <div className="card-title">الخريطة التفاعلية</div>
-                    {/* هنا الارتفاع ثابت ومباشر */}
-                    <div id="map" style={{ height: "400px", width: "100%" }}></div>
+        <div className="hac-dash-wrapper">
+            <div className="hac-dash-stats-section">
+                <div className="hac-dash-kpi-container">
+                    <div className="hac-dash-kpi-card"><div className="hac-dash-kpi-value">207</div><div className="hac-dash-kpi-label">إجمالي المشاريع</div></div>
+                    <div className="hac-dash-kpi-card"><div className="hac-dash-kpi-value">1002$</div><div className="hac-dash-kpi-label">الميزانية</div></div>
+                    <div className="hac-dash-kpi-card"><div className="hac-dash-kpi-value">58%</div><div className="hac-dash-kpi-label">نسبة الإنجاز</div></div>
                 </div>
             </div>
+
+            <main className="hac-dash-main-container">
+                <div className="hac-dash-map-section">
+                    <div className="hac-dash-card-title">الخريطة التفاعلية للجمهورية اليمنية</div>
+                    <div className="hac-dash-map-wrapper">
+                        <MapComponent 
+                            governorateData={govData} 
+                            onSelectGovernorate={(id) => console.log("تم اختيار:", id)} 
+                        />
+                    </div>
+                </div>
+
+                <div className="hac-dash-sidebar">
+                    <div className="hac-dash-panel">
+                        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
+                        <div className="hac-dash-gov-list"></div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 };
