@@ -47,25 +47,31 @@ const ProjectsPage = () => {
                             ))}
                         </div>
 
-                        {currentGov && (
-                            <div className="hac-dash-performance-panel">
-                                <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
-                                <div className="stats-grid">
-                                    <div className="stat-card">
-                                        <span className="stat-value">{currentGov.projects}</span>
-                                        <span className="stat-label">المشاريع</span>
-                                    </div>
-                                    <div className="stat-card">
-                                        <span className="stat-value">95</span>
-                                        <span className="stat-label">مليون $</span>
-                                    </div>
-                                </div>
-                                <div className="completion-bar">
-                                    <div className="completion-fill" style={{ width: `${currentGov.completion}%` }}></div>
-                                    <span>نسبة الإنجاز: {currentGov.completion}%</span>
-                                </div>
-                            </div>
-                        )}
+                       {currentGov && (
+    <div className="performance-panel active">
+        <div className="card-header">
+            <h3>مؤشر الأداء: {currentGov.name}</h3>
+        </div>
+        <div className="performance-ring-container">
+            {/* الدائرة التحليلية */}
+            <div className="ring-wrapper">
+                 {/* يمكنكِ هنا إضافة الرسم البياني أو الاكتفاء بالبطاقات كما طلبتِ */}
+                 <div className="stat-value" style={{fontSize: '2rem'}}>{currentGov.completion}%</div>
+            </div>
+            {/* البطاقات المربعة كما في صورتك */}
+            <div className="performance-stats">
+                <div className="perf-stat">
+                    <div className="perf-stat-value">95</div>
+                    <div className="perf-stat-label">مليون $</div>
+                </div>
+                <div className="perf-stat">
+                    <div className="perf-stat-value">{currentGov.projects}</div>
+                    <div className="perf-stat-label">المشاريع</div>
+                </div>
+            </div>
+        </div>
+    </div>
+)}
                     </div>
                 </aside>
             </main>

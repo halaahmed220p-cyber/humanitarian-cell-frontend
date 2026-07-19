@@ -229,3 +229,42 @@
 
 .completion-bar { background: #0f172a; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 10px; position: relative; }
 .completion-fill { background: #d4af37; height: 100%; transition: width 0.5s ease; }
+/* بطاقات مؤشر الأداء - التنسيق المربع المطابق */
+.performance-panel {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 20px;
+}
+
+.performance-ring-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.performance-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+}
+
+.perf-stat {
+    background: rgba(15, 23, 42, 0.5);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.perf-stat-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.perf-stat-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
