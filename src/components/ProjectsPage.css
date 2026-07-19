@@ -181,3 +181,33 @@
 
 .stat-value { font-weight: bold; font-size: 1.2rem; display: block; }
 .stat-label { font-size: 0.8rem; color: #94a3b8; }
+.performance-chart-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.donut-chart {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(#f59e0b var(--percent), #1e293b 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.donut-chart::before {
+    content: "";
+    width: 70px;
+    height: 70px;
+    background: #0f172a;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.donut-chart span { position: relative; font-weight: bold; }
+
+.completion-bar { background: #0f172a; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 10px; position: relative; }
+.completion-fill { background: #d4af37; height: 100%; transition: width 0.5s ease; }

@@ -3,7 +3,6 @@ import MapComponent from './MapComponent';
 import './ProjectsPage.css';
 
 const ProjectsPage = () => {
-    // تم تحديث البيانات لتشمل المحافظات التي تظهر في النموذج
     const [govData] = useState({
         taiz: { name: 'تعز', coords: [13.57, 44.01], projects: 18, completion: 65 },
         sanaa: { name: 'صنعاء', coords: [15.36, 44.19], projects: 15, completion: 75 },
@@ -14,63 +13,61 @@ const ProjectsPage = () => {
         marib: { name: 'مأرب', coords: [15.45, 45.32], projects: 8, completion: 45 },
     });
 
-    const [selectedGovProjects, setSelectedGovProjects] = useState(null);
-    const [govName, setGovName] = useState("");
+    const [selectedKey, setSelectedKey] = useState(null);
 
-    const handleSelectGovernorate = (govId) => {
-        setGovName(govData[govId]?.name);
-        // محاكاة جلب البيانات
-        setSelectedGovProjects([{ id: 1, title: 'مشروع تجريبي 1' }, { id: 2, title: 'مشروع تجريبي 2' }]);
+    const handleSelectGovernorate = (key) => {
+        setSelectedKey(key);
     };
+
+    const currentGov = selectedKey ? govData[selectedKey] : null;
 
     return (
         <div className="hac-dash-wrapper">
             <main className="hac-dash-main-container">
-                <div className="hac-dash-map-section">
+                <section className="hac-dash-map-section">
                     <div className="hac-dash-map-wrapper">
                         <MapComponent governorateData={govData} onSelectGovernorate={handleSelectGovernorate} />
                     </div>
                     <div className="hac-dash-map-footer">
                         اضغط على أي محافظة لعرض مشاريعها | تكبير/تصغير باستخدام عجلة الفأرة
                     </div>
-                </div>
+                </section>
 
-              <aside className="hac-dash-sidebar">
-    <div className="hac-dash-panel">
-        <h3 className="sidebar-title">المحافظات</h3>
-        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
-        
-        {/* قائمة المحافظات */}
-        <div className="hac-dash-gov-list">
-            {Object.entries(govData).map(([key, gov]) => (
-                <div key={key} className="gov-list-item" onClick={() => handleSelectGovernorate(key)}>
-                    <span>{gov.name}</span>
-                    <span className="gov-stat">{gov.projects} مشروع</span>
-                </div>
-            ))}
-        </div>
+                <aside className="hac-dash-sidebar">
+                    <div className="hac-dash-panel">
+                        <h3 className="sidebar-title">المحافظات</h3>
+                        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
 
-        {/* قسم مؤشر الأداء - يظهر فقط عند اختيار محافظة */}
-        {selectedGovProjects && (
-            <div className="hac-dash-performance-panel">
-                <h3>مؤشر الأداء: {govName}</h3>
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <span className="stat-value">{govData[Object.keys(govData).find(k => govData[k].name === govName)]?.projects || 0}</span>
-                        <span className="stat-label">المشاريع</span>
+                        <div className="hac-dash-gov-list">
+                            {Object.entries(govData).map(([key, gov]) => (
+                                <div key={key} className={`gov-list-item ${selectedKey === key ? 'active' : ''}`} onClick={() => handleSelectGovernorate(key)}>
+                                    <span>{gov.name}</span>
+                                    <span className="gov-stat">{gov.projects} مشروع</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {currentGov && (
+                            <div className="hac-dash-performance-panel">
+                                <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <span className="stat-value">{currentGov.projects}</span>
+                                        <span className="stat-label">المشاريع</span>
+                                    </div>
+                                    <div className="stat-card">
+                                        <span className="stat-value">95</span>
+                                        <span className="stat-label">مليون $</span>
+                                    </div>
+                                </div>
+                                <div className="completion-bar">
+                                    <div className="completion-fill" style={{ width: `${currentGov.completion}%` }}></div>
+                                    <span>نسبة الإنجاز: {currentGov.completion}%</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <div className="stat-card">
-                        <span className="stat-value">95</span>
-                        <span className="stat-label">مليون $</span>
-                    </div>
-                </div>
-                <div className="completion-bar">
-                    <span>نسبة الإنجاز: {govData[Object.keys(govData).find(k => govData[k].name === govName)]?.completion || 0}%</span>
-                </div>
-            </div>
-        )}
-    </div>
-</aside>
+                </aside>
             </main>
         </div>
     );
