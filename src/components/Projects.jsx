@@ -1,80 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+// بيانات محلية لتجاوز مشاكل الاتصال
+const localProjects = [
+  { id: 1, title: 'السلال الغذائية', description: 'توزيع السلال الغذائية للأسر الأشد احتياجاً.', status: 'مكتمل', location: 'تعز' },
+  { id: 2, title: 'التعليم للجميع', description: 'دعم التعليم الأساسي للأطفال النازحين والفقراء.', status: 'جديد', location: 'عدن' },
+  { id: 3, title: 'التدخلات العاجلة', description: 'استجابة سريعة للأزمات الإنسانية في المناطق المتضررة.', status: 'جاري التنفيذ', location: 'إب' }
+];
+
 export default function Projects() {
-  const [projects, setProjects] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const location = useLocation();
-
-useEffect(() => {
-  fetch('https://humanitarian-cell-frontend.onrender.com/api/projects')
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("البيانات المستلمة:", data); // تحققي من الكونسول
-      setProjects(data);
-    })
-    .catch((err) => {
-      console.error("خطأ في الاتصال:", err);
-      // إذا فشل الاتصال، ضعي بيانات تجريبية (Hardcoded) للتأكد أن التصميم يعمل
-      setProjects([
-        { id: 1, title: 'مشروع تجريبي', description: 'وصف تجريبي', status: 'جديد', location: 'تعز', icon: 'fa-book' }
-      ]);
-    });
-}, []);
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
   const isHomePage = location.pathname === "/";
-  const displayProjects = isHomePage ? projects.slice(0, 3) : projects;
+  const displayProjects = isHomePage ? localProjects.slice(0, 3) : localProjects;
 
   return (
     <section className="projects" id="projects">
       <div className="container">
-        
-        {/* إضافة قسم العنوان هنا ليظهر في كلاً من الصفحة الرئيسية وصفحة المشاريع */}
         <div className="section-header">
           <span className="section-label">مشاريعنا</span>
-          <h2 className="section-title">
-            {isHomePage ? "مشاريعنا الأحدث" : "جميع المشاريع"}
-          </h2>
+          <h2 className="section-title">{isHomePage ? "مشاريعنا الأحدث" : "جميع المشاريع"}</h2>
         </div>
 
         <div className="projects-grid">
           {displayProjects.map((project) => (
             <div key={project.id} className="project-card">
-              <div className="project-image">
+              <div className="project-image" style={{ background: '#003366', height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span className="project-badge">{project.status}</span>
-                <i className={`fas ${project.icon}`}></i>
+                {/* استبدال FontAwesome بـ SVG محلي بسيط */}
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
               </div>
               <div className="project-content">
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
 
-                {/* عرض التفاصيل فقط في صفحة المشاريع وعند توسيع البطاقة */}
-                {!isHomePage && expandedId === project.id && (
-                  <div className="project-details-expanded" style={{ marginTop: '15px', padding: '10px', borderTop: '1px solid #eee' }}>
-                    <p>{project.full_details || "لا توجد تفاصيل إضافية حالياً."}</p>
-                  </div>
-                )}
-
                 <div className="project-meta">
-                  <span className="project-location">
-                    <i className="fas fa-map-marker-alt"></i> {project.location}
-                  </span>
-
-                  {/* المنطق الشرطي للزر */}
+                  <span className="project-location">📍 {project.location}</span>
+                  
                   {isHomePage ? (
-                    <Link 
-  to="/projects" 
-  className="project-btn"
-  onClick={() => window.scrollTo(0, 0)} // هذا سيجبر المتصفح على الصعود للأعلى
->
-  التفاصيل <i className="fas fa-arrow-left"></i>
-</Link>
+                    <Link to="/projects" className="project-btn" onClick={() => window.scrollTo(0, 0)}>
+                      التفاصيل ←
+                    </Link>
                   ) : (
-                    <button onClick={() => toggleExpand(project.id)} className="project-btn" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <button onClick={() => toggleExpand(project.id)} className="project-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#003366', fontWeight: 'bold' }}>
                       {expandedId === project.id ? "إخفاء التفاصيل ↑" : "التفاصيل ↓"}
                     </button>
                   )}
