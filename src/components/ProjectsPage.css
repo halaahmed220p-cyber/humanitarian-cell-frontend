@@ -59,8 +59,20 @@ body::before {
 .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--accent-light); line-height: 1; }
 .kpi-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
-.main-container { display: grid; grid-template-columns: 1fr 420px; gap: 24px; padding: 24px 40px; max-width: 1800px; margin: 0 auto; position: relative; z-index: 1; height: calc(100vh - 80px); }
-
+/* عدلي هذا الجزء في ملف ProjectsPage.css */
+.main-container {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+    padding: 24px 40px;
+    max-width: 1800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    /* بدلاً من 100vh، اجعليه يحسب المساحة المتبقية */
+    height: calc(100vh - 200px); 
+    min-height: 600px;
+}
 .map-section { display: flex; flex-direction: column; gap: 20px; height: 100%; }
 
 .map-card {
