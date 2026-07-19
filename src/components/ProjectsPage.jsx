@@ -10,7 +10,7 @@ const ProjectsPage = () => {
   const fetchProjectsByLocation = async (locationName) => {
     setLoading(true);
     try {
-      const response = await fetch(`https://humanitarian-cell-ftontend.onrender.com/api/projects/${locationName}`);
+      const response = await fetch(`https://humanitarian-cell-frontend.onrender.com/api/projects/${locationName}`);
       const data = await response.json();
       
       // التعديل: التأكد دائماً أننا نضع مصفوفة في الحالة (State)
