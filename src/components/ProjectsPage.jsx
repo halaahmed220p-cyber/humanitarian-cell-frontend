@@ -4,8 +4,7 @@ import './ProjectsPage.css';
 const ProjectsPage = () => {
     return (
         <div className="projects-page-wrapper">
-            
-            {/* قسم الإحصائيات: أصبح الآن قسماً مستقلاً داخل الصفحة بدلاً من هيدر */}
+            {/* قسم الإحصائيات (KPIs) - تم دمجه داخل الصفحة كقسم مستقل */}
             <div className="stats-section-container">
                 <div className="kpi-container">
                     <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-project-diagram"></i></div><div className="kpi-value" id="totalProjects">0</div><div className="kpi-label">إجمالي المشاريع</div></div>
@@ -14,7 +13,7 @@ const ProjectsPage = () => {
                 </div>
             </div>
 
-            {/* الحاوية الرئيسية (الخريطة + القائمة الجانبية) */}
+            {/* الحاوية الرئيسية للخريطة والقوائم */}
             <main className="main-container">
                 <div className="map-section">
                     <div className="map-card">

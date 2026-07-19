@@ -37,7 +37,12 @@ function App() {
         <Route path="/" element={<HomePage />} />
         
         {/* صفحة المشاريع المستقلة */}
-        <Route path="/projects" element={<ProjectsPage />} />
+        // استبدلي الـ Route الخاص بالمشاريع بهذا الكود:
+<Route path="/projects" element={
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+        <ProjectsPage />
+    </div>
+} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/donate" element={<Donation />} />
       </Routes>
