@@ -1,39 +1,48 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './ProjectsPage.css';
 
 const ProjectsPage = () => {
+    useEffect(() => {
+        // 1. تهيئة الخريطة
+        const map = L.map('map', {
+            center: [15.5, 45.5],
+            zoom: 6,
+            attributionControl: false
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        // 2. تحديث الإحصائيات (KPIs)
+        document.getElementById('totalProjects').innerText = "207";
+        document.getElementById('totalBudget').innerText = "1002$";
+        document.getElementById('completionRate').innerText = "58%";
+
+        return () => map.remove(); // تنظيف عند إغلاق الصفحة
+    }, []);
+
     return (
         <div className="projects-page-wrapper">
-            {/* قسم الإحصائيات (KPIs) - تم دمجه داخل الصفحة كقسم مستقل */}
             <div className="stats-section-container">
                 <div className="kpi-container">
-                    <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-project-diagram"></i></div><div className="kpi-value" id="totalProjects">0</div><div className="kpi-label">إجمالي المشاريع</div></div>
-                    <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-dollar-sign"></i></div><div className="kpi-value" id="totalBudget">$0</div><div className="kpi-label">الميزانية</div></div>
-                    <div className="kpi-card"><div className="kpi-icon"><i className="fas fa-chart-line"></i></div><div className="kpi-value" id="completionRate">0%</div><div className="kpi-label">نسبة الإنجاز</div></div>
+                    <div className="kpi-card"><div className="kpi-value" id="totalProjects">0</div><div className="kpi-label">إجمالي المشاريع</div></div>
+                    <div className="kpi-card"><div className="kpi-value" id="totalBudget">$0</div><div className="kpi-label">الميزانية</div></div>
+                    <div className="kpi-card"><div className="kpi-value" id="completionRate">0%</div><div className="kpi-label">نسبة الإنجاز</div></div>
                 </div>
             </div>
 
-            {/* الحاوية الرئيسية للخريطة والقوائم */}
             <main className="main-container">
                 <div className="map-section">
                     <div className="map-card">
-                        <div className="card-header">
-                            <div className="card-title"><i className="fas fa-globe-asia"></i><span>الخريطة التفاعلية</span></div>
-                        </div>
-                        <div id="map"></div>
+                        <div className="card-title">الخريطة التفاعلية</div>
+                        <div id="map" style={{ height: "400px" }}></div>
                     </div>
                 </div>
-
                 <div className="sidebar">
                     <div className="panel">
-                        <div className="card-header"><div className="card-title"><span>المحافظات</span></div></div>
-                        <input type="text" className="search-box" id="searchGov" placeholder="🔍 البحث..." />
-                        <div className="gov-list" id="govList"></div>
-                    </div>
-                    
-                    <div className="panel projects-panel">
-                        <div className="card-header"><div className="card-title"><span>المشاريع</span></div></div>
-                        <div id="projectsContent"></div>
+                        <input type="text" className="search-box" placeholder="البحث..." />
+                        <div id="govList"></div>
                     </div>
                 </div>
             </main>
