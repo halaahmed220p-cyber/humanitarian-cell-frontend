@@ -48,20 +48,18 @@ const ProjectsPage = () => {
                         </div>
 
                     {currentGov && (
-    <div className="hac-dash-performance-panel">
+ <div className="hac-dash-performance-panel">
     <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
-
-    {/* الشبكة الرباعية */}
-    <div className="stats-grid">
-        <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
-        <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
-        <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
-        <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
-    </div>
-
-    {/* الدائرة تحت الشبكة */}
-    <div className="donut-chart-placeholder">
-        <span className="percentage-text">{currentGov.completion}%</span>
+    
+    {/* حاوية تجمع البطاقات + الدائرة في صف واحد */}
+    <div className="top-performance-row">
+        <div className="stats-grid">
+            <div className="stat-card">...</div>
+            <div className="stat-card">...</div>
+            <div className="stat-card">...</div>
+            <div className="stat-card">...</div>
+        </div>
+        <div className="donut-chart-placeholder">...</div>
     </div>
 </div>
 )}
