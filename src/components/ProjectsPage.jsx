@@ -49,29 +49,29 @@ const ProjectsPage = () => {
 
                     {currentGov && (
     <div className="hac-dash-performance-panel">
-        {/* 1. العنوان والخط */}
-        <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
-        <div className="title-divider"></div> {/* الخط تحت العنوان */}
+    <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
+    <div className="title-divider"></div>
 
-        {/* 2. البطاقة الكبيرة (Container) التي تحوي الشبكة والدائرة الصغيرة */}
-        <div className="stats-inner-container">
-            <div className="stats-grid">
-                <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
-                <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
-                <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
-                <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
-            </div>
-            {/* الدائرة الصغيرة بجانب الشبكة */}
-            <div className="small-donut-chart">
-                <span className="percentage-text">{currentGov.completion}%</span>
-            </div>
+    {/* الحاوية التي تجمع الشبكة والدائرة الصغيرة */}
+    <div className="stats-inner-container" style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="stats-grid">
+            {/* البطاقات الأربع */}
+            <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
+            <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
+            <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
+            <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
         </div>
-
-        {/* 3. الدائرة الكبيرة في الأسفل داخل البطاقة الكبيرة */}
-        <div className="big-donut-chart">
-           {/* هنا يتم وضع مكون الرسم البياني الدائري الكبير */}
+        <div className="small-donut-chart">
+            <span className="percentage-text">{currentGov.completion}%</span>
         </div>
     </div>
+
+    {/* الرسم البياني الكبير */}
+    <div className="big-donut-chart">
+        {/* هنا يجب استدعاء مكتبة الرسم البياني أو وضع الـ Canvas */}
+        <span style={{color: '#94a3b8'}}>رسم بياني توضيحي</span>
+    </div>
+</div>
 )}
                     </div>
                 </aside>
