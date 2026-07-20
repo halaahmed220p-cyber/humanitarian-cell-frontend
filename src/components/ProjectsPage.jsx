@@ -77,24 +77,55 @@ const ProjectsPage = () => {
 
     {/* الرسم البياني الكبير */}
     {/* الرسم البياني الدائري الكبير في الأسفل */}
-<div className="big-donut-chart" style={{ height: '250px' }}> {/* حجم أكبر */}
+<div className="big-donut-chart">
   <ResponsiveContainer width="100%" height="100%">
     <PieChart>
       <Pie
         data={data}
-        cx="50%" cy="50%"
-        innerRadius={50} // يجعلها دائرية (Donut)
-        outerRadius={80} // تحكمي في الحجم من هنا
-        paddingAngle={5}
+        cx="50%" cy="45%" // رفع الدائرة قليلاً للأعلى لتوفير مساحة للمفاتيح
+        innerRadius={40}
+        outerRadius={65}
+        paddingAngle={2}
         dataKey="value"
       >
         {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={entry.color} />
         ))}
       </Pie>
-      <Tooltip /> {/* هذه هي خاصية التفاعل التي طلبتِها */}
+      <Tooltip 
+        contentStyle={{ 
+          backgroundColor: '#1e293b', 
+          border: 'none', 
+          borderRadius: '4px',
+          fontSize: '10px', 
+          padding: '5px' 
+        }} 
+        itemStyle={{ color: '#fff', fontSize: '10px' }}
+      />
     </PieChart>
   </ResponsiveContainer>
+
+  {/* مفاتيح البيانات مضافة يدوياً بتنسيق صغير أسفل الدائرة */}
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '12px',
+    position: 'absolute',
+    bottom: '10px',
+    width: '100%',
+    fontSize: '9px',
+    color: '#94a3b8'
+  }}>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> منفذة
+    </span>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <i style={{ background: '#f59e0b', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> قيد التنفيذ
+    </span>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <i style={{ background: '#3b82f6', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> مخططة
+    </span>
+  </div>
 </div>
 </div>
 )}
