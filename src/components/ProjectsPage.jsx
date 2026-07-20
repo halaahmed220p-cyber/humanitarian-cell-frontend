@@ -53,12 +53,24 @@ const ProjectsPage = () => {
     
     {/* حاوية تجمع البطاقات + الدائرة في صف واحد */}
     <div className="top-performance-row">
-        <div className="stats-grid">
-            <div className="stat-card">...</div>
-            <div className="stat-card">...</div>
-            <div className="stat-card">...</div>
-            <div className="stat-card">...</div>
-        </div>
+             <div className="stats-grid">
+    <div className="stat-card">
+        <span className="stat-value">95</span>
+        <span className="stat-label">مليون $</span>
+    </div>
+    <div className="stat-card">
+        <span className="stat-value">{currentGov.projects}</span>
+        <span className="stat-label">المشاريع</span>
+    </div>
+    <div className="stat-card">
+        <span className="stat-value">3</span>
+        <span className="stat-label">قيد التنفيذ</span>
+    </div>
+    <div className="stat-card">
+        <span className="stat-value">4</span>
+        <span className="stat-label">منفذة</span>
+    </div>
+</div>
         <div className="donut-chart-placeholder">...</div>
     </div>
 </div>

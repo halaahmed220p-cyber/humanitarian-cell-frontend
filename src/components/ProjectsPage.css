@@ -80,21 +80,27 @@
     margin-bottom: 20px;
 }
 
+/* إجبار البطاقات على الترتيب 2x2 وضمان ظهور المحتوى */
 .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    flex: 1;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* عمودان متساويان */
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px;
 }
 
 .stat-card {
-    background: var(--panel-bg);
-    padding: 12px;
+    background: #1e293b;
+    padding: 8px; /* تقليل المساحة لتناسب القائمة الجانبية */
     border-radius: 8px;
     text-align: center;
-    border: 1px solid var(--border-color);
+    border: 1px solid #334155;
+    min-height: 60px; /* ضمان ارتفاع ثابت */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
-
 .stat-value {
     color: var(--text-white);
     font-size: 1.2rem;
