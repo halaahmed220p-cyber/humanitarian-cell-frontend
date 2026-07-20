@@ -89,19 +89,40 @@
 }
 
 /* الشبكة الرباعية (2x2) المتوازنة */
+
+
+/* حاوية البطاقات الأربع */
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* هذا يجعلها صفين وكل صف يحتوي بطاقتين */
     gap: 12px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
+/* كل بطاقة داخل الشبكة */
 .stat-card {
     background: #1e293b;
     padding: 15px;
     border-radius: 12px;
     text-align: center;
-    border: 1px solid var(--border-color);
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* الدائرة المئوية */
+.donut-chart-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 6px solid #d4af37;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
 }
 
 .stat-value {
@@ -117,17 +138,7 @@
     margin-top: 4px;
 }
 
-/* الرسم البياني الدائري (Donut Chart) */
-.donut-chart-placeholder {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 8px solid var(--accent-gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-}
+
 
 .percentage-text {
     font-weight: 900;
