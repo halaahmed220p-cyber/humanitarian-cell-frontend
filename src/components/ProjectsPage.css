@@ -255,3 +255,11 @@
     border-radius: 2px;
     margin-left: 5px;
 }
+
+.big-donut-chart svg {
+    outline: none !important;
+}
+
+.big-donut-chart path:focus {
+    outline: none !important;
+}

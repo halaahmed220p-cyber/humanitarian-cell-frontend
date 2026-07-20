@@ -81,17 +81,26 @@ const ProjectsPage = () => {
   <ResponsiveContainer width="100%" height="100%">
     <PieChart>
       <Pie
-        data={data}
-        cx="50%" cy="45%" // رفع الدائرة قليلاً للأعلى لتوفير مساحة للمفاتيح
-        innerRadius={40}
-        outerRadius={65}
-        paddingAngle={2}
-        dataKey="value"
-      >
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={entry.color} />
-        ))}
-      </Pie>
+  data={data}
+  cx="50%" cy="45%"
+  innerRadius={40}
+  outerRadius={65}
+  paddingAngle={2}
+  dataKey="value"
+  // أضيفي هذا السطر لمنع التأثير التفاعلي الافتراضي:
+  activeShape={false} 
+  // وإذا أردتِ منع "الوميض" أو التكبير عند الضغط:
+  isAnimationActive={false}
+>
+  {data.map((entry, index) => (
+    <Cell 
+      key={`cell-${index}`} 
+      fill={entry.color} 
+      // هذا هو الأهم: إزالة أي استجابة للضغط
+      style={{ outline: 'none' }} 
+    />
+  ))}
+</Pie>
       <Tooltip 
         contentStyle={{ 
           backgroundColor: '#1e293b', 
