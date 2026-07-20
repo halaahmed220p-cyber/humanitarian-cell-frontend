@@ -67,10 +67,19 @@ const ProjectsPage = () => {
     </div>
 
     {/* الرسم البياني الكبير */}
-    <div className="big-donut-chart">
-        {/* هنا يجب استدعاء مكتبة الرسم البياني أو وضع الـ Canvas */}
-        <span style={{color: '#94a3b8'}}>رسم بياني توضيحي</span>
+    {/* الرسم البياني الدائري الكبير في الأسفل */}
+<div className="big-donut-chart">
+    <div className="chart-wrapper">
+        {/* الدائرة الملونة (أخضر، برتقالي، أزرق) */}
+        <div className="colorful-donut"></div>
+        {/* مفتاح الألوان تحت الدائرة */}
+        <div className="chart-legend">
+            <span><i style={{background: '#10b981'}}></i> منفذة</span>
+            <span><i style={{background: '#f59e0b'}}></i> قيد التنفيذ</span>
+            <span><i style={{background: '#3b82f6'}}></i> مخططة</span>
+        </div>
     </div>
+</div>
 </div>
 )}
                     </div>
