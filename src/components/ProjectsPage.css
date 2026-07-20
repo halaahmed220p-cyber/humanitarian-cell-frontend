@@ -141,3 +141,22 @@
         grid-template-columns: 1fr;
     }
 }
+
+.stats-grid {
+    display: flex !important; /* إجبار المتصفح على استخدام Flex */
+    flex-wrap: wrap;          /* السماح للبطاقات بالالتفاف */
+    justify-content: center;  /* توسيط البطاقات */
+    gap: 10px;                /* المسافة بين البطاقات */
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    flex: 1 1 40%;            /* جعل كل بطاقة تأخذ 40% من العرض لتظهر 2 في كل سطر */
+    min-width: 100px;         /* الحد الأدنى لعرض البطاقة */
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #334155;
+    box-sizing: border-box;   /* لضمان عدم خروجها عن الحدود */
+}
