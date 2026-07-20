@@ -48,32 +48,30 @@ const ProjectsPage = () => {
                         </div>
 
                     {currentGov && (
- <div className="hac-dash-performance-panel">
-    <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
-    
-    {/* حاوية تجمع البطاقات + الدائرة في صف واحد */}
-    <div className="top-performance-row">
-             <div className="stats-grid">
-    <div className="stat-card">
-        <span className="stat-value">95</span>
-        <span className="stat-label">مليون $</span>
+    <div className="hac-dash-performance-panel">
+        {/* 1. العنوان والخط */}
+        <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
+        <div className="title-divider"></div> {/* الخط تحت العنوان */}
+
+        {/* 2. البطاقة الكبيرة (Container) التي تحوي الشبكة والدائرة الصغيرة */}
+        <div className="stats-inner-container">
+            <div className="stats-grid">
+                <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
+                <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
+                <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
+                <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
+            </div>
+            {/* الدائرة الصغيرة بجانب الشبكة */}
+            <div className="small-donut-chart">
+                <span className="percentage-text">{currentGov.completion}%</span>
+            </div>
+        </div>
+
+        {/* 3. الدائرة الكبيرة في الأسفل داخل البطاقة الكبيرة */}
+        <div className="big-donut-chart">
+           {/* هنا يتم وضع مكون الرسم البياني الدائري الكبير */}
+        </div>
     </div>
-    <div className="stat-card">
-        <span className="stat-value">{currentGov.projects}</span>
-        <span className="stat-label">المشاريع</span>
-    </div>
-    <div className="stat-card">
-        <span className="stat-value">3</span>
-        <span className="stat-label">قيد التنفيذ</span>
-    </div>
-    <div className="stat-card">
-        <span className="stat-value">4</span>
-        <span className="stat-label">منفذة</span>
-    </div>
-</div>
-        <div className="donut-chart-placeholder">...</div>
-    </div>
-</div>
 )}
                     </div>
                 </aside>
