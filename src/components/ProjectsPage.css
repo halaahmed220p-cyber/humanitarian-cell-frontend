@@ -88,32 +88,32 @@
     margin-top: 20px;
 }
 
-/* الشبكة الرباعية (2x2) */
+/* الشبكة الرباعية (2x2) المتوازنة */
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
 .stat-card {
-    background: var(--panel-bg);
-    padding: 12px;
-    border-radius: 8px;
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
     border: 1px solid var(--border-color);
 }
 
 .stat-value {
     color: var(--text-white);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 800;
     display: block;
 }
 
 .stat-label {
     color: var(--text-muted);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     margin-top: 4px;
 }
 
@@ -132,6 +132,7 @@
 .percentage-text {
     font-weight: 900;
     font-size: 1.2rem;
+    color: var(--text-white);
 }
 
 /* التجاوب */
@@ -139,17 +140,4 @@
     .hac-dash-main-container {
         grid-template-columns: 1fr;
     }
-}
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* هذا يجعلها 2x2 */
-    gap: 12px;
-}
-
-.stat-card {
-    background: #1e293b;
-    padding: 15px; /* زيادة التباعد الداخلي لجعلها مربعة */
-    border-radius: 12px;
-    text-align: center;
-    border: 1px solid #334155;
 }
