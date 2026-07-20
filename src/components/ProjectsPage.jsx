@@ -47,38 +47,38 @@ const ProjectsPage = () => {
                             ))}
                         </div>
 
-                        {currentGov && (
-                            <div className="hac-dash-performance-panel">
-                                <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
-                                
-                                {/* الشبكة الرباعية (Grid 2x2) المطابقة للنموذج */}
-                                <div className="stats-grid">
-                                    <div className="stat-card">
-                                        <span className="stat-value">95</span>
-                                        <span className="stat-label">مليون $</span>
-                                    </div>
-                                    <div className="stat-card">
-                                        <span className="stat-value">{currentGov.projects}</span>
-                                        <span className="stat-label">المشاريع</span>
-                                    </div>
-                                    <div className="stat-card">
-                                        <span className="stat-value" style={{color: '#f59e0b'}}>3</span>
-                                        <span className="stat-label">قيد التنفيذ</span>
-                                    </div>
-                                    <div className="stat-card">
-                                        <span className="stat-value" style={{color: '#10b981'}}>4</span>
-                                        <span className="stat-label">منفذة</span>
-                                    </div>
-                                </div>
+                    {currentGov && (
+    <div className="hac-dash-performance-panel">
+        <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
+        
+        {/* هذه الشبكة ستجعلهم 2x2 بفضل CSS الذي أرسلتُه */}
+        <div className="stats-grid">
+            <div className="stat-card">
+                <span className="stat-value">95</span>
+                <span className="stat-label">مليون $</span>
+            </div>
+            <div className="stat-card">
+                <span className="stat-value">{currentGov.projects}</span>
+                <span className="stat-label">المشاريع</span>
+            </div>
+            <div className="stat-card">
+                <span className="stat-value" style={{color: '#f59e0b'}}>3</span>
+                <span className="stat-label">قيد التنفيذ</span>
+            </div>
+            <div className="stat-card">
+                <span className="stat-value" style={{color: '#10b981'}}>4</span>
+                <span className="stat-label">منفذة</span>
+            </div>
+        </div>
 
-                                {/* الدائرة التحليلية للنسبة المئوية */}
-                                <div className="chart-container" style={{ marginTop: '20px' }}>
-                                    <div className="donut-chart-placeholder">
-                                        <span className="percentage-text">{currentGov.completion}%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+        {/* الدائرة ستظهر تحت الشبكة مباشرة */}
+        <div className="chart-container" style={{ marginTop: '20px' }}>
+            <div className="donut-chart-placeholder">
+                <span className="percentage-text">{currentGov.completion}%</span>
+            </div>
+        </div>
+    </div>
+)}
                     </div>
                 </aside>
             </main>
