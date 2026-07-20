@@ -1,5 +1,5 @@
 /* =========================================================
-   ملف تنسيقات لوحة تحكم المشاريع التنموية (EVOSYS)
+   ملف تنسيقات لوحة تحكم المشاريع التنموية (EVOSYS) - النسخة النهائية
    ========================================================= */
 
 @import 'leaflet/dist/leaflet.css';
@@ -48,7 +48,7 @@
     border: 1px solid var(--border-color);
 }
 
-/* القائمة الجانبية (Sidebar) */
+/* القائمة الجانبية */
 .hac-dash-sidebar {
     display: flex;
     flex-direction: column;
@@ -62,24 +62,7 @@
     border: 1px solid var(--border-color);
 }
 
-.gov-list-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px;
-    background: var(--bg-dark);
-    margin-bottom: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    border-right: 3px solid transparent;
-    transition: all 0.3s;
-}
-
-.gov-list-item:hover, .gov-list-item.active {
-    background: #334155;
-    border-right: 3px solid var(--accent-gold);
-}
-
-/* بطاقات مؤشر الأداء (Performance Panel) */
+/* مؤشر الأداء */
 .hac-dash-performance-panel {
     background: #0f172a;
     border: 1px solid var(--border-color);
@@ -88,62 +71,66 @@
     margin-top: 20px;
 }
 
-/* الشبكة الرباعية (2x2) المتوازنة */
+/* الهيكل الجديد: البطاقات بجانب الدائرة */
+.top-performance-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
 
-
-/* حاوية البطاقات الأربع */
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* هذا يجعلها صفين وكل صف يحتوي بطاقتين */
-    gap: 12px;
-    margin-bottom: 20px;
-    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
 }
 
-/* كل بطاقة داخل الشبكة */
 .stat-card {
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 12px;
+    background: var(--panel-bg);
+    padding: 12px;
+    border-radius: 8px;
     text-align: center;
-    border: 1px solid #334155;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-/* الدائرة المئوية */
-.donut-chart-placeholder {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 6px solid #d4af37;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px auto;
+    border: 1px solid var(--border-color);
 }
 
 .stat-value {
     color: var(--text-white);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 800;
     display: block;
 }
 
 .stat-label {
     color: var(--text-muted);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     margin-top: 4px;
 }
 
-
+/* الدوائر */
+.donut-chart-placeholder {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 5px solid var(--accent-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
 
 .percentage-text {
     font-weight: 900;
-    font-size: 1.2rem;
-    color: var(--text-white);
+    font-size: 1rem;
+}
+
+.full-donut-placeholder {
+    width: 100%;
+    height: 150px;
+    background: var(--bg-dark);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-top: 10px;
 }
 
 /* التجاوب */
@@ -151,43 +138,4 @@
     .hac-dash-main-container {
         grid-template-columns: 1fr;
     }
-}
-
-.stats-grid {
-    display: flex !important; /* إجبار المتصفح على استخدام Flex */
-    flex-wrap: wrap;          /* السماح للبطاقات بالالتفاف */
-    justify-content: center;  /* توسيط البطاقات */
-    gap: 10px;                /* المسافة بين البطاقات */
-    margin-bottom: 20px;
-}
-
-.stat-card {
-    flex: 1 1 40%;            /* جعل كل بطاقة تأخذ 40% من العرض لتظهر 2 في كل سطر */
-    min-width: 100px;         /* الحد الأدنى لعرض البطاقة */
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    border: 1px solid #334155;
-    box-sizing: border-box;   /* لضمان عدم خروجها عن الحدود */
-}
-
-.top-performance-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    flex: 1; /* لتأخذ المساحة المتبقية بجانب الدائرة */
-}
-
-.full-donut-placeholder {
-    width: 100%;
-    background: #0f172a;
-    border-radius: 12px;
-    margin-top: 15px;
 }
