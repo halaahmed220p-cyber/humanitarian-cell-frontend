@@ -51,30 +51,25 @@ const ProjectsPage = () => {
     <div className="hac-dash-performance-panel">
         <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
         
-        {/* هذه الشبكة ستجعلهم 2x2 بفضل CSS الذي أرسلتُه */}
-        <div className="stats-grid">
-            <div className="stat-card">
-                <span className="stat-value">95</span>
-                <span className="stat-label">مليون $</span>
+        {/* حاوية تجمع البطاقات + الدائرة العلوية بجانب بعض */}
+        <div className="top-performance-row" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div className="stats-grid">
+                {/* البطاقات الأربع (2x2) */}
+                <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
+                <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
+                <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
+                <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
             </div>
-            <div className="stat-card">
-                <span className="stat-value">{currentGov.projects}</span>
-                <span className="stat-label">المشاريع</span>
-            </div>
-            <div className="stat-card">
-                <span className="stat-value" style={{color: '#f59e0b'}}>3</span>
-                <span className="stat-label">قيد التنفيذ</span>
-            </div>
-            <div className="stat-card">
-                <span className="stat-value" style={{color: '#10b981'}}>4</span>
-                <span className="stat-label">منفذة</span>
+            {/* دائرة نسبة الإنجاز بجانب البطاقات */}
+            <div className="donut-chart-placeholder" style={{ width: '80px', height: '80px' }}>
+                <span className="percentage-text">{currentGov.completion}%</span>
             </div>
         </div>
 
-        {/* الدائرة ستظهر تحت الشبكة مباشرة */}
-        <div className="chart-container" style={{ marginTop: '20px' }}>
-            <div className="donut-chart-placeholder">
-                <span className="percentage-text">{currentGov.completion}%</span>
+        {/* الرسم البياني الدائري الكبير تحت البطاقات */}
+        <div className="bottom-chart-container" style={{ marginTop: '20px' }}>
+            <div className="full-donut-placeholder" style={{ height: '150px', border: '2px solid #334155' }}>
+                {/* هنا يوضع الرسم البياني الملون كما في النموذج */}
             </div>
         </div>
     </div>

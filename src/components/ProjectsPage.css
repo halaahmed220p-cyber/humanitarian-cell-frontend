@@ -160,3 +160,23 @@
     border: 1px solid #334155;
     box-sizing: border-box;   /* لضمان عدم خروجها عن الحدود */
 }
+
+.top-performance-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1; /* لتأخذ المساحة المتبقية بجانب الدائرة */
+}
+
+.full-donut-placeholder {
+    width: 100%;
+    background: #0f172a;
+    border-radius: 12px;
+    margin-top: 15px;
+}
