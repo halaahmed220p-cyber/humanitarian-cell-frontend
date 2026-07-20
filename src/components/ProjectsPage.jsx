@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import MapComponent from './MapComponent';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import './ProjectsPage.css';
+
+const data = [
+  { name: 'منفذة', value: 7, color: '#10b981' },
+  { name: 'قيد التنفيذ', value: 3, color: '#f59e0b' },
+  { name: 'مخططة', value: 4, color: '#3b82f6' },
+];
 
 const ProjectsPage = () => {
     const [govData] = useState({
@@ -66,19 +73,28 @@ const ProjectsPage = () => {
         </div>
     </div>
 
+    
+
     {/* الرسم البياني الكبير */}
     {/* الرسم البياني الدائري الكبير في الأسفل */}
-<div className="big-donut-chart">
-    <div className="chart-wrapper">
-        {/* الدائرة الملونة (أخضر، برتقالي، أزرق) */}
-        <div className="colorful-donut"></div>
-        {/* مفتاح الألوان تحت الدائرة */}
-        <div className="chart-legend">
-            <span><i style={{background: '#10b981'}}></i> منفذة</span>
-            <span><i style={{background: '#f59e0b'}}></i> قيد التنفيذ</span>
-            <span><i style={{background: '#3b82f6'}}></i> مخططة</span>
-        </div>
-    </div>
+<div className="big-donut-chart" style={{ height: '250px' }}> {/* حجم أكبر */}
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart>
+      <Pie
+        data={data}
+        cx="50%" cy="50%"
+        innerRadius={50} // يجعلها دائرية (Donut)
+        outerRadius={80} // تحكمي في الحجم من هنا
+        paddingAngle={5}
+        dataKey="value"
+      >
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={entry.color} />
+        ))}
+      </Pie>
+      <Tooltip /> {/* هذه هي خاصية التفاعل التي طلبتِها */}
+    </PieChart>
+  </ResponsiveContainer>
 </div>
 </div>
 )}
