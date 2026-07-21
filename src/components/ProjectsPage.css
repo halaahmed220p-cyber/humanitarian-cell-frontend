@@ -1,5 +1,5 @@
 /* =========================================================
-   ملف تنسيقات لوحة تحكم المشاريع التنموية (EVOSYS) - النسخة النهائية
+   ملف تنسيقات لوحة تحكم المشاريع التنموية (EVOSYS) - النسخة النهائية المنظفة
    ========================================================= */
 
 @import 'leaflet/dist/leaflet.css';
@@ -12,8 +12,18 @@
     --text-muted: #94a3b8;
     --border-color: #334155;
 }
-/* شريط الإحصائيات العلوي */
-.hac-dash-top-stats {
+
+/* حاوية الصفحة العامة */
+.hac-dash-wrapper {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
+    color: var(--text-white);
+    padding: 0 20px 20px 20px;
+    margin-top: 90px; /* مسافة مناسبة أسفل الهيدر الثابت */
+}
+
+/* إحصائيات صفحة المشاريع فقط (الشريط العلوي) */
+.hac-projects-top-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 15px;
@@ -21,9 +31,9 @@
     width: 100%;
 }
 
-.top-stat-card {
-    background: #1e293b;
-    border: 1px solid #334155;
+.hac-projects-top-stats .top-stat-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 15px;
     text-align: center;
@@ -33,32 +43,19 @@
     justify-content: center;
 }
 
-.stat-num {
+.hac-projects-top-stats .stat-num {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #f59e0b; /* اللون الذهبي */
+    color: #f59e0b;
     margin-bottom: 5px;
 }
 
-.stat-text {
+.hac-projects-top-stats .stat-text {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
-/* تعديل المسافة العلوية للصفحة لتجنب تداخل الهيدر */
-.hac-dash-wrapper {
-    margin-top: 100px; /* المسافة تحت الهيدر الثابت */
-    padding: 0 20px 20px 20px;
-}
-
-.hac-dash-wrapper {
-    font-family: 'Tajawal', sans-serif;
-    background: linear-gradient(135deg, #0a0f1a 0%, #1a1a2e 50%, #0f172a 100%);
-    color: var(--text-white);
-    padding: 20px;
-    margin-top: 170px;
-}
-
+/* تخطيط المحتوى الرئيسي (الخريطة والقائمة الجانبية) */
 .hac-dash-main-container {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -70,7 +67,7 @@
 .hac-dash-sidebar, 
 .hac-dash-map-section {
     position: relative;
-    z-index: 1; /* لضمان عدم تداخل الهيدر فوقها */
+    z-index: 1;
 }
 
 /* الخريطة */
@@ -86,10 +83,11 @@
     background: var(--panel-bg);
     padding: 15px;
     text-align: center;
-    border-radius: 0 0 12px 12px;
+    border-radius: 0 0 16px 16px;
     font-size: 14px;
     color: var(--text-muted);
     border: 1px solid var(--border-color);
+    border-top: none;
 }
 
 /* القائمة الجانبية */
@@ -106,213 +104,11 @@
     border: 1px solid var(--border-color);
 }
 
-/* مؤشر الأداء */
-.hac-dash-performance-panel {
-    background: #0f172a;
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    border-radius: 16px;
-    margin-top: 20px;
-    min-width: 350px; /* ضمان مساحة كافية للبطاقات بجانب الدائرة */
-}
-
-/* الهيكل الجديد: البطاقات بجانب الدائرة */
-.top-performance-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-/* إجبار البطاقات على الترتيب 2x2 وضمان ظهور المحتوى */
-.stats-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important; /* عمودان متساويان */
-    gap: 8px !important;
-    width: 100% !important;
-    margin-top: 10px;
-}
-
-.stat-card {
-    background: #1e293b;
-    padding: 8px; /* تقليل المساحة لتناسب القائمة الجانبية */
-    border-radius: 8px;
-    text-align: center;
-    border: 1px solid #334155;
-    min-height: 60px; /* ضمان ارتفاع ثابت */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.stat-value {
-    color: var(--text-white);
-    font-size: 1.2rem;
-    font-weight: 800;
-    display: block;
-}
-
-.stat-label {
-    color: var(--text-muted);
-    font-size: 0.7rem;
-    margin-top: 4px;
-}
-
-/* الدوائر */
-.donut-chart-placeholder {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 5px solid var(--accent-gold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-
-
-.full-donut-placeholder {
-    width: 100%;
-    height: 150px;
-    background: var(--bg-dark);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    margin-top: 10px;
-}
-
-/* التجاوب */
-@media (max-width: 900px) {
-    .hac-dash-main-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* البطاقة الكبيرة (الحاوية) */
-.hac-dash-performance-panel {
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid #334155;
-    margin-top: 20px;
-}
-
-/* الخط تحت العنوان */
-.title-divider {
-    height: 2px;
-    background: #334155;
-    margin: 10px 0 20px 0;
-    width: 100%;
-}
-
-/* الحاوية الداخلية (تجمع 4 بطاقات + دائرة صغيرة) */
-.stats-inner-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-/* الشبكة 2x2 */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    flex: 1;
-}
-
-/* الرسم البياني الكبير في الأسفل */
-/* 1. إصلاح الدائرة الصغيرة (بجانب الشبكة) */
-.small-donut-chart {
-    width: 60px;
-    height: 60px;
-    border: 5px solid #d4af37;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-right: 10px; /* مسافة بين الشبكة والدائرة */
-}
-
-/* 2. إصلاح الرسم البياني الكبير في الأسفل */
-.big-donut-chart {
-    width: 100%;
-    height: 160px; /* تقليص الارتفاع */
-    background: #0f172a;
-    border-radius: 12px;
-    margin-top: 10px;
-    position: relative;
-}
-.custom-legend {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: -10px; /* رفع المفاتيح قليلاً */
-    font-size: 9px; /* خط صغير جداً */
-    color: #94a3b8;
-}
-
-/* 3. ضمان ظهور النصوص بوضوح */
-.percentage-text {
-    font-weight: 900;
-    font-size: 0.9rem;
-    color: var(--text-white);
-}
-.big-donut-chart {
-    width: 100%;
-    height: 180px; /* زيادة الطول قليلاً */
-    background: #0f172a;
-    border-radius: 12px;
-    margin-top: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* الدائرة الملونة (هنا نستخدم Conic Gradient لرسم الألوان) */
-.colorful-donut {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background: conic-gradient(
-        #10b981 0% 40%,  /* أخضر */
-        #f59e0b 40% 70%,  /* برتقالي */
-        #3b82f6 70% 100%  /* أزرق */
-    );
-    margin-bottom: 10px;
-}
-
-/* مفتاح الألوان */
-.chart-legend {
-    display: flex;
-    gap: 15px;
-    font-size: 0.7rem;
-    color: #94a3b8;
-}
-
-.chart-legend i {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
-    border-radius: 2px;
-    margin-left: 5px;
-}
-
-.big-donut-chart svg {
-    outline: none !important;
-}
-
-.big-donut-chart path:focus {
-    outline: none !important;
-}
-
 /* عنوان اللوحة */
 .panel-title {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: var(--text-white);
     text-align: right;
 }
@@ -322,33 +118,34 @@
     width: 100%;
     background: #0f172a;
     border: 1px solid var(--border-color);
-    padding: 8px 12px;
+    padding: 7px 10px;
     border-radius: 8px;
     color: var(--text-white);
     font-family: 'Tajawal', sans-serif;
-    font-size: 0.85rem;
-    margin-bottom: 12px;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
     outline: none;
 }
 
 /* أزرار الفلترة الأربعة */
 .filter-buttons {
     display: flex;
-    gap: 6px;
-    margin-bottom: 15px;
-    justify-content: space-between;
+    gap: 4px;
+    margin-bottom: 12px;
 }
 
 .filter-btn {
     background: #0f172a;
     border: 1px solid var(--border-color);
     color: var(--text-muted);
-    padding: 6px 10px;
+    padding: 5px 8px;
     border-radius: 6px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
     font-family: 'Tajawal', sans-serif;
     transition: all 0.2s;
+    flex: 1;
+    text-align: center;
 }
 
 .filter-btn.active, .filter-btn:hover {
@@ -360,40 +157,40 @@
 
 /* حاوية قائمة المحافظات مع شريط تمرير أنيق */
 .gov-list-container {
-    max-height: 320px;
+    max-height: 280px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     padding-left: 4px;
 }
 
-/* بطاقة المحافظة الواحدة */
+/* بطاقة المحافظة الفردية */
 .gov-card-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: #0f172a;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.gov-card-item:hover {
+.gov-card-item:hover, .gov-card-item.active {
     border-color: var(--accent-gold);
     background: #25334a;
 }
 
-/* الدائرة الذهبية لرقم المحافظة */
+/* الدائرة الذهبية لرقم المشاريع */
 .gov-number-badge {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     background: var(--accent-gold);
     color: #0f172a;
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -401,23 +198,136 @@
     flex-shrink: 0;
 }
 
-/* معلومات المحافظة (الاسم والتفاصيل) */
+/* اسم المحافظة والتفاصيل */
 .gov-info {
     display: flex;
     flex-direction: column;
     text-align: right;
     flex: 1;
-    margin-right: 12px;
+    margin-right: 10px;
 }
 
 .gov-name {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-white);
 }
 
 .gov-details {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     margin-top: 2px;
+}
+
+/* لوحة مؤشر الأداء للمحافظة المحددة */
+.hac-dash-performance-panel {
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    margin-top: 20px;
+}
+
+.performance-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-white);
+    text-align: right;
+}
+
+/* الخط تحت العنوان */
+.title-divider {
+    height: 2px;
+    background: var(--border-color);
+    margin: 10px 0 15px 0;
+    width: 100%;
+}
+
+/* الحاوية الداخلية (تجمع 4 بطاقات + الدائرة الصغيرة) */
+.stats-inner-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* شبكة البطاقات (2x2) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+}
+
+.stat-card {
+    background: #0f172a;
+    padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    min-height: 55px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.stat-card span {
+    color: var(--text-white);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.stat-label {
+    color: var(--text-muted) !important;
+    font-size: 0.65rem !important;
+    font-weight: 400 !important;
+    margin-top: 3px;
+}
+
+/* الدائرة الصغيرة بجانب الشبكة */
+.small-donut-chart {
+    width: 60px;
+    height: 60px;
+    border: 5px solid var(--accent-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.percentage-text {
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: var(--text-white);
+}
+
+/* الرسم البياني الدائري الكبير في الأسفل */
+.big-donut-chart {
+    width: 100%;
+    height: 160px;
+    background: #0f172a;
+    border-radius: 12px;
+    margin-top: 10px;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.big-donut-chart svg {
+    outline: none !important;
+}
+
+.big-donut-chart path:focus {
+    outline: none !important;
+}
+
+/* التجاوب للشاشات الصغيرة */
+@media (max-width: 900px) {
+    .hac-dash-main-container {
+        grid-template-columns: 1fr;
+    }
+    .hac-projects-top-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
