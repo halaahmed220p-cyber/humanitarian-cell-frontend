@@ -263,3 +263,117 @@
 .big-donut-chart path:focus {
     outline: none !important;
 }
+
+/* عنوان اللوحة */
+.panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-white);
+    text-align: right;
+}
+
+/* صندوق البحث */
+.search-box input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text-white);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    outline: none;
+}
+
+/* أزرار الفلترة الأربعة */
+.filter-buttons {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 15px;
+    justify-content: space-between;
+}
+
+.filter-btn {
+    background: #0f172a;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    transition: all 0.2s;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: var(--accent-gold);
+    color: #0f172a;
+    font-weight: 700;
+    border-color: var(--accent-gold);
+}
+
+/* حاوية قائمة المحافظات مع شريط تمرير أنيق */
+.gov-list-container {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 4px;
+}
+
+/* بطاقة المحافظة الواحدة */
+.gov-card-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f172a;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.gov-card-item:hover {
+    border-color: var(--accent-gold);
+    background: #25334a;
+}
+
+/* الدائرة الذهبية لرقم المحافظة */
+.gov-number-badge {
+    width: 32px;
+    height: 32px;
+    background: var(--accent-gold);
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 0.85rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* معلومات المحافظة (الاسم والتفاصيل) */
+.gov-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    flex: 1;
+    margin-right: 12px;
+}
+
+.gov-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-white);
+}
+
+.gov-details {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
