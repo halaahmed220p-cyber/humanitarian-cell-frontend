@@ -289,12 +289,6 @@
     margin-top: 2px;
 }
 
-/* التجاوب */
-@media (max-width: 900px) {
-    .hac-projects-page .hac-dash-main-container {
-        grid-template-columns: 1fr;
-    }
-}
 /* شريط الإحصائيات العلوي الأربعة (مربعات أفقية مرتبة) */
 .hac-projects-page .hac-projects-top-bar {
     display: grid;
@@ -319,7 +313,7 @@
 .hac-projects-page .top-num {
     font-size: 1.4rem;
     font-weight: 800;
-    color: #d4af37; /* اللون الذهبي */
+    color: #d4af37;
     margin-bottom: 4px;
 }
 
@@ -328,9 +322,264 @@
     color: #94a3b8;
 }
 
-/* التجاوب للشاشات الصغيرة */
+/* =========================================================
+   تنسيقات النوافذ المنبثقة الذكية (Modals) المطابقة للهوية
+   ========================================================= */
+
+.hac-projects-page .hac-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 39, 68, 0.8);
+    backdrop-filter: blur(6px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hac-projects-page .hac-modal-container {
+    background: #1e293b;
+    border: 1px solid #334155;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    color: #f8fafc;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+.hac-projects-page .hac-modal-close {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #0f172a;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.hac-projects-page .hac-modal-close:hover {
+    background: #d4af37;
+    color: #0f172a;
+}
+
+.hac-projects-page .hac-modal-badge {
+    background: rgba(212, 175, 55, 0.15);
+    color: #d4af37;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hac-projects-page .hac-modal-header h2 {
+    font-size: 1.5rem;
+    color: #f8fafc;
+    margin-top: 10px;
+    font-weight: 800;
+}
+
+/* بطاقات المعلومات الحية داخل المودال */
+.hac-projects-page .hac-modal-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.hac-projects-page .hac-m-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.hac-projects-page .m-val {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #d4af37;
+}
+
+.hac-projects-page .m-lbl {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.hac-projects-page .hac-sub-title {
+    font-size: 1rem;
+    color: #f8fafc;
+    margin: 20px 0 10px;
+    font-weight: 700;
+}
+
+/* شبكة المشاريع المصغرة داخل المودال */
+.hac-projects-page .hac-projects-table-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hac-projects-page .hac-proj-row-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.2s;
+}
+
+.hac-projects-page .hac-proj-row-item:hover {
+    border-color: #d4af37;
+}
+
+.hac-projects-page .hac-proj-info-group h5 {
+    font-size: 1rem;
+    color: #f8fafc;
+    margin-bottom: 6px;
+}
+
+.hac-projects-page .hac-status-badge {
+    font-size: 0.75rem;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.hac-projects-page .hac-status-badge.in-progress { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.hac-projects-page .hac-status-badge.completed { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.hac-projects-page .hac-status-badge.planned { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+
+.hac-projects-page .hac-detail-open-btn {
+    background: transparent;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Tajawal', sans-serif;
+}
+
+.hac-projects-page .hac-detail-open-btn:hover {
+    background: #d4af37;
+    color: #0f172a;
+}
+
+.hac-projects-page .hac-action-btn {
+    width: 100%;
+    background: #d4af37;
+    color: #0f172a;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.hac-projects-page .hac-action-btn:hover {
+    background: #e5c158;
+}
+
+/* النافذة التبويبية العميقة (Deep-Dive Modal) لتفاصيل المشروع الواحد */
+.hac-projects-page .deep-modal-content {
+    margin: 20px 0;
+}
+
+.hac-projects-page .deep-info-block {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.hac-projects-page .deep-info-block strong {
+    color: #f8fafc;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.hac-projects-page .deep-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.hac-projects-page .deep-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.hac-projects-page .deep-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.hac-projects-page .deep-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.hac-projects-page .deep-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.hac-projects-page .deep-actions .pdf-action {
+    background: transparent;
+    border: 1px solid #334155;
+    color: #f8fafc;
+}
+
+.hac-projects-page .deep-actions .pdf-action:hover {
+    background: #334155;
+    color: #d4af37;
+}
+
+/* التجاوب */
 @media (max-width: 900px) {
+    .hac-projects-page .hac-dash-main-container {
+        grid-template-columns: 1fr;
+    }
     .hac-projects-page .hac-projects-top-bar {
         grid-template-columns: repeat(2, 1fr);
+    }
+    .hac-projects-page .hac-modal-stats {
+        grid-template-columns: 1fr;
+    }
+    .hac-projects-page .deep-info-grid {
+        grid-template-columns: 1fr;
     }
 }
