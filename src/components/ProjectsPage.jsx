@@ -41,18 +41,39 @@ const ProjectsPage = () => {
                 </section>
 
                 <aside className="hac-dash-sidebar">
-                    <div className="hac-dash-panel">
-                        <h3 className="sidebar-title">المحافظات</h3>
-                        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
+                  <div className="hac-dash-panel">
+    <h3 className="panel-title">المحافظات</h3>
+    
+    {/* صندوق البحث */}
+    <div className="search-box">
+        <input type="text" placeholder="البحث عن محافظة..." />
+    </div>
 
-                        <div className="hac-dash-gov-list">
-                            {Object.entries(govData).map(([key, gov]) => (
-                                <div key={key} className={`gov-list-item ${selectedKey === key ? 'active' : ''}`} onClick={() => handleSelectGovernorate(key)}>
-                                    <span>{gov.name}</span>
-                                    <span className="gov-stat">{gov.projects} مشروع</span>
-                                </div>
-                            ))}
-                        </div>
+    {/* أزرار الفلترة الأربعة */}
+    <div className="filter-buttons">
+        <button className="filter-btn active">الكل</button>
+        <button className="filter-btn">منفذة</button>
+        <button className="filter-btn">قيد التنفيذ</button>
+        <button className="filter-btn">مخططة</button>
+    </div>
+
+    {/* قائمة المحافظات */}
+    <div className="gov-list-container">
+        {governorates.map((gov) => (
+            <div 
+                key={gov.id} 
+                className={`gov-card-item ${currentGov?.id === gov.id ? 'active' : ''}`}
+                onClick={() => setCurrentGov(gov)}
+            >
+                <div className="gov-number-badge">{gov.projects}</div>
+                <div className="gov-info">
+                    <span className="gov-name">{gov.name}</span>
+                    <span className="gov-details">إنجاز %{gov.completion} • مشاريع {gov.projects}</span>
+                </div>
+            </div>
+        ))}
+    </div>
+
 
                     {currentGov && (
     <div className="hac-dash-performance-panel">
