@@ -29,7 +29,7 @@ const ProjectsPage = () => {
     const currentGov = selectedKey ? govData[selectedKey] : null;
 
     return (
-        <div className="hac-dash-wrapper">
+        <div className="hac-projects-page">
             {/* شريط الإحصائيات العلوي العام (أسفل الهيدر مباشرة) */}
             <div className="hac-dash-top-stats">
                 <div className="top-stat-card">
