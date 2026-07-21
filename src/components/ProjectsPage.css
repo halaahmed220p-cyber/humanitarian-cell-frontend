@@ -24,9 +24,15 @@
 .hac-dash-main-container {
     display: grid;
     grid-template-columns: 1fr 400px;
-    gap: 24px;
+    gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
+}
+
+.hac-dash-sidebar, 
+.hac-dash-map-section {
+    position: relative;
+    z-index: 1; /* لضمان عدم تداخل الهيدر فوقها */
 }
 
 /* الخريطة */
