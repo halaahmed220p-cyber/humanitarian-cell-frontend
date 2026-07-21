@@ -295,3 +295,42 @@
         grid-template-columns: 1fr;
     }
 }
+/* شريط الإحصائيات العلوي الأربعة (مربعات أفقية مرتبة) */
+.hac-projects-page .hac-projects-top-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    max-width: 1400px;
+    margin: 0 auto 20px auto;
+}
+
+.hac-projects-page .top-bar-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hac-projects-page .top-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #d4af37; /* اللون الذهبي */
+    margin-bottom: 4px;
+}
+
+.hac-projects-page .top-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+/* التجاوب للشاشات الصغيرة */
+@media (max-width: 900px) {
+    .hac-projects-page .hac-projects-top-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
