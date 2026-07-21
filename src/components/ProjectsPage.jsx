@@ -41,42 +41,104 @@ const ProjectsPage = () => {
                 </section>
 
                 <aside className="hac-dash-sidebar">
-              <div className="hac-dash-panel">
-    <h3 className="panel-title">المحافظات</h3>
+                    <div className="hac-dash-panel">
+                        <h3 className="sidebar-title">المحافظات</h3>
+                        <input type="text" className="hac-dash-search-box" placeholder="🔍 البحث عن محافظة..." />
+
+                        <div className="hac-dash-gov-list">
+                            {Object.entries(govData).map(([key, gov]) => (
+                                <div key={key} className={`gov-list-item ${selectedKey === key ? 'active' : ''}`} onClick={() => handleSelectGovernorate(key)}>
+                                    <span>{gov.name}</span>
+                                    <span className="gov-stat">{gov.projects} مشروع</span>
+                                </div>
+                            ))}
+                        </div>
+
+                    {currentGov && (
+    <div className="hac-dash-performance-panel">
+    <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
+    <div className="title-divider"></div>
+
+    {/* الحاوية التي تجمع الشبكة والدائرة الصغيرة */}
+    <div className="stats-inner-container" style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="stats-grid">
+            {/* البطاقات الأربع */}
+            <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
+            <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
+            <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
+            <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
+        </div>
+        <div className="small-donut-chart">
+            <span className="percentage-text">{currentGov.completion}%</span>
+        </div>
+    </div>
+
     
-    {/* حقل البحث */}
-    <div className="search-box">
-        <input type="text" placeholder="البحث عن محافظة..." />
-    </div>
 
-    {/* أزرار الفلترة العلوية (الكل، منفذة، قيد التنفيذ، مخططة) */}
-    <div className="filter-buttons">
-        <button className="filter-btn active">الكل</button>
-        <button className="filter-btn">منفذة</button>
-        <button className="filter-btn">قيد التنفيذ</button>
-        <button className="filter-btn">مخططة</button>
-    </div>
+    {/* الرسم البياني الكبير */}
+    {/* الرسم البياني الدائري الكبير في الأسفل */}
+<div className="big-donut-chart">
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart>
+      <Pie
+  data={data}
+  cx="50%" cy="45%"
+  innerRadius={40}
+  outerRadius={65}
+  paddingAngle={2}
+  dataKey="value"
+  // أضيفي هذا السطر لمنع التأثير التفاعلي الافتراضي:
+  activeShape={false} 
+  // وإذا أردتِ منع "الوميض" أو التكبير عند الضغط:
+  isAnimationActive={false}
+>
+  {data.map((entry, index) => (
+    <Cell 
+      key={`cell-${index}`} 
+      fill={entry.color} 
+      // هذا هو الأهم: إزالة أي استجابة للضغط
+      style={{ outline: 'none' }} 
+    />
+  ))}
+</Pie>
+      <Tooltip 
+        contentStyle={{ 
+          backgroundColor: '#1e293b', 
+          border: 'none', 
+          borderRadius: '4px',
+          fontSize: '10px', 
+          padding: '5px' 
+        }} 
+        itemStyle={{ color: '#fff', fontSize: '10px' }}
+      />
+    </PieChart>
+  </ResponsiveContainer>
 
-    {/* قائمة المحافظات */}
-    <div className="gov-list-container">
-        {/* مثال لبطاقة محافظة واحدة (تكرر ديناميكياً حسب بياناتك) */}
-        <div className="gov-card-item">
-            <div className="gov-number-badge">14</div>
-            <div className="gov-info">
-                <span className="gov-name">إب</span>
-                <span className="gov-details">إنجاز %65 • مشاريع 14</span>
-            </div>
-        </div>
-        
-        <div className="gov-card-item">
-            <div className="gov-number-badge">18</div>
-            <div className="gov-info">
-                <span className="gov-name">تعز</span>
-                <span className="gov-details">إنجاز %48 • مشاريع 18</span>
-            </div>
-        </div>
-    </div>
+  {/* مفاتيح البيانات مضافة يدوياً بتنسيق صغير أسفل الدائرة */}
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '12px',
+    position: 'absolute',
+    bottom: '10px',
+    width: '100%',
+    fontSize: '9px',
+    color: '#94a3b8'
+  }}>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> منفذة
+    </span>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <i style={{ background: '#f59e0b', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> قيد التنفيذ
+    </span>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <i style={{ background: '#3b82f6', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> مخططة
+    </span>
+  </div>
 </div>
+</div>
+)}
+                    </div>
                 </aside>
             </main>
         </div>
