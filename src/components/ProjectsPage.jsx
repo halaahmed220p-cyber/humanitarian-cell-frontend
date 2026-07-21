@@ -10,7 +10,7 @@ const data = [
 ];
 
 const ProjectsPage = () => {
-    // تم إثراء بيانات المحافظات بقائمة مشاريع مصغرة وتفاصيل لتعمل مع نظام النوافذ المنبثقة
+    // بيانات المحافظات والمشاريع المتعددة لكل محافظة
     const [govData] = useState({
         taiz: { 
             id: 'taiz', 
@@ -22,7 +22,8 @@ const ProjectsPage = () => {
             totalBeneficiaries: '15,000+',
             projectList: [
                 { id: 101, title: 'مشروع التدخلات العاجلة للمياه', status: 'جاري التنفيذ', statusClass: 'in-progress', desc: 'حفر وتأهيل آبار المياه وتوزيع الشاحنات الإستراتيجية للأسر المتضررة.', timeline: '01/01/2026 - 01/12/2026', executor: 'خلية الأعمال الإنسانية' },
-                { id: 102, title: 'تأهيل الوحدات الصحية الريفية', status: 'مكتمل', statusClass: 'completed', desc: 'تجهيز وتوفير الأدوية والمستلزمات الطبية للمراكز الصحية.', timeline: '15/05/2025 - 30/11/2025', executor: 'شريك محلي' }
+                { id: 102, title: 'تأهيل الوحدات الصحية الريفية', status: 'مكتمل', statusClass: 'completed', desc: 'تجهيز وتوفير الأدوية والمستلزمات الطبية للمراكز الصحية.', timeline: '15/05/2025 - 30/11/2025', executor: 'شريك محلي' },
+                { id: 103, title: 'مشروع الحقيبة المدرسية', status: 'مخططة', statusClass: 'planned', desc: 'توزيع الحقائب والأدوات المدرسية للطلاب الأشد احتياجاً.', timeline: '01/08/2026 - 01/09/2026', executor: 'خلية الأعمال الإنسانية' }
             ]
         },
         sanaa: { 
@@ -34,7 +35,8 @@ const ProjectsPage = () => {
             totalBudget: '420,000$',
             totalBeneficiaries: '22,000+',
             projectList: [
-                { id: 201, title: 'دعم وتأهيل المدارس الأساسية', status: 'جاري التنفيذ', statusClass: 'in-progress', desc: 'صيانة المقاعد المدرسية وترميم الفصول الدراسية المتضررة.', timeline: '10/02/2026 - 10/09/2026', executor: 'خلية الأعمال الإنسانية' }
+                { id: 201, title: 'دعم وتأهيل المدارس الأساسية', status: 'جاري التنفيذ', statusClass: 'in-progress', desc: 'صيانة المقاعد المدرسية وترميم الفصول الدراسية المتضررة.', timeline: '10/02/2026 - 10/09/2026', executor: 'خلية الأعمال الإنسانية' },
+                { id: 202, title: 'مشروع توزيع السلال الغذائية', status: 'مكتمل', statusClass: 'completed', desc: 'توزيع مساعدات غذائية أساسية للأسر المتعففة.', timeline: '01/01/2026 - 01/03/2026', executor: 'خلية الأعمال الإنسانية' }
             ]
         },
         aden: { 
@@ -100,21 +102,19 @@ const ProjectsPage = () => {
     });
 
     const [selectedKey, setSelectedKey] = useState(null);
-    // حالة للتحكم بفتح نافذة قائمة المشاريع الخاصة بالمحافظة
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
-    // حالة للتحكم بفتح النافذة العميقة لتفاصيل المشروع الواحد
     const [selectedProject, setSelectedProject] = useState(null);
 
     const handleSelectGovernorate = (key) => {
         setSelectedKey(key);
-        setIsGovModalOpen(true); // فتح النافذة المنبثقة فور الضغط على المحافظة
+        setIsGovModalOpen(true);
     };
 
     const currentGov = selectedKey ? govData[selectedKey] : null;
 
     return (
         <div className="hac-projects-page">
-            {/* شريط الإحصائيات العلوي العام (أسفل الهيدر مباشرة) */}
+            {/* شريط الإحصائيات العلوي العام */}
             <div className="hac-projects-top-bar">
                 <div className="top-bar-card">
                     <span className="top-num">21</span>
@@ -148,12 +148,10 @@ const ProjectsPage = () => {
                   <div className="hac-dash-panel">
                     <h3 className="panel-title">المحافظات</h3>
                     
-                    {/* صندوق البحث */}
                     <div className="search-box">
                         <input type="text" placeholder="البحث عن محافظة..." />
                     </div>
 
-                    {/* أزرار الفلترة الأربعة */}
                     <div className="filter-buttons">
                         <button className="filter-btn active">الكل</button>
                         <button className="filter-btn">منفذة</button>
@@ -161,7 +159,6 @@ const ProjectsPage = () => {
                         <button className="filter-btn">مخططة</button>
                     </div>
 
-                    {/* قائمة المحافظات */}
                     <div className="gov-list-container">
                         {Object.entries(govData).map(([key, gov]) => (
                             <div 
@@ -183,7 +180,6 @@ const ProjectsPage = () => {
                             <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
                             <div className="title-divider"></div>
 
-                            {/* الحاوية التي تجمع الشبكة والدائرة الصغيرة */}
                             <div className="stats-inner-container" style={{ display: 'flex', alignItems: 'center' }}>
                                 <div className="stats-grid">
                                     <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
@@ -196,7 +192,6 @@ const ProjectsPage = () => {
                                 </div>
                             </div>
 
-                            {/* الرسم البياني الدائري الكبير في الأسفل */}
                             <div className="big-donut-chart">
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -231,7 +226,6 @@ const ProjectsPage = () => {
                                 </PieChart>
                               </ResponsiveContainer>
 
-                              {/* مفاتيح البيانات مضافة يدوياً بتنسيق صغير أسفل الدائرة */}
                               <div style={{
                                 display: 'flex',
                                 justifyContent: 'center',
@@ -259,7 +253,7 @@ const ProjectsPage = () => {
                 </aside>
             </main>
 
-            {/* 1 & 2. النافذة المنبثقة الأولى: بطاقات المعلومات الحية وقائمة المشاريع المصغرة للمحافظة المختارة */}
+            {/* النافذة الأولى: قائمة جميع مشاريع المحافظة مع التمرير السلس */}
             {isGovModalOpen && currentGov && (
                 <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
                     <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
@@ -270,7 +264,6 @@ const ProjectsPage = () => {
                             <h2>لوحة معلومات المحافظة</h2>
                         </div>
 
-                        {/* أولاً: بطاقة المعلومات الحية (Data Cards) */}
                         <div className="hac-modal-stats">
                             <div className="hac-m-box">
                                 <span className="m-val">{currentGov.totalBudget}</span>
@@ -286,9 +279,8 @@ const ProjectsPage = () => {
                             </div>
                         </div>
 
-                        {/* ثانياً: شبكة المشاريع المصغرة (Project List View) */}
-                        <h4 className="hac-sub-title">قائمة المشاريع الخاصة بالمحافظة:</h4>
-                        <div className="hac-projects-table-list">
+                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمحافظة ({currentGov.projectList.length}):</h4>
+                        <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
                             {currentGov.projectList && currentGov.projectList.map((proj) => (
                                 <div key={proj.id} className="hac-proj-row-item">
                                     <div className="hac-proj-info-group">
@@ -309,7 +301,7 @@ const ProjectsPage = () => {
                 </div>
             )}
 
-            {/* 3. النافذة التبويبية العميقة (Deep-Dive Modal) لتفاصيل المشروع الواحد */}
+            {/* النافذة التبويبية العميقة لتفاصيل المشروع (بدون أي أزرار أو إشارة للتبرع) */}
             {selectedProject && (
                 <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
                     <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
@@ -339,8 +331,9 @@ const ProjectsPage = () => {
                         </div>
 
                         <div className="deep-actions">
-                            <button className="hac-action-btn donate-action">دعم المشروع / تبرع</button>
-                            <button className="hac-action-btn pdf-action" onClick={() => alert('جاري تحميل التقرير...')}>تحميل تقرير المشروع (PDF)</button>
+                            <button className="hac-action-btn pdf-action" onClick={() => alert('جاري تحميل التقرير...')} style={{ width: '100%' }}>
+                                تحميل تقرير المشروع (PDF)
+                            </button>
                         </div>
                     </div>
                 </div>
