@@ -31,24 +31,24 @@ const ProjectsPage = () => {
     return (
         <div className="hac-projects-page">
             {/* شريط الإحصائيات العلوي العام (أسفل الهيدر مباشرة) */}
-            <div className="hac-dash-top-stats">
-                <div className="top-stat-card">
-                    <span className="stat-num">21</span>
-                    <span className="stat-text">المحافظات</span>
-                </div>
-                <div className="top-stat-card">
-                    <span className="stat-num">58%</span>
-                    <span className="stat-text">نسبة الإنجاز</span>
-                </div>
-                <div className="top-stat-card">
-                    <span className="stat-num">1002$</span>
-                    <span className="stat-text">الميزانية (مليون)</span>
-                </div>
-                <div className="top-stat-card">
-                    <span className="stat-num">207</span>
-                    <span className="stat-text">إجمالي المشاريع</span>
-                </div>
-            </div>
+         <div className="hac-projects-top-bar">
+    <div className="top-bar-card">
+        <span className="top-num">21</span>
+        <span className="top-label">المحافظات</span>
+    </div>
+    <div className="top-bar-card">
+        <span className="top-num">58%</span>
+        <span className="top-label">نسبة الإنجاز</span>
+    </div>
+    <div className="top-bar-card">
+        <span className="top-num">1002$</span>
+        <span className="top-label">الميزانية (مليون)</span>
+    </div>
+    <div className="top-bar-card">
+        <span className="top-num">207</span>
+        <span className="top-label">إجمالي المشاريع</span>
+    </div>
+</div>
 
             <main className="hac-dash-main-container">
                 <section className="hac-dash-map-section">
