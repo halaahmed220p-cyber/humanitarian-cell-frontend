@@ -12,6 +12,44 @@
     --text-muted: #94a3b8;
     --border-color: #334155;
 }
+/* شريط الإحصائيات العلوي */
+.hac-dash-top-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.top-stat-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #f59e0b; /* اللون الذهبي */
+    margin-bottom: 5px;
+}
+
+.stat-text {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+/* تعديل المسافة العلوية للصفحة لتجنب تداخل الهيدر */
+.hac-dash-wrapper {
+    margin-top: 100px; /* المسافة تحت الهيدر الثابت */
+    padding: 0 20px 20px 20px;
+}
 
 .hac-dash-wrapper {
     font-family: 'Tajawal', sans-serif;

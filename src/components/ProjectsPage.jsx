@@ -27,6 +27,40 @@ const ProjectsPage = () => {
     };
 
     const currentGov = selectedKey ? govData[selectedKey] : null;
+    return (
+    <div className="hac-dash-wrapper">
+        {/* شريط الإحصائيات العلوي العام */}
+        <div className="hac-dash-top-stats">
+            <div className="top-stat-card">
+                <span className="stat-num">21</span>
+                <span className="stat-text">المحافظات</span>
+            </div>
+            <div className="top-stat-card">
+                <span className="stat-num">58%</span>
+                <span className="stat-text">نسبة الإنجاز</span>
+            </div>
+            <div className="top-stat-card">
+                <span className="stat-num">1002$</span>
+                <span className="stat-text">الميزانية (مليون)</span>
+            </div>
+            <div className="top-stat-card">
+                <span className="stat-num">207</span>
+                <span className="stat-text">إجمالي المشاريع</span>
+            </div>
+        </div>
+
+        <main className="hac-dash-main-container">
+            {/* بقية المحتوى (الخريطة والقائمة الجانبية) */}
+            <section className="hac-dash-map-section">
+                {/* ... كود الخريطة ... */}
+            </section>
+            
+            <aside className="hac-dash-sidebar">
+                {/* ... كود القائمة ومؤشر الأداء ... */}
+            </aside>
+        </main>
+    </div>
+);
 
     return (
         <div className="hac-dash-wrapper">
