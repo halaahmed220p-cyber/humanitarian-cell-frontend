@@ -1,123 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MapComponent from './MapComponent';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import './ProjectsPage.css';
 
-const data = [
-  { name: 'منفذة', value: 7, color: '#10b981' },
-  { name: 'قيد التنفيذ', value: 3, color: '#f59e0b' },
-  { name: 'مخططة', value: 4, color: '#3b82f6' },
-];
-
 const ProjectsPage = () => {
-    // بيانات المحافظات والمشاريع المتعددة لكل محافظة
-    const [govData] = useState({
-        taiz: { 
-            id: 'taiz', 
-            name: 'تعز', 
-            coords: [13.57, 44.01], 
-            projects: 18, 
-            completion: 65,
-            totalBudget: '350,000$',
-            totalBeneficiaries: '15,000+',
-            projectList: [
-                { id: 101, title: 'مشروع التدخلات العاجلة للمياه', status: 'جاري التنفيذ', statusClass: 'in-progress', desc: 'حفر وتأهيل آبار المياه وتوزيع الشاحنات الإستراتيجية للأسر المتضررة.', timeline: '01/01/2026 - 01/12/2026', executor: 'خلية الأعمال الإنسانية' },
-                { id: 102, title: 'تأهيل الوحدات الصحية الريفية', status: 'مكتمل', statusClass: 'completed', desc: 'تجهيز وتوفير الأدوية والمستلزمات الطبية للمراكز الصحية.', timeline: '15/05/2025 - 30/11/2025', executor: 'شريك محلي' },
-                { id: 103, title: 'مشروع الحقيبة المدرسية', status: 'مخططة', statusClass: 'planned', desc: 'توزيع الحقائب والأدوات المدرسية للطلاب الأشد احتياجاً.', timeline: '01/08/2026 - 01/09/2026', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-        sanaa: { 
-            id: 'sanaa', 
-            name: 'صنعاء', 
-            coords: [15.36, 44.19], 
-            projects: 15, 
-            completion: 75,
-            totalBudget: '420,000$',
-            totalBeneficiaries: '22,000+',
-            projectList: [
-                { id: 201, title: 'دعم وتأهيل المدارس الأساسية', status: 'جاري التنفيذ', statusClass: 'in-progress', desc: 'صيانة المقاعد المدرسية وترميم الفصول الدراسية المتضررة.', timeline: '10/02/2026 - 10/09/2026', executor: 'خلية الأعمال الإنسانية' },
-                { id: 202, title: 'مشروع توزيع السلال الغذائية', status: 'مكتمل', statusClass: 'completed', desc: 'توزيع مساعدات غذائية أساسية للأسر المتعففة.', timeline: '01/01/2026 - 01/03/2026', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-        aden: { 
-            id: 'aden', 
-            name: 'عدن', 
-            coords: [12.78, 45.01], 
-            projects: 12, 
-            completion: 80,
-            totalBudget: '280,000$',
-            totalBeneficiaries: '18,000+',
-            projectList: [
-                { id: 301, title: 'مبادرة التمكين الاقتصادي للأسر العفيفة', status: 'مخططة', statusClass: 'planned', desc: 'توفير مشاريع صغيرة مستدامة للنساء المعيلات.', timeline: '01/09/2026 - 01/03/2027', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-        hodiedah: { 
-            id: 'hodiedah', 
-            name: 'الحديدة', 
-            coords: [14.80, 42.95], 
-            projects: 20, 
-            completion: 40,
-            totalBudget: '310,000$',
-            totalBeneficiaries: '19,000+',
-            projectList: [
-                { id: 401, title: 'مشروع الأمن الغذائي الساحل الغربي', status: 'جاري التنفيذ', statusClass: 'in-progress', desc: 'توزيع حصص غذائية متكاملة.', timeline: '01/02/2026 - 01/08/2026', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-        ibbi: { 
-            id: 'ibbi', 
-            name: 'إب', 
-            coords: [13.97, 44.17], 
-            projects: 10, 
-            completion: 55,
-            totalBudget: '190,000$',
-            totalBeneficiaries: '9,000+',
-            projectList: [
-                { id: 501, title: 'شق وتعبيد الطرق الفرعية', status: 'مكتمل', statusClass: 'completed', desc: 'تسهيل وصول القوافل الإغاثية.', timeline: '01/01/2025 - 01/05/2025', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-        hadramout: { 
-            id: 'hadramout', 
-            name: 'حضرموت', 
-            coords: [15.50, 48.50], 
-            projects: 25, 
-            completion: 90,
-            totalBudget: '550,000$',
-            totalBeneficiaries: '30,000+',
-            projectList: [
-                { id: 601, title: 'تطوير القطاع الزراعي والمائي', status: 'مكتمل', statusClass: 'completed', desc: 'حفر آبار ارتوازية للطاقة البديلة.', timeline: '01/03/2026 - 01/06/2026', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-        marib: { 
-            id: 'marib', 
-            name: 'مأرب', 
-            coords: [15.45, 45.32], 
-            projects: 8, 
-            completion: 45,
-            totalBudget: '200,000$',
-            totalBeneficiaries: '12,000+',
-            projectList: [
-                { id: 701, title: 'إيواء النازحين وتوفير الخيام', status: 'قيد التنفيذ', statusClass: 'in-progress', desc: 'تقديم وحدات إيوائية عاجلة.', timeline: '15/04/2026 - 15/10/2026', executor: 'خلية الأعمال الإنسانية' }
-            ]
-        },
-    });
-
-    const [selectedKey, setSelectedKey] = useState(null);
+    // حالة لتخزين كافة المشاريع القادمة من جدول قاعدة البيانات
+    const [projectsList, setProjectsList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+    // حالات النوافذ المنبثقة
+    const [selectedGovName, setSelectedGovName] = useState(null);
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    const handleSelectGovernorate = (key) => {
-        setSelectedKey(key);
+    // جلب البيانات من جدول قاعدة البيانات عند تحميل الصفحة
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                // استبدل الرابط أدناه برابط الـ API الفعلي الخاص بسيرفرك الذي يجلب البيانات من جدول projects
+                const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
+                const data = await response.json();
+                setProjectsList(data);
+                setLoading(false);
+            } catch (err) {
+                console.error('خطأ في جلب المشاريع من قاعدة البيانات:', err);
+                setLoading(false);
+                // بيانات افتراضية تجريبية مطابقة لهيكل الجدول في حال عدم اتصال السيرفر مؤقتاً
+                setProjectsList([
+                    { id: 1, title: 'مشروع التدخلات العاجلة للمياه', description: 'حفر وتأهيل آبار المياه.', status: 'قيد التنفيذ', location: 'تعز', full_details: 'تفاصيل شاملة عن مشروع مياه تعز...', image_url: '', needs_donation: true },
+                    { id: 2, title: 'تأهيل الوحدات الصحية', description: 'تجهيز المراكز الطبية.', status: 'منفذة', location: 'تعز', full_details: 'تفاصيل شاملة عن الوحدات الصحية...', image_url: '', needs_donation: false },
+                    { id: 3, title: 'دعم وتأهيل المدارس', description: 'صيانة المقاعد المدرسية.', status: 'قيد التنفيذ', location: 'صنعاء', full_details: 'تفاصيل مدارس صنعاء...', image_url: '', needs_donation: true },
+                ]);
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
+    // تجميع المحافظات بناءً على عمود location في قاعدة البيانات
+    const governoratesMap = {};
+    projectsList.forEach(proj => {
+        const loc = proj.location || 'أخرى';
+        if (!governoratesMap[loc]) {
+            governoratesMap[loc] = { name: loc, projects: [], completedCount: 0, inProgressCount: 0 };
+        }
+        governoratesMap[loc].projects.push(proj);
+        if (proj.status === 'منفذة') governoratesMap[loc].completedCount++;
+        if (proj.status === 'قيد التنفيذ') governoratesMap[loc].inProgressCount++;
+    });
+
+    const handleSelectGovernorate = (govName) => {
+        setSelectedGovName(govName);
         setIsGovModalOpen(true);
     };
 
-    const currentGov = selectedKey ? govData[selectedKey] : null;
+    const currentGovData = selectedGovName ? governoratesMap[selectedGovName] : null;
+
+    // بيانات الرسوم البيانية الإحصائية العامة
+    const chartData = [
+        { name: 'منفذة', value: projectsList.filter(p => p.status === 'منفذة').length || 7, color: '#10b981' },
+        { name: 'قيد التنفيذ', value: projectsList.filter(p => p.status === 'قيد التنفيذ').length || 3, color: '#f59e0b' },
+        { name: 'مخططة', value: projectsList.filter(p => p.status === 'مخططة').length || 4, color: '#3b82f6' },
+    ];
 
     return (
         <div className="hac-projects-page">
-            {/* شريط الإحصائيات العلوي العام */}
+            {/* شريط الإحصائيات العلوي */}
             <div className="hac-projects-top-bar">
                 <div className="top-bar-card">
-                    <span className="top-num">21</span>
+                    <span className="top-num">{Object.keys(governoratesMap).length}</span>
                     <span className="top-label">المحافظات</span>
                 </div>
                 <div className="top-bar-card">
@@ -129,7 +80,7 @@ const ProjectsPage = () => {
                     <span className="top-label">الميزانية (مليون)</span>
                 </div>
                 <div className="top-bar-card">
-                    <span className="top-num">207</span>
+                    <span className="top-num">{projectsList.length}</span>
                     <span className="top-label">إجمالي المشاريع</span>
                 </div>
             </div>
@@ -137,16 +88,16 @@ const ProjectsPage = () => {
             <main className="hac-dash-main-container">
                 <section className="hac-dash-map-section">
                     <div className="hac-dash-map-wrapper">
-                        <MapComponent governorateData={govData} onSelectGovernorate={handleSelectGovernorate} />
+                        <MapComponent governorateData={governoratesMap} onSelectGovernorate={handleSelectGovernorate} />
                     </div>
                     <div className="hac-dash-map-footer">
-                        اضغط على أي محافظة لعرض مشاريعها | تكبير/تصغير باستخدام عجلة الفأرة
+                        اضغط على أي محافظة لعرض مشاريعها المستدعية من قاعدة البيانات | تكبير/تصغير باستخدام عجلة الفأرة
                     </div>
                 </section>
 
                 <aside className="hac-dash-sidebar">
                   <div className="hac-dash-panel">
-                    <h3 className="panel-title">المحافظات</h3>
+                    <h3 className="panel-title">المحافظات (من قاعدة البيانات)</h3>
                     
                     <div className="search-box">
                         <input type="text" placeholder="البحث عن محافظة..." />
@@ -160,132 +111,95 @@ const ProjectsPage = () => {
                     </div>
 
                     <div className="gov-list-container">
-                        {Object.entries(govData).map(([key, gov]) => (
-                            <div 
-                                key={key} 
-                                className={`gov-card-item ${selectedKey === key ? 'active' : ''}`}
-                                onClick={() => handleSelectGovernorate(key)}
-                            >
-                                <div className="gov-number-badge">{gov.projects}</div>
-                                <div className="gov-info">
-                                    <span className="gov-name">{gov.name}</span>
-                                    <span className="gov-details">إنجاز %{gov.completion} • مشاريع {gov.projects}</span>
+                        {Object.keys(governoratesMap).map((locKey) => {
+                            const gov = governoratesMap[locKey];
+                            return (
+                                <div 
+                                    key={locKey} 
+                                    className={`gov-card-item ${selectedGovName === locKey ? 'active' : ''}`}
+                                    onClick={() => handleSelectGovernorate(locKey)}
+                                >
+                                    <div className="gov-number-badge">{gov.projects.length}</div>
+                                    <div className="gov-info">
+                                        <span className="gov-name">{gov.name}</span>
+                                        <span className="gov-details">مشاريع مسجلة: {gov.projects.length}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
-                    {currentGov && (
-                        <div className="hac-dash-performance-panel">
-                            <h3 className="performance-title">مؤشر الأداء: {currentGov.name}</h3>
-                            <div className="title-divider"></div>
+                    {/* مؤشر الأداء العام */}
+                    <div className="hac-dash-performance-panel">
+                        <h3 className="performance-title">مؤشر الأداء العام</h3>
+                        <div className="title-divider"></div>
 
-                            <div className="stats-inner-container" style={{ display: 'flex', alignItems: 'center' }}>
-                                <div className="stats-grid">
-                                    <div className="stat-card"><span>95</span><span className="stat-label">مليون $</span></div>
-                                    <div className="stat-card"><span>{currentGov.projects}</span><span className="stat-label">المشاريع</span></div>
-                                    <div className="stat-card"><span>4</span><span className="stat-label">منفذة</span></div>
-                                    <div className="stat-card"><span>3</span><span className="stat-label">قيد التنفيذ</span></div>
-                                </div>
-                                <div className="small-donut-chart">
-                                    <span className="percentage-text">{currentGov.completion}%</span>
-                                </div>
-                            </div>
+                        <div className="big-donut-chart">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={chartData}
+                                cx="50%" cy="45%"
+                                innerRadius={40}
+                                outerRadius={65}
+                                paddingAngle={2}
+                                dataKey="value"
+                                activeShape={false} 
+                                isAnimationActive={false}
+                              >
+                                {chartData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} style={{ outline: 'none' }} />
+                                ))}
+                              </Pie>
+                              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '4px', fontSize: '10px', padding: '5px' }} />
+                            </PieChart>
+                          </ResponsiveContainer>
 
-                            <div className="big-donut-chart">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={data}
-                                    cx="50%" cy="45%"
-                                    innerRadius={40}
-                                    outerRadius={65}
-                                    paddingAngle={2}
-                                    dataKey="value"
-                                    activeShape={false} 
-                                    isAnimationActive={false}
-                                  >
-                                    {data.map((entry, index) => (
-                                      <Cell 
-                                        key={`cell-${index}`} 
-                                        fill={entry.color} 
-                                        style={{ outline: 'none' }} 
-                                      />
-                                    ))}
-                                  </Pie>
-                                  <Tooltip 
-                                    contentStyle={{ 
-                                      backgroundColor: '#1e293b', 
-                                      border: 'none', 
-                                      borderRadius: '4px',
-                                      fontSize: '10px', 
-                                      padding: '5px' 
-                                    }} 
-                                    itemStyle={{ color: '#fff', fontSize: '10px' }}
-                                  />
-                                </PieChart>
-                              </ResponsiveContainer>
-
-                              <div style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                gap: '12px',
-                                position: 'absolute',
-                                bottom: '10px',
-                                width: '100%',
-                                fontSize: '9px',
-                                color: '#94a3b8'
-                              }}>
-                                <span style={{ display: 'flex', alignItems: 'center' }}>
-                                  <i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> منفذة
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center' }}>
-                                  <i style={{ background: '#f59e0b', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> قيد التنفيذ
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center' }}>
-                                  <i style={{ background: '#3b82f6', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> مخططة
-                                </span>
-                              </div>
-                            </div>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', position: 'absolute', bottom: '10px', width: '100%', fontSize: '9px', color: '#94a3b8' }}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> منفذة</span>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#f59e0b', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> قيد التنفيذ</span>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#3b82f6', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> مخططة</span>
+                          </div>
                         </div>
-                    )}
+                    </div>
                   </div>
                 </aside>
             </main>
 
-            {/* النافذة الأولى: قائمة جميع مشاريع المحافظة مع التمرير السلس */}
-            {isGovModalOpen && currentGov && (
+            {/* النافذة الأولى: عرض مشاريع المحافظة المحددة من جدول قاعدة البيانات */}
+            {isGovModalOpen && currentGovData && (
                 <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
                     <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
                         
                         <div className="hac-modal-header">
-                            <span className="hac-modal-badge">مشاريع محافظة {currentGov.name}</span>
-                            <h2>لوحة معلومات المحافظة</h2>
+                            <span className="hac-modal-badge">مشاريع محافظة {currentGovData.name}</span>
+                            <h2>سجلات قاعدة البيانات</h2>
                         </div>
 
                         <div className="hac-modal-stats">
                             <div className="hac-m-box">
-                                <span className="m-val">{currentGov.totalBudget}</span>
-                                <span className="m-lbl">إجمالي الميزانية</span>
+                                <span className="m-val">{currentGovData.projects.length}</span>
+                                <span className="m-lbl">إجمالي المشاريع</span>
                             </div>
                             <div className="hac-m-box">
-                                <span className="m-val">{currentGov.totalBeneficiaries}</span>
-                                <span className="m-lbl">المستفيدون</span>
+                                <span className="m-val">{currentGovData.completedCount}</span>
+                                <span className="m-lbl">مشاريع منفذة</span>
                             </div>
                             <div className="hac-m-box">
-                                <span className="m-val">{currentGov.completion}%</span>
-                                <span className="m-lbl">نسبة الإنجاز</span>
+                                <span className="m-val">{currentGovData.inProgressCount}</span>
+                                <span className="m-lbl">قيد التنفيذ</span>
                             </div>
                         </div>
 
-                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمحافظة ({currentGov.projectList.length}):</h4>
+                        <h4 className="hac-sub-title">قائمة المشاريع المرتبطة بـ location:</h4>
                         <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                            {currentGov.projectList && currentGov.projectList.map((proj) => (
+                            {currentGovData.projects.map((proj) => (
                                 <div key={proj.id} className="hac-proj-row-item">
                                     <div className="hac-proj-info-group">
                                         <h5>{proj.title}</h5>
-                                        <span className={`hac-status-badge ${proj.statusClass}`}>
+                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description}</p>
+                                        <span className="hac-status-badge in-progress" style={{ marginTop: '5px', display: 'inline-block' }}>
                                             {proj.status}
                                         </span>
                                     </div>
@@ -301,31 +215,36 @@ const ProjectsPage = () => {
                 </div>
             )}
 
-            {/* النافذة التبويبية العميقة لتفاصيل المشروع (بدون أي أزرار أو إشارة للتبرع) */}
+            {/* النافذة العميقة لعرض أعمدة full_details وغيرها من جدول البيانات */}
             {selectedProject && (
                 <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
                     <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
                         
                         <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق</span>
+                            <span className="hac-modal-badge gold-bg">تفاصيل من قاعدة البيانات (ID: {selectedProject.id})</span>
                             <h2>{selectedProject.title}</h2>
                         </div>
 
                         <div className="deep-modal-content">
                             <div className="deep-info-block">
-                                <strong>وصف المشروع:</strong>
-                                <p>{selectedProject.desc}</p>
+                                <strong>الوصف الأساسي (description):</strong>
+                                <p>{selectedProject.description}</p>
                             </div>
 
-                            <div className="deep-info-grid">
+                            <div className="deep-info-block" style={{ marginTop: '10px' }}>
+                                <strong>التفاصيل الكاملة (full_details):</strong>
+                                <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة في قاعدة البيانات لهذا المشروع.'}</p>
+                            </div>
+
+                            <div className="deep-info-grid" style={{ marginTop: '15px' }}>
                                 <div className="deep-box">
-                                    <span className="deep-label">الجدول الزمني:</span>
-                                    <span className="deep-val">{selectedProject.timeline}</span>
+                                    <span className="deep-label">الحالة (status):</span>
+                                    <span className="deep-val">{selectedProject.status}</span>
                                 </div>
                                 <div className="deep-box">
-                                    <span className="deep-label">الجهة المنفذة:</span>
-                                    <span className="deep-val">{selectedProject.executor}</span>
+                                    <span className="deep-label">الموقع الجغرافي (location):</span>
+                                    <span className="deep-val">{selectedProject.location}</span>
                                 </div>
                             </div>
                         </div>
