@@ -2,7 +2,7 @@ import React from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// قاموس يربط أسماء المحافظات القادمة من قاعدة البيانات بإحداثياتها الجغرافية الدقيقة
+// خريطة الإحداثيات الأساسية للمحافظات
 const governorateCoordsMap = {
     'تعز': [13.57, 44.01],
     'صنعاء': [15.36, 44.19],
@@ -18,6 +18,19 @@ const governorateCoordsMap = {
     'الضالع': [13.69, 44.73]
 };
 
+// دالة ذكية لاستخراج الإحداثيات حتى لو كان النص مركباً مثل "اليمن - إب" أو "عدن - إب"
+const findCoordinates = (locationName) => {
+    if (!locationName) return [15.55, 48.51];
+    
+    // البحث عن اسم المحافظة داخل النص المركب
+    for (const [govKey, coords] of Object.entries(governorateCoordsMap)) {
+        if (locationName.includes(govKey)) {
+            return coords;
+        }
+    }
+    return [15.55, 48.51]; // إحداثيات افتراضية في حال عدم التطابق
+};
+
 const MapComponent = ({ governorateData, onSelectGovernorate }) => {
   return (
     <MapContainer 
@@ -31,12 +44,10 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
 
-      {/* عرض جميع المحافظات الواردة من قاعدة البيانات عبر السيرفر بأمان تام */}
       {Object.entries(governorateData || {}).map(([key, gov]) => {
-        // جلب الإحداثيات إما من الخريطة المعرفة أعلاه أو استخدام إحداثيات افتراضية بوسط اليمن لمنع الانهيار
-        const coords = gov.coords || governorateCoordsMap[gov.name] || [15.55, 48.51];
+        // استدعاء دالة البحث الذكي عن الإحداثيات بناءً على النص المخزن في قاعدة البيانات
+        const coords = findCoordinates(gov.name);
         
-        // حساب عدد المشاريع بأمان
         const projectsCount = gov.projects ? (Array.isArray(gov.projects) ? gov.projects.length : gov.projects) : 0;
         const completionRate = gov.completion || 60;
 
@@ -44,7 +55,7 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
           <CircleMarker
             key={key}
             center={coords}
-            radius={8 + (projectsCount ? projectsCount / 2 : 0)}
+            radius={8 + (projectsCount ? projectsCount * 1.5 : 0)}
             pathOptions={{ 
               fillColor: completionRate >= 70 ? '#10b981' : '#f59e0b',
               color: '#fff',
