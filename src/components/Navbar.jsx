@@ -41,14 +41,18 @@ export default function Navbar({ program }) {
   };
 
   return (
-    <header className="header fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-md shadow-md border-b border-slate-200" id="header">
+    <header 
+      className="fixed top-0 left-0 right-0 z-[100] shadow-md border-b border-slate-200" 
+      style={{ backgroundColor: '#ffffff', backdropFilter: 'none' }}
+      id="header"
+    >
       <div className="header-inner max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
         
         {/* زر العودة أو الشعار */}
         {program ? (
           <button
             onClick={() => navigate('/programs')}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-all duration-300 px-4 py-2 rounded-xl hover:bg-slate-100"
+            className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-all duration-300 px-4 py-2 rounded-xl hover:bg-slate-100"
           >
             <ArrowRight className="w-5 h-5" />
             <span className="font-medium">العودة للبرامج</span>
@@ -73,7 +77,7 @@ export default function Navbar({ program }) {
           </div>
         )}
 
-        {/* الروابط العامة بلون داكن وواضح */}
+        {/* الروابط العامة بلون داكن وواضحة تماماً */}
         <nav>
           <ul className={`nav-menu ${isMenuOpen ? 'active' : ''} flex items-center gap-6 list-none m-0 p-0`} id="navMenu">
             <li>
