@@ -5,6 +5,7 @@ import BackgroundAnimation from '../components/BackgroundAnimation'
 import Navbar from '../components/Navbar'
 import ScrollReveal from '../components/ScrollReveal'
 import ProgressBar from '../components/ProgressBar'
+import './ProgramDetail.css' // استدعاء ملف التنسيق الخاص بصفحة التفاصيل فقط
 
 const statusConfig = {
   active: { label: 'نشط', className: 'bg-green-400/20 text-green-400 border-green-400/30' },
