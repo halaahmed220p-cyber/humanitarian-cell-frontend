@@ -15,7 +15,7 @@ const programStyles = {
 
 export default function ProgramsPage() {
   return (
-    <div className="min-h-screen relative bg-[#0a0f1a] text-white flex flex-col font-['Tajawal',sans-serif]" dir="rtl">
+    <div className="programs-page">
       <BackgroundAnimation />
 
       {/* --- الهيدر الثابت (Header) --- */}

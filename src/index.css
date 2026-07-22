@@ -1,12 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* جعل هذه التنسيقات مخصصة فقط لصفحة البرامج عبر الحاوية الرئيسية لها */
+.programs-page {
+  font-family: 'Tajawal', sans-serif;
+  background: linear-gradient(135deg, #0f1c3a 0%, #1a2a4a 50%, #162238 100%);
+  min-height: 100vh;
+  color: #f5f5f5;
+  overflow-x: hidden;
+}
 
-:root {
+.programs-page :root {
   --primary-dark: #1a2a4a;
   --primary-mid: #2d4a6f;
   --accent-gold: #c9a84c;
@@ -17,23 +24,15 @@
   --glass-border: rgba(255, 255, 255, 0.1);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Tajawal', sans-serif;
-  background: linear-gradient(135deg, #0f1c3a 0%, #1a2a4a 50%, #162238 100%);
-  min-height: 100vh;
-  color: var(--text-light);
-  overflow-x: hidden;
+.programs-page html {
+  scroll-behavior: smooth;
 }
 
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #0f1c3a; }
-::-webkit-scrollbar-thumb { background: #c9a84c; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #e8d5a3; }
-
+/* Scrollbar خاص بصفحة البرامج */
+.programs-page ::-webkit-scrollbar { width: 8px; }
+.programs-page ::-webkit-scrollbar-track { background: #0f1c3a; }
+.programs-page ::-webkit-scrollbar-thumb { background: #c9a84c; border-radius: 4px; }
+.programs-page ::-webkit-scrollbar-thumb:hover { background: #e8d5a3; }
 
 /* Animations */
 @keyframes float1 {
