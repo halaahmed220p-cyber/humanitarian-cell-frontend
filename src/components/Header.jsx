@@ -68,6 +68,14 @@ const Header = () => {
                 المشاريع
               </NavLink>
             </li>
+            
+            {/* --- الرابط الجديد المضاف لصفحة البرامج --- */}
+            <li>
+              <NavLink to="/programs" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
+                البرامج
+              </NavLink>
+            </li>
+
             <li>
               <NavLink to="/news" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
                 الأخبار والتقارير

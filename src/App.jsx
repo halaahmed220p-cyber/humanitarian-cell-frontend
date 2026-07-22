@@ -9,6 +9,12 @@ import News from './components/News';
 import Footer from './components/Footer';
 import NewsPage from './components/NewsPage';
 import Donation from './components/Donation'; 
+import ProgramsPage from './components/ProgramsPage'
+import ProgramDetail from './components/ProgramDetail'
+
+import { programsData } from './data/programsData'
+
+
 import ScrollToTop from './components/ScrollToTop'; 
 import './App.css';
 
@@ -35,6 +41,9 @@ function App() {
         <Route path="/" element={<><Header /><HomePage /><Footer /></>} />
         <Route path="/news" element={<><Header /><NewsPage /><Footer /></>} />
         <Route path="/donate" element={<><Header /><Donation /><Footer /></>} />
+      <Route path="/" element={<ProgramsPage/>} />
+      <Route path="/program/:programId" element={<ProgramDetail programs={programsData} />} />
+    
         
         {/* صفحة المشاريع: لوحة تحكم مستقلة بملء الشاشة وبدون تداخل */}
         // داخل ملف App.js

@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
+:root {
+  --primary-dark: #1a2a4a;
+  --primary-mid: #2d4a6f;
+  --accent-gold: #c9a84c;
+  --accent-gold-light: #e8d5a3;
+  --text-light: #f5f5f5;
+  --text-muted: #b0b8c8;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: linear-gradient(135deg, #0f1c3a 0%, #1a2a4a 50%, #162238 100%);
+  min-height: 100vh;
+  color: var(--text-light);
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0f1c3a; }
+::-webkit-scrollbar-thumb { background: #c9a84c; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #e8d5a3; }
+
+
+/* Animations */
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 30px) scale(0.9); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-40px, -30px) scale(1.15); }
+  66% { transform: translate(30px, -20px) scale(0.85); }
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, 40px) scale(0.9); }
+  66% { transform: translate(-30px, -40px) scale(1.1); }
+}
+@keyframes particleFloat {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+.animate-float1 { animation: float1 20s infinite ease-in-out; }
+.animate-float2 { animation: float2 25s infinite ease-in-out; }
+.animate-float3 { animation: float3 22s infinite ease-in-out; }
