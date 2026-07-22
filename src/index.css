@@ -4,26 +4,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* تعريف المتغيرات العامة لنظام البرامج */
+/* الثيم العام الموحد لصفحة البرامج وصفحة التفاصيل */
 .programs-theme {
-  --primary-dark: #1a2a4a;
-  --primary-mid: #2d4a6f;
-  --accent-gold: #c9a84c;
-  --accent-gold-light: #e8d5a3;
-  --text-light: #f5f5f5;
-  --text-muted: #b0b8c8;
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  
   font-family: 'Tajawal', sans-serif;
-  background: linear-gradient(135deg, #0f1c3a 0%, #1a2a4a 50%, #162238 100%);
+  background: linear-gradient(135deg, #0f1c3a 0%, #1a2a4a 50%, #162238 100%) !important;
   min-height: 100vh;
-  color: var(--text-light);
+  color: #f5f5f5 !important;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
-/* Scrollbar خاص بالصفحات التي تحمل هذا الثيم */
+/* اجبار جميع النصوص والعناوين داخل الثيم على الظهور بلون واضح ومتناسق */
+.programs-theme h1, 
+.programs-theme h2, 
+.programs-theme h3, 
+.programs-theme h4, 
+.programs-theme h5, 
+.programs-theme h6, 
+.programs-theme p, 
+.programs-theme span, 
+.programs-theme div {
+  color: inherit;
+}
+
+/* إصلاح العناوين الكبيرة الباهتة في صفحة التفاصيل لتظهر بلون ذهبي أو أبيض واضح */
+.programs-theme h1, 
+.programs-theme h2 {
+  color: #ffffff !important;
+}
+
+/* Scrollbar خاص بالثيم */
 .programs-theme ::-webkit-scrollbar { width: 8px; }
 .programs-theme ::-webkit-scrollbar-track { background: #0f1c3a; }
 .programs-theme ::-webkit-scrollbar-thumb { background: #c9a84c; border-radius: 4px; }
