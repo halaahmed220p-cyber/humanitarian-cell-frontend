@@ -3,9 +3,10 @@ import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, Calendar, Users, ChevronLeft } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import ScrollReveal from '../components/ScrollReveal'
 import ProgressBar from '../components/ProgressBar'
-import './ProgramDetail.css' // استدعاء ملف التنسيق الخاص بصفحة التفاصيل فقط
+import './ProgramDetail.css'
 
 const statusConfig = {
   active: { label: 'نشط', className: 'bg-green-400/20 text-green-400 border-green-400/30' },
@@ -20,9 +21,10 @@ export default function ProgramDetail({ programs }) {
 
   if (!program) {
     return (
-      <div className="program-detail-page py-12 px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-black mb-4">البرنامج غير موجود</h1>
+      <div className="program-detail-page min-h-screen flex flex-col justify-between">
+        <Navbar />
+        <div className="text-center py-24">
+          <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود</h1>
           <button
             onClick={() => navigate('/')}
             className="px-6 py-3 bg-[#c9a84c] text-[#1a1a1a] rounded-xl font-bold"
@@ -30,6 +32,7 @@ export default function ProgramDetail({ programs }) {
             العودة للبرامج
           </button>
         </div>
+        <Footer />
       </div>
     )
   }
@@ -37,13 +40,13 @@ export default function ProgramDetail({ programs }) {
   const { color, colorLight, gradient } = program
 
   return (
-    <div className="program-detail-page min-h-screen relative">
+    <div className="program-detail-page min-h-screen flex flex-col relative">
       <BackgroundAnimation />
       <Navbar program={program} />
 
-      <div className="max-w-[1400px] mx-auto px-6 relative z-[2]">
+      <div className="flex-1 max-w-[1400px] mx-auto px-6 relative z-[2] w-full pt-20">
         {/* Hero */}
-        <section className="pt-36 pb-16">
+        <section className="pt-24 pb-16">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color }}>
               {program.badge}
@@ -51,7 +54,7 @@ export default function ProgramDetail({ programs }) {
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
-            <h1 className="text-5xl md:text-6xl font-black leading-tight mb-5">
+            <h1 className="text-5xl md:text-6xl font-black leading-tight mb-5 text-white">
               {program.name}<br />
               <span className="relative" style={{ color }}>
                 {program.slogan}
@@ -95,7 +98,7 @@ export default function ProgramDetail({ programs }) {
         >
           <ScrollReveal>
             <div className="flex items-center gap-4 mb-10">
-              <h2 className="text-3xl font-extrabold">أثر البرنامج</h2>
+              <h2 className="text-3xl font-extrabold text-white">أثر البرنامج</h2>
               <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
             </div>
           </ScrollReveal>
@@ -109,7 +112,7 @@ export default function ProgramDetail({ programs }) {
                   >
                     {impact.icon}
                   </div>
-                  <h4 className="text-lg font-bold mb-2">{impact.title}</h4>
+                  <h4 className="text-lg font-bold mb-2 text-white">{impact.title}</h4>
                   <p className="text-sm text-[#b0b8c8] leading-relaxed">{impact.desc}</p>
                 </div>
               </ScrollReveal>
@@ -121,7 +124,7 @@ export default function ProgramDetail({ programs }) {
         <section className="pb-20">
           <ScrollReveal>
             <div className="flex items-center gap-4 mb-10">
-              <h2 className="text-3xl font-extrabold">مشاريع البرنامج</h2>
+              <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج</h2>
               <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
               <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color }}>
                 {program.projects.length} مشروع
@@ -161,7 +164,7 @@ export default function ProgramDetail({ programs }) {
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-extrabold mb-3">{project.title}</h3>
+                      <h3 className="text-xl font-extrabold mb-3 text-white">{project.title}</h3>
                       <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{project.desc}</p>
 
                       {/* Progress */}
@@ -179,7 +182,7 @@ export default function ProgramDetail({ programs }) {
                           <Users className="w-4 h-4" />
                           <span><strong style={{ color }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
                         </div>
-                        <button className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold hover:bg-white/10 hover:border-white/40 transition-all duration-300">
+                        <button className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300">
                           التفاصيل
                         </button>
                       </div>
@@ -195,7 +198,7 @@ export default function ProgramDetail({ programs }) {
         <section className="pb-20">
           <ScrollReveal>
             <div className="flex items-center gap-4 mb-10">
-              <h2 className="text-3xl font-extrabold">أحداث وإنجازات</h2>
+              <h2 className="text-3xl font-extrabold text-white">أحداث وإنجازات</h2>
               <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
             </div>
           </ScrollReveal>
@@ -211,7 +214,7 @@ export default function ProgramDetail({ programs }) {
                     style={{ background: color, boxShadow: `0 0 0 3px rgba(255,255,255,0.1)` }}
                   />
                   <div className="text-sm font-bold mb-1.5" style={{ color }}>{item.date}</div>
-                  <h4 className="text-lg font-bold mb-1">{item.title}</h4>
+                  <h4 className="text-lg font-bold mb-1 text-white">{item.title}</h4>
                   <p className="text-sm text-[#b0b8c8] leading-relaxed">{item.desc}</p>
                 </div>
               </ScrollReveal>
@@ -222,7 +225,7 @@ export default function ProgramDetail({ programs }) {
         {/* Footer CTA */}
         <div className="text-center py-20 border-t border-white/5">
           <ScrollReveal>
-            <h3 className="text-3xl font-extrabold mb-4">كن جزءاً من التغيير</h3>
+            <h3 className="text-3xl font-extrabold mb-4 text-white">كن جزءاً من التغيير</h3>
             <p className="text-[#b0b8c8] mb-8 max-w-lg mx-auto">
               ساهم معنا في دعم برنامج {program.name} وإحداث فرق حقيقي في حياة المحتاجين
             </p>
@@ -246,6 +249,8 @@ export default function ProgramDetail({ programs }) {
           </ScrollReveal>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

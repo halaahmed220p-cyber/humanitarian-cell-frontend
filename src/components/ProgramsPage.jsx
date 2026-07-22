@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Heart, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ScrollReveal from '../components/ScrollReveal';
+import Navbar from '../components/Navbar'; // استدعاء الهيدر الموحد للمشروع
+import Footer from '../components/Footer'; // استدعاء الفوتر الموحد للمشروع
 import { programsData, programIds } from '../data/programsData';
 
 const programStyles = {
@@ -15,44 +17,16 @@ const programStyles = {
 
 export default function ProgramsPage() {
   return (
-    <div className="programs-theme">
+    <div className="programs-theme min-h-screen flex flex-col">
       <BackgroundAnimation />
 
-      {/* --- الهيدر الثابت (Header) --- */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f172a]/80 backdrop-blur-md border-b border-[#334155] px-6 py-4">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#c9a84c]/20 border border-[#c9a84c]/40 flex items-center justify-center text-[#c9a84c] font-black text-lg">
-              HAC
-            </div>
-            <span className="font-extrabold text-lg text-white">خلية الأعمال الإنسانية</span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#94a3b8]">
-            <Link to="/" className="hover:text-[#c9a84c] transition-colors">الرئيسية</Link>
-            <Link to="/about" className="hover:text-[#c9a84c] transition-colors">من نحن</Link>
-            <Link to="/projects" className="hover:text-[#c9a84c] transition-colors">المشاريع</Link>
-            <Link to="/programs" className="text-[#c9a84c] font-bold">برامجنا</Link>
-            <Link to="/news" className="hover:text-[#c9a84c] transition-colors">الأخبار والتقارير</Link>
-            <Link to="/contact" className="hover:text-[#c9a84c] transition-colors">تواصل معنا</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link 
-              to="/donate" 
-              className="bg-[#c9a84c] text-[#0f172a] px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition-all"
-            >
-              <Heart className="w-4 h-4 fill-current" />
-              تبرع الآن
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* --- استدعاء الهيدر الموحد --- */}
+      <Navbar />
 
       {/* --- محتوى الصفحة الرئيسي --- */}
-      <main className="flex-1 max-w-[1400px] mx-auto px-6 w-full relative z-[2]">
+      <main className="flex-1 max-w-[1400px] mx-auto px-6 w-full relative z-[2] pt-24">
         {/* Header Section */}
-        <header className="text-center pt-36 pb-16">
+        <header className="text-center pt-20 pb-16">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 bg-[#c9a84c]/15 border border-[#c9a84c]/30 text-[#c9a84c] px-6 py-2 rounded-full text-sm font-bold mb-6">
               <span className="w-2 h-2 bg-[#c9a84c] rounded-full animate-pulse" />
@@ -179,69 +153,8 @@ export default function ProgramsPage() {
         </div>
       </main>
 
-      {/* --- الفوتر (Footer) --- */}
-      <footer className="bg-[#0f172a] border-t border-[#334155] pt-16 pb-8 relative z-[2]">
-        <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#c9a84c]/20 border border-[#c9a84c]/40 flex items-center justify-center text-[#c9a84c] font-black text-lg">
-                HAC
-              </div>
-              <span className="font-extrabold text-lg text-white">خلية الأعمال الإنسانية</span>
-            </div>
-            <p className="text-[#94a3b8] text-sm leading-relaxed mb-4">
-              منظمة تنموية وإنسانية تسعى لتقديم استجابات عضوية مستدامة ومؤثرة في المجتمعات الأكثر حاجة.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-4 text-base">روابط سريعة</h4>
-            <ul className="space-y-2 text-sm text-[#94a3b8]">
-              <li><Link to="/" className="hover:text-[#c9a84c] transition-colors">الرئيسية</Link></li>
-              <li><Link to="/about" className="hover:text-[#c9a84c] transition-colors">من نحن</Link></li>
-              <li><Link to="/projects" className="hover:text-[#c9a84c] transition-colors">المشاريع التنموية</Link></li>
-              <li><Link to="/programs" className="hover:text-[#c9a84c] transition-colors">برامجنا الرئيسية</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-4 text-base">برامجنا الاستراتيجية</h4>
-            <ul className="space-y-2 text-sm text-[#94a3b8]">
-              <li><span className="hover:text-[#c9a84c] transition-colors cursor-pointer">برنامج رافد (الإغاثة العاجلة)</span></li>
-              <li><span className="hover:text-[#c9a84c] transition-colors cursor-pointer">برنامج صرح (التنمية المستدامة)</span></li>
-              <li><span className="hover:text-[#c9a84c] transition-colors cursor-pointer">برنامج وسم (التدريب والتمكين)</span></li>
-              <li><span className="hover:text-[#c9a84c] transition-colors cursor-pointer">برنامج الحماية (الطفل والمرأة)</span></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-4 text-base">تواصل معنا</h4>
-            <ul className="space-y-3 text-sm text-[#94a3b8]">
-              <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#c9a84c]" />
-                <span>اليمن - الجمهورية اليمنية</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#c9a84c]" />
-                <span>info@humancell.org</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#c9a84c]" />
-                <span>+967 000 000 000</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="max-w-[1400px] mx-auto px-6 border-t border-[#334155]/60 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-[#94a3b8]">
-          <p>© 2026 خلية الأعمال الإنسانية (HAC).جميع الحقوق محفوظة.</p>
-          <div className="flex gap-4 mt-4 md:mt-0">
-            <span className="hover:text-[#c9a84c] cursor-pointer">سياسة الخصوصية</span>
-            <span>•</span>
-            <span className="hover:text-[#c9a84c] cursor-pointer">الشروط والأحكام</span>
-          </div>
-        </div>
-      </footer>
+      {/* --- استدعاء الفوتر الموحد --- */}
+      <Footer />
     </div>
   );
 }
