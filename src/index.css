@@ -14,23 +14,47 @@
   scroll-behavior: smooth;
 }
 
-/* اجبار جميع النصوص والعناوين داخل الثيم على الظهور بلون واضح ومتناسق */
+/* إجبار جميع البطاقات، الصناديق، والحاويات داخل صفحة التفاصيل على أن تصبح داكنة وبخلفية زجاجية متناسقة */
+.programs-theme div,
+.programs-theme section,
+.programs-theme article {
+  background-color: transparent;
+}
+
+/* تخصيص الكروت والبطاقات لتأخذ اللون الداكن والحدود الذهبية الخفيفة */
+.programs-theme .card,
+.programs-theme .bg-white,
+.programs-theme [class*="bg-slate-50"],
+.programs-theme [class*="bg-gray-"] {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f5f5f5 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* إجبار جميع النصوص، العناوين، والأرقام داخل الثيم على الظهور بلون أبيض أو ذهبي واضح */
 .programs-theme h1, 
 .programs-theme h2, 
 .programs-theme h3, 
 .programs-theme h4, 
 .programs-theme h5, 
-.programs-theme h6, 
-.programs-theme p, 
-.programs-theme span, 
-.programs-theme div {
-  color: inherit;
+.programs-theme h6 {
+  color: #ffffff !important;
 }
 
-/* إصلاح العناوين الكبيرة الباهتة في صفحة التفاصيل لتظهر بلون ذهبي أو أبيض واضح */
-.programs-theme h1, 
-.programs-theme h2 {
-  color: #ffffff !important;
+.programs-theme p, 
+.programs-theme span, 
+.programs-theme li,
+.programs-theme small,
+.programs-theme div {
+  color: #b0b8c8;
+}
+
+/* الأرقام والإحصائيات البارزة باللون الذهبي المميز */
+.programs-theme .text-primary,
+.programs-theme font,
+.programs-theme strong {
+  color: #c9a84c !important;
 }
 
 /* Scrollbar خاص بالثيم */
