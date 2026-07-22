@@ -19,7 +19,7 @@ export default function ProgramDetail({ programs }) {
 
   if (!program) {
     return (
-      <div className="programs-theme">
+      <div className="program-detail-page py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl font-black mb-4">البرنامج غير موجود</h1>
           <button

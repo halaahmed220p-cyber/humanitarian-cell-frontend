@@ -1,0 +1,29 @@
+/* تنسيقات خاصة بصفحة تفاصيل البرنامج فقط دون غيرها */
+.program-detail-page {
+  font-family: 'Tajawal', sans-serif;
+  background: linear-gradient(135deg, #0f1c3a 0%, #1a2a4a 50%, #162238 100%);
+  min-height: 100vh;
+  color: #f5f5f5;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.program-detail-page h1,
+.program-detail-page h2,
+.program-detail-page h3,
+.program-detail-page h4 {
+  color: #ffffff;
+}
+
+.program-detail-page p,
+.program-detail-page span {
+  color: #b0b8c8;
+}
+
+.program-detail-page .stat-card,
+.program-detail-page .card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
