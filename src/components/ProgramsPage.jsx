@@ -15,7 +15,7 @@ const programStyles = {
 
 export default function ProgramsPage() {
   return (
-    <div className="programs-page">
+    <div className="programs-theme">
       <BackgroundAnimation />
 
       {/* --- الهيدر الثابت (Header) --- */}

@@ -19,7 +19,7 @@ export default function ProgramDetail({ programs }) {
 
   if (!program) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="programs-theme">
         <div className="text-center">
           <h1 className="text-4xl font-black mb-4">البرنامج غير موجود</h1>
           <button
