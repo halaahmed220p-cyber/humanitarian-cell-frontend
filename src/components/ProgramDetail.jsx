@@ -37,7 +37,7 @@ export default function ProgramDetail({ programs }) {
   const { color, colorLight, gradient } = program
 
   return (
-    <div className="min-h-screen relative">
+    <div className="program-detail-theme min-h-screen relative">
       <BackgroundAnimation />
       <Navbar program={program} />
 
