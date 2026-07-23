@@ -19,7 +19,8 @@ export default function ProgramDetail({ programs }) {
   const navigate = useNavigate()
   
   // جلب البيانات الأساسية إن وجدت
-let program = {};
+  let program = programs && programs[programId] ? { ...programs[programId] } : {};
+
   // فرض التعديلات الجذرية لبرنامج "رافد" لضمان تغير اللون والنصوص فوراً
   if (programId === 'rafid') {
     program = {
