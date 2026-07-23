@@ -1,22 +1,40 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="notranslate" translate="no">
   <head>
     <meta charset="UTF-8" />
+    
+    <!-- منع شريط ترجمة جوجل التلقائي من الظهور -->
+    <meta name="google" content="notranslate" />
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <meta name="viewport" content="width=1200" />
     <title>hac-project</title>
+
+    <!-- إخفاء أشرطة وعناصر الترجمة قسراً عبر CSS -->
+    <style>
+      .goog-te-banner-frame,
+      .skiptranslate,
+      #goog-gt-tt,
+      .goog-te-balloon-part {
+        display: none !important;
+      }
+      body {
+        top: 0px !important;
+        position: static !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-    {/* عنصر ترجمة جوجل المخفي أو المخصص */}
+    <!-- عنصر ترجمة جوجل المخفي -->
     <div id="google_translate_element" style="display:none;"></div>
 
-    {/* سكريبت ترجمة جوجل */}
+    <!-- سكريبت ترجمة جوجل -->
     <script type="text/javascript">
       function googleTranslateElementInit() {
         new google.translate.TranslateElement({
