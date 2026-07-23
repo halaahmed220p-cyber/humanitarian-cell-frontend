@@ -12,5 +12,20 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    {/* عنصر ترجمة جوجل المخفي أو المخصص */}
+    <div id="google_translate_element" style="display:none;"></div>
+
+    {/* سكريبت ترجمة جوجل */}
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'ar',
+          includedLanguages: 'ar,en',
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   </body>
 </html>

@@ -2,24 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import { ArrowRight, Heart, Globe } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 export default function Navbar({ program }) {
-  const { t, i18n } = useTranslation();
   const [tickerNews, setTickerNews] = useState([]);
+  const [currentLang, setCurrentLang] = useState('ar');
   const location = useLocation();
   const navigate = useNavigate();
-
-  // التحقق المباشر من اللغة الحالية
-  const currentLang = i18n.language || 'ar';
-  const isAr = currentLang.startsWith('ar');
-
-  const toggleLanguage = () => {
-    const nextLang = isAr ? 'en' : 'ar';
-    i18n.changeLanguage(nextLang).then(() => {
-      window.location.reload(); // إعادة تحميل سريعة لتثبيت اللغة والهيدر بشكل صحيح وسليم
-    });
-  };
 
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
@@ -28,6 +16,20 @@ export default function Navbar({ program }) {
       .then(data => setTickerNews(data))
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
+
+  // دالة لتغيير اللغة عبر كوكيز ترجمة جوجل الرسمية لتشمل الموقع بالكامل
+  const handleGoogleTranslate = () => {
+    const select = document.querySelector('.goog-te-combo');
+    if (select) {
+      const newLang = currentLang === 'ar' ? 'en' : 'ar';
+      select.value = newLang;
+      select.dispatchEvent(new Event('change'));
+      setCurrentLang(newLang);
+    } else {
+      // محاولة بديلة إذا لم يظهر السكريبت بعد
+      alert('جاري تحميل أداة الترجمة، يرجى إعادة المحاولة بعد ثانية.');
+    }
+  };
 
   return (
     <>
@@ -41,15 +43,13 @@ export default function Navbar({ program }) {
               className="flex items-center gap-2 text-slate-700 hover:text-slate-900 px-4 py-2 rounded-xl hover:bg-slate-100 cursor-pointer"
             >
               <ArrowRight className="w-5 h-5" />
-              <span className="font-medium">{t('backToPrograms')}</span>
+              <span className="font-medium">العودة للبرامج</span>
             </button>
           ) : (
             <a href="/" className="logo flex items-center gap-3">
               <img src="/logo.png" alt="شعار الخلية" style={{ width: '45px', height: '45px', objectFit: 'contain' }} />
               <div className="logo-text flex flex-col text-right">
-                <span className="font-extrabold text-lg text-slate-900">
-                  {isAr ? "خلية الأعمال الإنسانية" : "Humanitarian Action Cell"}
-                </span>
+                <span className="font-extrabold text-lg text-slate-900">خلية الأعمال الإنسانية</span>
                 <span className="text-xs text-slate-500">HUMANITARIAN ACTION CELL</span>
               </div>
             </a>
@@ -57,26 +57,26 @@ export default function Navbar({ program }) {
 
           {/* روابط التنقل */}
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('home')}</NavLink>
-            <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('about')}</HashLink>
-            <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('projects')}</NavLink>
-            <NavLink to="/programs" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('programs')}</NavLink>
-            <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('newsAndReports')}</NavLink>
+            <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-medium">الرئيسية</NavLink>
+            <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-medium">من نحن</HashLink>
+            <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-medium">المشاريع</NavLink>
+            <NavLink to="/programs" className="text-slate-700 hover:text-[#c9a84c] font-medium">البرامج</NavLink>
+            <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-medium">الأخبار والتقارير</NavLink>
           </nav>
 
           {/* الأزرار */}
           <div className="flex items-center gap-3">
             <button 
-              onClick={toggleLanguage}
+              onClick={handleGoogleTranslate}
               className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
               <Globe className="w-4 h-4 text-slate-500" />
-              <span>{isAr ? 'English' : 'العربية'}</span>
+              <span>{currentLang === 'ar' ? 'English' : 'العربية'}</span>
             </button>
 
             <NavLink to="/donate" className="bg-[#c9a84c] text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition shadow-sm">
               <Heart className="w-4 h-4 fill-current" />
-              {t('donateNow')}
+              تبرع الآن
             </NavLink>
           </div>
         </div>
