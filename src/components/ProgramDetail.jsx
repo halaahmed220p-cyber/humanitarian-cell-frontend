@@ -26,7 +26,7 @@ export default function ProgramDetail() {
   // جلب بيانات البرنامج وماريعه من الـ Backend الخاص بك
   useEffect(() => {
     setLoading(true)
-    fetch(`http://localhost:5000/api/programs/${programId}`) // استبدل الرابط برابط السيرفر لديك
+    fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${programId}`)// استبدل الرابط برابط السيرفر لديك
       .then(res => res.json())
       .then(data => {
         setProgram(data)
