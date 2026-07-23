@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // استيراد الترجمة
 
 const HomePage = () => {
+  const { t, i18n } = useTranslation();
   const [latestNews, setLatestNews] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/news/latest')
+    // استخدام رابط السيرفر المباشر على Render بدلاً من localhost
+    fetch('https://humanitarian-cell-frontend.onrender.com/api/news/latest')
       .then(res => res.json())
       .then(data => {
         console.log("البيانات الأصلية من السيرفر:", data);
-        
-        // 1. أخذ أول 3 عناصر فقط عند حفظ الحالة لمنع فائض البيانات
         const topThree = Array.isArray(data) ? data.slice(0, 3) : []; 
         setLatestNews(topThree);
       })
       .catch(err => console.error("Error:", err));
   }, []);
 
-  // دالة ذكية لاختصار نص الخبر لـ 18 كلمة فقط مع إضافة نقاط الحذف
+  // دالة ذكية لاختصار نص الخبر
   const truncateText = (text, wordLimit = 18) => {
     if (!text) return '';
     const words = text.split(/\s+/);
@@ -26,34 +27,32 @@ const HomePage = () => {
   };
 
   return (
-    <div dir="rtl" className="home-page">
-      <h1>مرحباً بك في خلية الأعمال الإنسانية</h1>
+    <div className="home-page">
+      <h1>{t('welcomeMessage') || "مرحباً بك في خلية الأعمال الإنسانية"}</h1>
       
       {/* قسم المشاريع */}
       <div className="projects-section">
         {/* كود عرض المشاريع */}
       </div>
       <Link to="/projects">
-        <button>المزيد من المشاريع</button>
+        <button>{t('moreProjects') || "المزيد من المشاريع"}</button>
       </Link>
 
       {/* قسم الأخبار في الصفحة الرئيسية */}
       <section className="projects" id="news">
         <div className="container">
           <div className="section-header">
-            <span className="section-label">أخبارنا</span>
-            <h2 className="section-title">آخر المستجدات</h2>
+            <span className="section-label">{t('ourNews') || "أخبارنا"}</span>
+            <h2 className="section-title">{t('latestUpdates') || "آخر المستجدات"}</h2>
           </div>
 
           <div className="projects-grid"> 
-            {/* 2. الأمان الإضافي: نقوم بعمل slice هنا أيضاً لضمان عدم تخطي 3 عناصر نهائياً */}
             {latestNews.slice(0, 3).map(item => (
               <div key={item.id} className="project-card">
                 
-                {/* عرض الصورة فقط إذا كانت متوفرة في قاعدة البيانات */}
                 {item.image_url && (
                   <div className="project-image">
-                    <span className="project-badge">جديد</span>
+                    <span className="project-badge">{t('newBadge') || "جديد"}</span>
                     <img 
                       src={item.image_url} 
                       alt={item.title} 
@@ -65,7 +64,6 @@ const HomePage = () => {
                 <div className="project-content">
                   <h3>{item.title}</h3>
                   
-                  {/* عرض النص المختصر بدلاً من النص الكامل لقاعدة البيانات */}
                   <p>{truncateText(item.description)}</p>
                   
                   <div className="project-meta">
@@ -73,9 +71,8 @@ const HomePage = () => {
                       <i className="fas fa-calendar-alt"></i> {item.date || "2026"}
                     </span>
                     
-                    {/* زر التفاصيل الديناميكي */}
                     <Link to={`/news/${item.id}`} className="project-btn">
-                      التفاصيل <i className="fas fa-arrow-left"></i>
+                      {t('details') || "التفاصيل"} <i className="fas fa-arrow-left"></i>
                     </Link>
                   </div>
                 </div>
@@ -83,7 +80,7 @@ const HomePage = () => {
             ))}
           </div>
 
-          {/* الزر الرئيسي المضاف لعرض كافة الأخبار والتقارير */}
+          {/* الزر الرئيسي لعرض كافة الأخبار والتقارير */}
           <div className="view-all-container" style={{ textAlign: 'center', marginTop: '40px' }}>
             <Link 
               to="/news" 
@@ -100,7 +97,7 @@ const HomePage = () => {
                 boxShadow: '0 4px 10px rgba(16, 53, 92, 0.2)'
               }}
             >
-              عرض كافة الأخبار والتقارير <i className="fas fa-long-arrow-alt-left" style={{ marginRight: '8px' }}></i>
+              {t('viewAllNews') || "عرض كافة الأخبار والتقارير"} <i className="fas fa-long-arrow-alt-left" style={{ marginRight: '8px' }}></i>
             </Link>
           </div>
 

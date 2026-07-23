@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { ArrowRight, Heart } from 'lucide-react';
+import { ArrowRight, Heart, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // استيراد الترجمة
 
 export default function Navbar({ program }) {
+  const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeAnchor, setActiveAnchor] = useState('');
   const [tickerNews, setTickerNews] = useState([]);
@@ -11,6 +13,17 @@ export default function Navbar({ program }) {
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // دالة تبديل اللغة وتحديث اتجاه الصفحة
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ar' ? 'en' : 'ar';
+    i18n.changeLanguage(newLang);
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  }, [i18n.language]);
 
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
@@ -52,10 +65,10 @@ export default function Navbar({ program }) {
         {program ? (
           <button
             onClick={() => navigate('/programs')}
-            className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-all duration-300 px-4 py-2 rounded-xl hover:bg-slate-100"
+            className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-all duration-300 px-4 py-2 rounded-xl hover:bg-slate-100 cursor-pointer"
           >
             <ArrowRight className="w-5 h-5" />
-            <span className="font-medium">العودة للبرامج</span>
+            <span className="font-medium">{t('backToPrograms') || "العودة للبرامج"}</span>
           </button>
         ) : (
           <a href="/" className="logo flex items-center gap-3" onClick={() => setActiveAnchor('')}>
@@ -82,44 +95,55 @@ export default function Navbar({ program }) {
           <ul className={`nav-menu ${isMenuOpen ? 'active' : ''} flex items-center gap-6 list-none m-0 p-0`} id="navMenu">
             <li>
               <NavLink to="/" className={({ isActive }) => (isActive && activeAnchor === '' ? "text-[#c9a84c] font-bold" : "text-slate-700 hover:text-[#c9a84c] transition-colors")} end onClick={() => setActiveAnchor('')}>
-                الرئيسية
+                {t('home') || "الرئيسية"}
               </NavLink>
             </li>
             <li>
               <HashLink smooth to="/#about" className={activeAnchor === '#about' ? 'text-[#c9a84c] font-bold' : 'text-slate-700 hover:text-[#c9a84c] transition-colors'} onClick={() => { setActiveAnchor('#about'); setIsMenuOpen(false); }}>
-                من نحن
+                {t('about') || "من نحن"}
               </HashLink>
             </li>
             <li>
               <NavLink to="/projects" className={({ isActive }) => (isActive && activeAnchor === '' ? "text-[#c9a84c] font-bold" : "text-slate-700 hover:text-[#c9a84c] transition-colors")} onClick={() => setActiveAnchor('')}>
-                المشاريع
+                {t('projects') || "المشاريع"}
               </NavLink>
             </li>
             <li>
               <NavLink to="/programs" className={({ isActive }) => (isActive && activeAnchor === '' ? "text-[#c9a84c] font-bold" : "text-slate-700 hover:text-[#c9a84c] transition-colors")} onClick={() => setActiveAnchor('')}>
-                البرامج
+                {t('programs') || "البرامج"}
               </NavLink>
             </li>
             <li>
               <NavLink to="/news" className={({ isActive }) => (isActive && activeAnchor === '' ? "text-[#c9a84c] font-bold" : "text-slate-700 hover:text-[#c9a84c] transition-colors")} onClick={() => setActiveAnchor('')}>
-                الأخبار والتقارير
+                {t('newsAndReports') || "الأخبار والتقارير"}
               </NavLink>
             </li>
             <li>
               <a href="#footer" className={activeAnchor === '#footer' ? 'text-[#c9a84c] font-bold' : 'text-slate-700 hover:text-[#c9a84c] transition-colors'} onClick={handleContactClick}>
-                تواصل معنا
+                {t('contactUs') || "تواصل معنا"}
               </a>
             </li>
-            <li>
+
+            {/* أزرار الإجراءات: زر اللغة وزر التبرع */}
+            <li className="flex items-center gap-3">
+              <button 
+                onClick={toggleLanguage}
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
+                title="تغيير اللغة / Change Language"
+              >
+                <Globe className="w-4 h-4 text-slate-500" />
+                <span>{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
+              </button>
+
               <NavLink to="/donate" className="donate-btn bg-[#c9a84c] text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition-all shadow-sm" onClick={() => { setActiveAnchor(''); setIsMenuOpen(false); }}>
                 <Heart className="w-4 h-4 fill-current" />
-                تبرّع الآن
+                {t('donateNow') || "تبرّع الآن"}
               </NavLink>
             </li>
           </ul>
         </nav>
 
-        <button className="mobile-toggle md:hidden text-slate-800 text-2xl" id="mobileToggle" onClick={toggleMenu}>
+        <button className="mobile-toggle md:hidden text-slate-800 text-2xl cursor-pointer" id="mobileToggle" onClick={toggleMenu}>
           <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
         </button>
       </div>
