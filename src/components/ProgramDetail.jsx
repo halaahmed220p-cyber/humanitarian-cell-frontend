@@ -18,12 +18,11 @@ export default function ProgramDetail({ programs }) {
   const { programId } = useParams()
   const navigate = useNavigate()
   
-  let program = programs[programId]
+  let program = null;
 
   // تخصيص برنامج صرح (التنمية المستدامة والمناخ)
-  if (programId === 'sarh' && program) {
+  if (programId === 'sarh') {
     program = {
-      ...program,
       name: "برنامج صرح",
       slogan: "التنمية المستدامة والعمل المناخي في كل القطاعات",
       badge: "برنامج التنمية المستدامة والمناخ",
@@ -55,9 +54,8 @@ export default function ProgramDetail({ programs }) {
   }
 
   // تخصيص برنامج وسم (التدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين)
-  if (programId === 'wasam' || programId === 'wasm') {
+  else if (programId === 'wasam' || programId === 'wasm') {
     program = {
-      ...(program || {}),
       name: "برنامج وسم",
       slogan: "التدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين",
       badge: "برنامج التدريب وبناء القدرات",
@@ -82,21 +80,20 @@ export default function ProgramDetail({ programs }) {
         { id: "wasam-2", title: "برنامج تأهيل الشباب لسوق العمل التقني والمهني", location: "مختلف المديريات", date: "2026", desc: "دورات تخصصية لبناء قدرات الشباب وربطهم بفرص العمل المتاحة.", progress: 70, beneficiaries: "12,000 مستفيد", status: "ongoing", icon: "💻" }
       ],
       timeline: [
-        { date: "فبراير 2026", title: "إطلاق حزمة برامج التمكين الجديدة", desc: "توسيع نطاق دورات التدريب المهني لتشمل مسارات تقنية وحرفية متقدمة." },
+        { date: "فبراير 2026", title: "إطلاق حزمة برامج التمكين الجديدة", desc: "توسيع نطاق دورات التدريب المهني تشمل مسارات تقنية وحرفية متقدمة." },
         { date: "مشاريع سابقة", title: "تخريج دفعات من الكوادر المؤهلة", desc: "إنجاز برامج تدريبية واسعة النطاق ساهمت في تأهيل آلاف الشباب والفتيات." }
       ]
     };
   }
 
-  // تخصيص برنامج رافد (التدخلات الإنسانية العاجلة والغذاء والمأوى)
-  if (programId === 'rafid') {
+  // تخصيص برنامج رافد (التدخلات الإنسانية العاجلة، الغذاء، والمأوى)
+  else if (programId === 'rafid') {
     program = {
-      ...(program || {}),
       name: "برنامج رافد",
-      slogan: "التدخلات الإنسانية العاجلة وغذاء ومأوى لكل محتاج",
-      badge: "برنامج الاستجابة الإنسانية العاجلة",
-      description: "برنامج رافد هو خط الدفاع الإنساني الأول في خلية الأعمال الإنسانية، يتخصص في الاستجابة السريعة والطوارئ وتقديم المعونات الغذائية والمأوى والاحتياجات الأساسية للمتضررين والنازحين في أوقات الأزمات.",
-      color: "#16a34a", // الأخضر الإنساني المستوحى من هوية رافد
+      slogan: "التدخلات الإنسانية العاجلة والغذاء والمأوى لكل محتاج",
+      badge: "برنامج الاستجابة الإنسانية",
+      description: "برنامج رافد هو خط الدفاع الإنساني الأول في خلية الأعمال الإنسانية، يتخصص في التدخلات الإنسانية العاجلة والطوارئ وتقديم المعونات الغذائية الطارئة والمأوى والاحتياجات الأساسية للمتضررين والنازحين.",
+      color: "#16a34a", // الأخضر المستوحى من هوية رافد دقيقة
       colorLight: "#4ade80",
       gradient: "linear-gradient(135deg, #16a34a, #15803d)",
       icon: "🚑",
@@ -148,6 +145,8 @@ export default function ProgramDetail({ programs }) {
         }
       ]
     };
+  } else if (programs && programs[programId]) {
+    program = programs[programId];
   }
 
   if (!program) {
@@ -158,7 +157,7 @@ export default function ProgramDetail({ programs }) {
           <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود</h1>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-[#c9a84c] text-[#1a1a1a] rounded-xl font-bold"
+            className="px-6 py-3 bg-[#16a34a] text-white rounded-xl font-bold"
           >
             العودة للبرامج
           </button>
@@ -168,7 +167,7 @@ export default function ProgramDetail({ programs }) {
     )
   }
 
-  const { color, colorLight, gradient } = program
+  const { color, gradient } = program
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-28">
@@ -179,7 +178,7 @@ export default function ProgramDetail({ programs }) {
         {/* Hero */}
         <section className="pt-12 pb-16">
           <ScrollReveal>
-            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color: color }}>
               {program.badge}
             </div>
           </ScrollReveal>
@@ -214,7 +213,7 @@ export default function ProgramDetail({ programs }) {
                   style={{ background: gradient }}
                 />
                 <span className="text-3xl block mb-3">{stat.icon}</span>
-                <span className="text-3xl font-black block mb-2" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>
+                <span className="text-3xl font-black block mb-2" style={{ color: color }}>
                   {stat.value}
                 </span>
                 <span className="text-sm text-[#b0b8c8] font-medium">{stat.label}</span>
@@ -257,7 +256,7 @@ export default function ProgramDetail({ programs }) {
             <div className="flex items-center gap-4 mb-10">
               <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج</h2>
               <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
-              <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>
+              <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color: color }}>
                 {program.projects.length} مشروع
               </span>
             </div>
@@ -302,7 +301,7 @@ export default function ProgramDetail({ programs }) {
                       <div className="mb-5">
                         <div className="flex justify-between text-sm mb-2">
                           <span className="text-[#b0b8c8]">نسبة الإنجاز</span>
-                          <span className="font-bold" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>{project.progress}%</span>
+                          <span className="font-bold" style={{ color: color }}>{project.progress}%</span>
                         </div>
                         <ProgressBar progress={project.progress} color={color} />
                       </div>
@@ -311,7 +310,7 @@ export default function ProgramDetail({ programs }) {
                       <div className="flex justify-between items-center pt-4 border-t border-white/5">
                         <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
                           <Users className="w-4 h-4" />
-                          <span><strong style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
+                          <span><strong style={{ color: color }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
                         </div>
                         <button className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300">
                           التفاصيل
@@ -344,7 +343,7 @@ export default function ProgramDetail({ programs }) {
                     className="absolute right-[-5px] top-1 w-3.5 h-3.5 rounded-full border-[3px] border-[#1a2a4a]"
                     style={{ background: color, boxShadow: `0 0 0 3px rgba(255,255,255,0.1)` }}
                   />
-                  <div className="text-sm font-bold mb-1.5" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>{item.date}</div>
+                  <div className="text-sm font-bold mb-1.5" style={{ color: color }}>{item.date}</div>
                   <h4 className="text-lg font-bold mb-1 text-white">{item.title}</h4>
                   <p className="text-sm text-[#b0b8c8] leading-relaxed">{item.desc}</p>
                 </div>
