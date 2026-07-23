@@ -54,18 +54,17 @@ export default function ProgramDetail({ programs }) {
     };
   }
 
-  // تخصيص برنامج وسم بناءً على الهوية البصرية الجديدة (التدريب، التأهيل، بناء القدرات، ودعم مشاريع التمكين)
-  if (programId === 'wasam' || programId === 'wasam' || programId === 'wasm') {
-    // التأكد من جلب بيانات وسم أو تهيئتها إن لم تكن موجودة
+  // تخصيص برنامج وسم بالألوان الأصلية (البنفسجي والذهبي المستمد من هوية الشعار)
+  if (programId === 'wasam' || programId === 'wasm') {
     program = {
       ...(program || {}),
       name: "برنامج وسم",
       slogan: "التدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين",
       badge: "برنامج التدريب وبناء القدرات",
       description: "برنامج وسم هو الذراع المتخصص في خلية الأعمال الإنسانية للتدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين الاقتصادي والمجتمعي. نؤمن بأن الاستثمار في الإنسان وتطوير مهاراته هو الأساس لتحقيق التنمية المستدامة والاعتماد الذاتي.",
-      color: "#ec4899", // لون وردي/فوشيا مستوحى من هوية وسم الظاهرة في التصميم
-      colorLight: "#f472b6",
-      gradient: "linear-gradient(135deg, #ec4899, #db2777)",
+      color: "#9333ea", // اللون البنفسجي الأساسي مطابق لشعار وسم
+      colorLight: "#c084fc",
+      gradient: "linear-gradient(135deg, #9333ea, #7e22ce)",
       icon: "🎯",
       stats: [
         { label: "متدرب ومتفرد مؤهل", value: "22,000+", icon: "👥" },
@@ -146,7 +145,7 @@ export default function ProgramDetail({ programs }) {
         {/* Hero */}
         <section className="pt-12 pb-16">
           <ScrollReveal>
-            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color }}>
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color: '#eab308' }}>
               {program.badge}
             </div>
           </ScrollReveal>
@@ -181,7 +180,7 @@ export default function ProgramDetail({ programs }) {
                   style={{ background: gradient }}
                 />
                 <span className="text-3xl block mb-3">{stat.icon}</span>
-                <span className="text-3xl font-black block mb-2" style={{ color }}>
+                <span className="text-3xl font-black block mb-2" style={{ color: '#eab308' }}>
                   {stat.value}
                 </span>
                 <span className="text-sm text-[#b0b8c8] font-medium">{stat.label}</span>
@@ -224,7 +223,7 @@ export default function ProgramDetail({ programs }) {
             <div className="flex items-center gap-4 mb-10">
               <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج</h2>
               <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
-              <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color }}>
+              <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color: '#eab308' }}>
                 {program.projects.length} مشروع
               </span>
             </div>
@@ -269,16 +268,16 @@ export default function ProgramDetail({ programs }) {
                       <div className="mb-5">
                         <div className="flex justify-between text-sm mb-2">
                           <span className="text-[#b0b8c8]">نسبة الإنجاز</span>
-                          <span className="font-bold" style={{ color }}>{project.progress}%</span>
+                          <span className="font-bold" style={{ color: '#eab308' }}>{project.progress}%</span>
                         </div>
-                        <ProgressBar progress={project.progress} color={color} />
+                        <ProgressBar progress={project.progress} color="#eab308" />
                       </div>
 
                       {/* Footer */}
                       <div className="flex justify-between items-center pt-4 border-t border-white/5">
                         <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
                           <Users className="w-4 h-4" />
-                          <span><strong style={{ color }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
+                          <span><strong style={{ color: '#eab308' }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
                         </div>
                         <button className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300">
                           التفاصيل
@@ -311,7 +310,7 @@ export default function ProgramDetail({ programs }) {
                     className="absolute right-[-5px] top-1 w-3.5 h-3.5 rounded-full border-[3px] border-[#1a2a4a]"
                     style={{ background: color, boxShadow: `0 0 0 3px rgba(255,255,255,0.1)` }}
                   />
-                  <div className="text-sm font-bold mb-1.5" style={{ color }}>{item.date}</div>
+                  <div className="text-sm font-bold mb-1.5" style={{ color: '#eab308' }}>{item.date}</div>
                   <h4 className="text-lg font-bold mb-1 text-white">{item.title}</h4>
                   <p className="text-sm text-[#b0b8c8] leading-relaxed">{item.desc}</p>
                 </div>
@@ -329,8 +328,8 @@ export default function ProgramDetail({ programs }) {
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <motion.button
-                className="px-10 py-4 rounded-2xl font-extrabold text-base transition-all"
-                style={{ background: gradient, color: '#1a1a1a' }}
+                className="px-10 py-4 rounded-2xl font-extrabold text-base transition-all text-[#1a1a1a]"
+                style={{ background: '#eab308' }}
                 whileHover={{ y: -3, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}
                 whileTap={{ scale: 0.98 }}
               >
