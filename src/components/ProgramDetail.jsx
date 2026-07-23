@@ -21,7 +21,7 @@ export default function ProgramDetail({ programs }) {
 
   if (!program) {
     return (
-      <div className="program-detail-page min-h-screen flex flex-col justify-between">
+      <div className="program-detail-page min-h-screen flex flex-col justify-between pt-24">
         <Navbar />
         <div className="text-center py-24">
           <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود</h1>
@@ -40,13 +40,13 @@ export default function ProgramDetail({ programs }) {
   const { color, colorLight, gradient } = program
 
   return (
-    <div className="program-detail-page min-h-screen flex flex-col relative">
+    <div className="program-detail-page min-h-screen flex flex-col relative pt-28">
       <BackgroundAnimation />
       <Navbar program={program} />
 
-      <div className="flex-1 max-w-[1400px] mx-auto px-6 relative z-[2] w-full pt-20">
+      <div className="flex-1 max-w-[1400px] mx-auto px-6 relative z-[2] w-full pt-10">
         {/* Hero */}
-        <section className="pt-24 pb-16">
+        <section className="pt-12 pb-16">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color }}>
               {program.badge}
