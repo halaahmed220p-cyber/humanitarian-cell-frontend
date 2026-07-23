@@ -5,10 +5,10 @@ const { Pool } = pg;
 
 const app = express();
 
-// 1. التعديل: جعل المنفذ ديناميكياً ليناسب بيئة تشغيل Render
+// 1. جعل المنفذ ديناميكياً ليناسب بيئة تشغيل Render
 const port = process.env.PORT || 3000;
 
-// 2. التعديل: قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن، واستخدام الرابط الحالي كاحتياطي للمحلي
+// 2. قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن، واستخدام الرابط الحالي كاحتياطي للمحلي
 const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_PUk42FhVoziK@ep-raspy-math-atr8pmc2-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require';
 
 // إعداد الاتصال بقاعدة البيانات (Neon PostgreSQL)
@@ -17,9 +17,8 @@ const pool = new Pool({
 });
 
 // تفعيل CORS و JSON
-// التعديل هنا: السماح بجميع النطاقات أو إضافة النطاق الذي تستخدمينه حالياً
 app.use(cors({
-  origin: '*', // السماح لأي موقع بالاتصال (أو استبدلي '*' بـ ['https://humanitarian-cell-frontend.vercel.app', 'https://humanitarian-cell-frontend-qjaq8skoo-evosys.vercel.app'])
+  origin: '*', // السماح لأي موقع بالاتصال
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -27,7 +26,39 @@ app.use(cors({
 app.use(express.json());
 
 // ==========================================
-// 1. مسارات المشاريع (Projects)
+// 1. مسارات البرامج ومشاريعها الخاصة (Programs & Sub-Projects)
+// ==========================================
+
+// جلب تفاصيل البرنامج المحدد مع مشاريعه الخاصة وتوثيقها
+app.get('/api/programs/:programId', async (req, res) => {
+  const { programId } = req.params;
+
+  try {
+    // 1. جلب بيانات البرنامج الأساسية
+    const programResult = await pool.query('SELECT * FROM programs WHERE id = $1', [programId]);
+    
+    if (programResult.rows.length === 0) {
+      return res.status(404).json({ error: 'البرنامج غير موجود' });
+    }
+
+    const program = programResult.rows[0];
+
+    // 2. جلب المشاريع التابعة لهذا البرنامج حصرياً من جدول program_projects
+    const projectsResult = await pool.query('SELECT * FROM program_projects WHERE program_id = $1', [programId]);
+    
+    // إدراج المشاريع داخل كائن البرنامج ليطابق هيكل الواجهة
+    program.projects = projectsResult.rows;
+
+    res.json(program);
+  } catch (err) {
+    console.error('خطأ في جلب بيانات البرنامج:', err);
+    res.status(500).json({ error: 'خطأ في الخادم الداخلي' });
+  }
+});
+
+
+// ==========================================
+// 2. مسارات المشاريع العامة (Projects)
 // ==========================================
 
 // وضعنا المسار الفرعي النشط أولاً لتجنب مشكلة الـ 404 وتداخل المسارات في Express
@@ -42,7 +73,22 @@ app.get('/api/projects/active', async (req, res) => {
   }
 });
 
-// جلب جميع المشاريع (العام) - يأتي بعد المسار المخصص
+// مسار لجلب المشاريع بناءً على المحافظة
+app.get('/api/projects/:location', async (req, res) => {
+  try {
+    const { location } = req.params;
+    const result = await pool.query(
+      'SELECT * FROM projects WHERE location = $1',
+      [location]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'حدث خطأ أثناء جلب مشاريع هذه المحافظة.' });
+  }
+});
+
+// جلب جميع المشاريع (العام)
 app.get('/api/projects', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM projects ORDER BY id DESC');
@@ -82,7 +128,7 @@ app.post('/api/projects', async (req, res) => {
 
 
 // ==========================================
-// 2. مسار استقبال التبرعات (Donations)
+// 3. مسار استقبال التبرعات (Donations)
 // ==========================================
 app.post('/api/donations', async (req, res) => {
   const { fullName, email, phone, amount, project, paymentMethod } = req.body;
@@ -100,7 +146,7 @@ app.post('/api/donations', async (req, res) => {
     const values = [fullName, email, phone, amount, project, paymentMethod];
     await pool.query(queryText, values);
 
-    // تحديث مبالغ التبرعات الفعلية للمشروع في قاعدة البيانات تلقائياً دون تزييف
+    // تحديث مبالغ التبرعات الفعلية للمشروع في قاعدة البيانات تلقائياً
     if (project && project !== 'عام') {
       const updateProjectQuery = `
         UPDATE projects 
@@ -119,17 +165,15 @@ app.post('/api/donations', async (req, res) => {
 
 
 // ==========================================
-// 3. مسارات الأخبار (News)
+// 4. مسارات الأخبار (News)
 // ==========================================
-// جلب الأخبار العادية (غير العاجلة) فقط
-app.get('/api/news', async (req, res) => {
+app.get('/api/news/ticker', async (req, res) => {
   try {
-    // نجلب الأخبار التي ليست عاجلة (is_urgent = false)
-    const result = await pool.query('SELECT * FROM news WHERE is_urgent = false OR is_urgent IS NULL ORDER BY date_published DESC');
+    const result = await pool.query('SELECT title FROM news WHERE is_urgent = true ORDER BY date_published DESC LIMIT 5');
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).send('حدث خطأ في الخادم');
+    console.error("DEBUG ERROR:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -143,9 +187,20 @@ app.get('/api/news/latest', async (req, res) => {
   }
 });
 
+// جلب الأخبار العادية (غير العاجلة) فقط
+app.get('/api/news', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM news WHERE is_urgent = false OR is_urgent IS NULL ORDER BY date_published DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('حدث خطأ في الخادم');
+  }
+});
+
 
 // ==========================================
-// 4. مسار التقارير (Reports)
+// 5. مسار التقارير (Reports)
 // ==========================================
 app.get('/api/reports', async (req, res) => {
   try {
@@ -158,21 +213,9 @@ app.get('/api/reports', async (req, res) => {
 });
 
 
-// تشغيل الخادم والاعتماد على متغير الـ port
-
-
-// في ملف السيرفر (مثلاً app.js أو server.js)
-app.get('/api/news/ticker', async (req, res) => {
-  try {
-    // قمت بتغيير "name" إلى "title" ليطابق أعمدة الجدول لديكِ
-    const result = await pool.query('SELECT title FROM news WHERE is_urgent = true ORDER BY date_published DESC LIMIT 5');
-    res.json(result.rows);
-  } catch (err) {
-    console.error("DEBUG ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
+// ==========================================
+// 6. مسار الاشتراكات (Subscribers)
+// ==========================================
 app.post('/api/subscribe', async (req, res) => {
   const { email } = req.body;
   try {
@@ -187,22 +230,8 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
-// مسار لجلب المشاريع بناءً على المحافظة
-app.get('/api/projects/:location', async (req, res) => {
-  try {
-    const { location } = req.params;
-    // استعلام لجلب المشاريع التي تتطابق مع المحافظة المختارة
-    const result = await pool.query(
-      'SELECT * FROM projects WHERE location = $1',
-      [location]
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'حدث خطأ أثناء جلب مشاريع هذه المحافظة.' });
-  }
-});
 
+// تشغيل الخادم
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
