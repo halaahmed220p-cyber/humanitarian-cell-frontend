@@ -57,7 +57,11 @@ export default function ProgramDetail({ programs }) {
           progress: 92,
           beneficiaries: "50,000 مستفيد",
           status: "active",
-          icon: "📦"
+          icon: "📦",
+          media: [
+      { type: "image", url: "رابط_الصورة_الأولى.jpg", caption: "توزيع السلال الغذائية" },
+      { type: "video", url: "رابط_الفيديو.mp4", caption: "فيديو توثيقي للعمليات الميدانية" }
+    ]
         },
         {
           id: "rafid-2",
