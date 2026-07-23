@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowRight, MapPin, Calendar, Users, ChevronLeft } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, MapPin, Calendar, Users, ChevronLeft, X } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -18,6 +19,9 @@ export default function ProgramDetail({ programs }) {
   const { programId } = useParams()
   const navigate = useNavigate()
   
+  // حالة لإدارة المشروع المحدد لعرض تفاصيله في النافذة المنبثقة
+  const [selectedProject, setSelectedProject] = useState(null)
+  
   // جلب البيانات الأساسية إن وجدت
   let program = programs && programs[programId] ? { ...programs[programId] } : {};
 
@@ -28,7 +32,7 @@ export default function ProgramDetail({ programs }) {
       slogan: "التدخلات الإنسانية العاجلة والغذاء والمأوى لكل محتاج",
       badge: "برنامج الاستجابة الإنسانية العاجلة",
       description: "برنامج رافد هو خط الدفاع الإنساني الأول في خلية الأعمال الإنسانية، يتخصص في التدخلات الإنسانية العاجلة والطوارئ وتقديم المعونات الغذائية الطارئة والمأوى والاحتياجات الأساسية للمتضررين والنازحين.",
-      color: "#16a34a", // اللون الأخضر الإنساني الصحيح
+      color: "#16a34a",
       colorLight: "#4ade80",
       gradient: "linear-gradient(135deg, #16a34a, #15803d)",
       icon: "🚑",
@@ -292,7 +296,10 @@ export default function ProgramDetail({ programs }) {
                             <Users className="w-4 h-4" />
                             <span><strong style={{ color: color }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
                           </div>
-                          <button className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300">
+                          <button 
+                            onClick={() => setSelectedProject(project)}
+                            className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300 cursor-pointer"
+                          >
                             التفاصيل
                           </button>
                         </div>
@@ -362,6 +369,75 @@ export default function ProgramDetail({ programs }) {
           </ScrollReveal>
         </div>
       </div>
+
+      {/* نافذة منبثقة (Modal) لعرض تفاصيل المشروع عند النقر */}
+      <AnimatePresence>
+        {selectedProject && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-[#111827] border border-white/15 rounded-3xl p-8 max-w-xl w-full relative shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1.5" style={{ background: gradient }} />
+              
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-5xl">{selectedProject.icon}</span>
+                <div>
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/10 text-white inline-block mb-1">
+                    {statusConfig[selectedProject.status]?.label || 'نشط'}
+                  </span>
+                  <h3 className="text-2xl font-black text-white">{selectedProject.title}</h3>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-6 text-sm text-[#b0b8c8]">
+                <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl border border-white/5">
+                  <MapPin className="w-4 h-4" style={{ color }} />
+                  <span>الموقع: <strong className="text-white">{selectedProject.location}</strong></span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl border border-white/5">
+                  <Calendar className="w-4 h-4" style={{ color }} />
+                  <span>التاريخ: <strong className="text-white">{selectedProject.date}</strong></span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl border border-white/5">
+                  <Users className="w-4 h-4" style={{ color }} />
+                  <span>المستفيدون: <strong className="text-white">{selectedProject.beneficiaries}</strong></span>
+                </div>
+
+                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                  <h4 className="font-bold text-white mb-2">وصف المشروع التفصيلي:</h4>
+                  <p className="leading-relaxed">{selectedProject.desc}</p>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-[#b0b8c8]">نسبة الإنجاز الكلية</span>
+                    <span className="font-bold" style={{ color }}>{selectedProject.progress}%</span>
+                  </div>
+                  <ProgressBar progress={selectedProject.progress} color={color} />
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="w-full py-3 rounded-xl font-bold text-white transition-all cursor-pointer"
+                style={{ background: gradient }}
+              >
+                إغلاق
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>
