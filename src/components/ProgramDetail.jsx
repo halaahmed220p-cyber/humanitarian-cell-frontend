@@ -22,7 +22,7 @@ export default function ProgramDetail({ programs }) {
   let program = programs && programs[programId] ? { ...programs[programId] } : {};
 
   // فرض التعديلات الجذرية لبرنامج "رافد" لضمان تغير اللون والنصوص فوراً
-  if (programId === 'rafid') {
+  if (programId === 'rafed') {
     program = {
       name: "برنامج رافد",
       slogan: "التدخلات الإنسانية العاجلة والغذاء والمأوى لكل محتاج",
