@@ -1,10 +1,7 @@
 <!doctype html>
-<html lang="ar" dir="rtl" class="notranslate" translate="no">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    
-    <!-- منع شريط ترجمة جوجل التلقائي من الظهور -->
-    <meta name="google" content="notranslate" />
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,17 +9,26 @@
     <meta name="viewport" content="width=1200" />
     <title>hac-project</title>
 
-    <!-- إخفاء أشرطة وعناصر الترجمة قسراً عبر CSS -->
+    <!-- إخفاء أشرطة وعناصر الترجمة العلوية المزعجة قسراً دون منع وظيفة الترجمة نفسها -->
     <style>
+      /* إخفاء الشريط العلوي والفقاعات العائمة لـ Google Translate */
       .goog-te-banner-frame,
       .skiptranslate,
       #goog-gt-tt,
-      .goog-te-balloon-part {
+      .goog-te-balloon-part,
+      .VIpgJd-yDge-VIpgJd {
         display: none !important;
       }
+      
       body {
         top: 0px !important;
         position: static !important;
+      }
+
+      /* إخفاء أداة جوجل الافتراضية المنسدلة إن وجدت */
+      .goog-te-gadget {
+        height: 0 !important;
+        overflow: hidden !important;
       }
     </style>
   </head>
@@ -31,15 +37,16 @@
     <script type="module" src="/src/main.jsx"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-    <!-- عنصر ترجمة جوجل المخفي -->
+    <!-- عنصر ترجمة جوجل -->
     <div id="google_translate_element" style="display:none;"></div>
 
-    <!-- سكريبت ترجمة جوجل -->
+    <!-- سكريبت ترجمة جوجل المصحح -->
     <script type="text/javascript">
       function googleTranslateElementInit() {
         new google.translate.TranslateElement({
           pageLanguage: 'ar',
           includedLanguages: 'ar,en',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
           autoDisplay: false
         }, 'google_translate_element');
       }

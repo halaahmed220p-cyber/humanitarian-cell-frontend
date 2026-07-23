@@ -10,6 +10,14 @@ export default function Navbar({ program }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // قراءة اللغة الحالية من الكوكيز للتعرف على الوضع الحالي
+    const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
+    if (match && match[1].endsWith('/en')) {
+      setCurrentLang('en');
+    } else {
+      setCurrentLang('ar');
+    }
+
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
     fetch(`${baseUrl}/api/news/ticker`)
       .then(res => res.json())
@@ -17,18 +25,16 @@ export default function Navbar({ program }) {
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
 
-  // دالة لتغيير اللغة عبر كوكيز ترجمة جوجل الرسمية لتشمل الموقع بالكامل
+  // دالة لتغيير اللغة المباشرة عبر كوكيز ترجمة جوجل وإعادة تحميل الصفحة
   const handleGoogleTranslate = () => {
-    const select = document.querySelector('.goog-te-combo');
-    if (select) {
-      const newLang = currentLang === 'ar' ? 'en' : 'ar';
-      select.value = newLang;
-      select.dispatchEvent(new Event('change'));
-      setCurrentLang(newLang);
+    if (currentLang === 'ar') {
+      document.cookie = "googtrans=/ar/en; path=/";
+      document.cookie = "googtrans=/ar/en; domain=" + window.location.hostname + "; path=/";
     } else {
-      // محاولة بديلة إذا لم يظهر السكريبت بعد
-      alert('جاري تحميل أداة الترجمة، يرجى إعادة المحاولة بعد ثانية.');
+      document.cookie = "googtrans=/ar/ar; path=/";
+      document.cookie = "googtrans=/ar/ar; domain=" + window.location.hostname + "; path=/";
     }
+    window.location.reload();
   };
 
   return (
