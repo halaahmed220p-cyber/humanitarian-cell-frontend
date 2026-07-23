@@ -85,13 +85,18 @@
 .animate-float3 { animation: float3 22s infinite ease-in-out; }
 
 /* إخفاء شريط جوجل العلوي وتعديل الـ body عند الترجمة */
+/* إخفاء شريط جوجل العلوي المزعج بالكامل */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 body {
   top: 0px !important;
 }
-/* إخفاء عنصر الـ select الأصلي لجوجل لأننا سنربطه بزرنا الخاص */
-#google_translate_element {
-  display: none;
+
+/* إخفاء شعار وأدوات جوجل الزائدة */
+.goog-logo-link, .gskiptranslate, .goog-te-gadget span {
+  display: none !important;
+}
+.goog-te-gadget {
+  color: transparent !important;
 }
