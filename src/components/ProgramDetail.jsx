@@ -20,7 +20,7 @@ export default function ProgramDetail({ programs }) {
   
   let program = programs[programId]
 
-  // تخصيص برنامج صرح
+  // تخصيص برنامج صرح (التنمية المستدامة والمناخ)
   if (programId === 'sarh' && program) {
     program = {
       ...program,
@@ -54,7 +54,7 @@ export default function ProgramDetail({ programs }) {
     };
   }
 
-  // تخصيص برنامج وسم بالألوان الأصلية (البنفسجي والذهبي المستمد من هوية الشعار)
+  // تخصيص برنامج وسم (التدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين)
   if (programId === 'wasam' || programId === 'wasm') {
     program = {
       ...(program || {}),
@@ -62,7 +62,7 @@ export default function ProgramDetail({ programs }) {
       slogan: "التدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين",
       badge: "برنامج التدريب وبناء القدرات",
       description: "برنامج وسم هو الذراع المتخصص في خلية الأعمال الإنسانية للتدريب والتأهيل وبناء القدرات ودعم مشاريع التمكين الاقتصادي والمجتمعي. نؤمن بأن الاستثمار في الإنسان وتطوير مهاراته هو الأساس لتحقيق التنمية المستدامة والاعتماد الذاتي.",
-      color: "#9333ea", // اللون البنفسجي الأساسي مطابق لشعار وسم
+      color: "#9333ea",
       colorLight: "#c084fc",
       gradient: "linear-gradient(135deg, #9333ea, #7e22ce)",
       icon: "🎯",
@@ -78,39 +78,73 @@ export default function ProgramDetail({ programs }) {
         { title: "دعم مشاريع التمكين", desc: "تقديم الدعم الفني والتمويلي لمشاريع التمكين الاقتصادي للأسر والأفراد.", icon: "🤝" }
       ],
       projects: [
+        { id: "wasam-1", title: "مشروع التمكين الاقتصادي ودعم رائدات الأعمال", location: "المحافظات المحررة", date: "2026", desc: "توفير التدريب اللازم ومنح التمكين للأسر المنتجة ورائدات الأعمال لتحقيق الاستقلال المالي.", progress: 85, beneficiaries: "5,000 مستفيد", status: "active", icon: "💼" },
+        { id: "wasam-2", title: "برنامج تأهيل الشباب لسوق العمل التقني والمهني", location: "مختلف المديريات", date: "2026", desc: "دورات تخصصية لبناء قدرات الشباب وربطهم بفرص العمل المتاحة.", progress: 70, beneficiaries: "12,000 مستفيد", status: "ongoing", icon: "💻" }
+      ],
+      timeline: [
+        { date: "فبراير 2026", title: "إطلاق حزمة برامج التمكين الجديدة", desc: "توسيع نطاق دورات التدريب المهني لتشمل مسارات تقنية وحرفية متقدمة." },
+        { date: "مشاريع سابقة", title: "تخريج دفعات من الكوادر المؤهلة", desc: "إنجاز برامج تدريبية واسعة النطاق ساهمت في تأهيل آلاف الشباب والفتيات." }
+      ]
+    };
+  }
+
+  // تخصيص برنامج رافد (التدخلات الإنسانية العاجلة والغذاء والمأوى)
+  if (programId === 'rafid') {
+    program = {
+      ...(program || {}),
+      name: "برنامج رافد",
+      slogan: "التدخلات الإنسانية العاجلة وغذاء ومأوى لكل محتاج",
+      badge: "برنامج الاستجابة الإنسانية العاجلة",
+      description: "برنامج رافد هو خط الدفاع الإنساني الأول في خلية الأعمال الإنسانية، يتخصص في الاستجابة السريعة والطوارئ وتقديم المعونات الغذائية والمأوى والاحتياجات الأساسية للمتضررين والنازحين في أوقات الأزمات.",
+      color: "#16a34a", // الأخضر الإنساني المستوحى من هوية رافد
+      colorLight: "#4ade80",
+      gradient: "linear-gradient(135deg, #16a34a, #15803d)",
+      icon: "🚑",
+      stats: [
+        { label: "أسرة مستفيدة من الغذاء", value: "75,000+", icon: "🍲" },
+        { label: "خيمة ومأوى طارئ", value: "15,000+", icon: "⛺" },
+        { label: "تدخل عاجل منفذ", value: "120+", icon: "⚡" },
+        { label: "منطقة متضررة مغطاة", value: "22", icon: "📍" }
+      ],
+      impacts: [
+        { title: "الأمن الغذائي الطارئ", desc: "توزيع السلال الغذائية المتكاملة على الأسر الأشد فقراً والنازحين في مناطق الطوارئ.", icon: "🌾" },
+        { title: "المأوى والإيواء العاجل", desc: "توفير الخيام والمساعدات غير الغذائية والخيام الإيوائية للعائلات المتضررة.", icon: "🏠" },
+        { title: "التدخلات الإنسانية السريعة", desc: "الاستجابة الفورية للكوارث والأزمات الطارئة عبر فرق الميدان المتنقلة.", icon: "🚨" }
+      ],
+      projects: [
         {
-          id: "wasam-1",
-          title: "مشروع التمكين الاقتصادي ودعم رائدات الأعمال",
-          location: "المحافظات المحررة",
+          id: "rafid-1",
+          title: "مشروع الاستجابة العاجلة وتوزيع الغذاء",
+          location: "المناطق المتضررة والنازحون",
           date: "2026",
-          desc: "توفير التدريب اللازم ومنح التمكين للأسر المنتجة ورائدات الأعمال لتحقيق الاستقلال المالي.",
-          progress: 85,
-          beneficiaries: "5,000 مستفيد",
+          desc: "توفير الحصص الغذائية الإغاثية العاجلة لتخفيف حدة انعدام الأمن الغذائي.",
+          progress: 92,
+          beneficiaries: "50,000 مستفيد",
           status: "active",
-          icon: "💼"
+          icon: "📦"
         },
         {
-          id: "wasam-2",
-          title: "برنامج تأهيل الشباب لسوق العمل التقني والمهني",
-          location: "مختلف المديريات",
+          id: "rafid-2",
+          title: "حملة إيواء المتضررين وتوفير المساكن المؤقتة",
+          location: "مخيمات النزوح والطوارئ",
           date: "2026",
-          desc: "دورات تخصصية لبناء قدرات الشباب وربطهم بفرص العمل المتاحة.",
-          progress: 70,
-          beneficiaries: "12,000 مستفيد",
+          desc: "توزيع المواد الإيوائية والخيام لتوفير بيئة آمنة للعائلات التي فقدت مساكنها.",
+          progress: 80,
+          beneficiaries: "25,000 مستفيد",
           status: "ongoing",
-          icon: "💻"
+          icon: "⛺"
         }
       ],
       timeline: [
         {
-          date: "فبراير 2026",
-          title: "إطلاق حزمة برامج التمكين الجديدة",
-          desc: "توسيع نطاق دورات التدريب المهني لتشمل مسارات تقنية وحرفية متقدمة."
+          date: "مارس 2026",
+          title: "توسيع عمليات الإغاثة الطارئة",
+          desc: "رفع جاهزية فرق التدخل السريع للوصول إلى المناطق النائية والمتضررة."
         },
         {
           date: "مشاريع سابقة",
-          title: "تخريج دفعات من الكوادر المؤهلة",
-          desc: "إنجاز برامج تدريبية واسعة النطاق ساهمت في تأهيل آلاف الشباب والفتيات."
+          title: "إغاثة مئات الآلاف من المتضررين",
+          desc: "تنفيذ حملات واسعة النطاق لتوزيع الغذاء والمأوى في مختلف المحافظات."
         }
       ]
     };
@@ -145,7 +179,7 @@ export default function ProgramDetail({ programs }) {
         {/* Hero */}
         <section className="pt-12 pb-16">
           <ScrollReveal>
-            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color: '#eab308' }}>
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>
               {program.badge}
             </div>
           </ScrollReveal>
@@ -180,7 +214,7 @@ export default function ProgramDetail({ programs }) {
                   style={{ background: gradient }}
                 />
                 <span className="text-3xl block mb-3">{stat.icon}</span>
-                <span className="text-3xl font-black block mb-2" style={{ color: '#eab308' }}>
+                <span className="text-3xl font-black block mb-2" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>
                   {stat.value}
                 </span>
                 <span className="text-sm text-[#b0b8c8] font-medium">{stat.label}</span>
@@ -223,7 +257,7 @@ export default function ProgramDetail({ programs }) {
             <div className="flex items-center gap-4 mb-10">
               <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج</h2>
               <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
-              <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color: '#eab308' }}>
+              <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>
                 {program.projects.length} مشروع
               </span>
             </div>
@@ -268,16 +302,16 @@ export default function ProgramDetail({ programs }) {
                       <div className="mb-5">
                         <div className="flex justify-between text-sm mb-2">
                           <span className="text-[#b0b8c8]">نسبة الإنجاز</span>
-                          <span className="font-bold" style={{ color: '#eab308' }}>{project.progress}%</span>
+                          <span className="font-bold" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>{project.progress}%</span>
                         </div>
-                        <ProgressBar progress={project.progress} color="#eab308" />
+                        <ProgressBar progress={project.progress} color={color} />
                       </div>
 
                       {/* Footer */}
                       <div className="flex justify-between items-center pt-4 border-t border-white/5">
                         <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
                           <Users className="w-4 h-4" />
-                          <span><strong style={{ color: '#eab308' }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
+                          <span><strong style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>{project.beneficiaries.split(' ')[0]}</strong> {project.beneficiaries.split(' ').slice(1).join(' ')}</span>
                         </div>
                         <button className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300">
                           التفاصيل
@@ -310,7 +344,7 @@ export default function ProgramDetail({ programs }) {
                     className="absolute right-[-5px] top-1 w-3.5 h-3.5 rounded-full border-[3px] border-[#1a2a4a]"
                     style={{ background: color, boxShadow: `0 0 0 3px rgba(255,255,255,0.1)` }}
                   />
-                  <div className="text-sm font-bold mb-1.5" style={{ color: '#eab308' }}>{item.date}</div>
+                  <div className="text-sm font-bold mb-1.5" style={{ color: programId === 'rafid' ? '#4ade80' : programId === 'wasam' ? '#c084fc' : '#93c5fd' }}>{item.date}</div>
                   <h4 className="text-lg font-bold mb-1 text-white">{item.title}</h4>
                   <p className="text-sm text-[#b0b8c8] leading-relaxed">{item.desc}</p>
                 </div>
@@ -329,7 +363,7 @@ export default function ProgramDetail({ programs }) {
             <div className="flex gap-4 justify-center flex-wrap">
               <motion.button
                 className="px-10 py-4 rounded-2xl font-extrabold text-base transition-all text-[#1a1a1a]"
-                style={{ background: '#eab308' }}
+                style={{ background: color }}
                 whileHover={{ y: -3, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}
                 whileTap={{ scale: 0.98 }}
               >
