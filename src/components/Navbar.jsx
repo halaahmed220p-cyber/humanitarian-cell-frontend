@@ -10,11 +10,15 @@ export default function Navbar({ program }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isAr = i18n.language === 'ar';
+  // التحقق المباشر من اللغة الحالية
+  const currentLang = i18n.language || 'ar';
+  const isAr = currentLang.startsWith('ar');
 
   const toggleLanguage = () => {
-    const newLang = isAr ? 'en' : 'ar';
-    i18n.changeLanguage(newLang);
+    const nextLang = isAr ? 'en' : 'ar';
+    i18n.changeLanguage(nextLang).then(() => {
+      window.location.reload(); // إعادة تحميل سريعة لتثبيت اللغة والهيدر بشكل صحيح وسليم
+    });
   };
 
   useEffect(() => {
