@@ -12,7 +12,6 @@ export default function Navbar({ program }) {
 
   const isAr = i18n.language === 'ar';
 
-  // تبديل لغة الهيدر فقط دون التأثير على محتوى الصفحة
   const toggleLanguage = () => {
     const newLang = isAr ? 'en' : 'ar';
     i18n.changeLanguage(newLang);
@@ -28,11 +27,10 @@ export default function Navbar({ program }) {
 
   return (
     <>
-      {/* الهيدر ثابت دائماً باتجاه اليمين لضمان عدم انعكاس الموقع */}
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200" dir="rtl">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
           
-          {/* الشعار يمين */}
+          {/* الشعار */}
           {program ? (
             <button
               onClick={() => navigate('/programs')}
@@ -45,13 +43,15 @@ export default function Navbar({ program }) {
             <a href="/" className="logo flex items-center gap-3">
               <img src="/logo.png" alt="شعار الخلية" style={{ width: '45px', height: '45px', objectFit: 'contain' }} />
               <div className="logo-text flex flex-col text-right">
-                <span className="font-extrabold text-lg text-slate-900">{isAr ? "خلية الأعمال الإنسانية" : "Humanitarian Action Cell"}</span>
+                <span className="font-extrabold text-lg text-slate-900">
+                  {isAr ? "خلية الأعمال الإنسانية" : "Humanitarian Action Cell"}
+                </span>
                 <span className="text-xs text-slate-500">HUMANITARIAN ACTION CELL</span>
               </div>
             </a>
           )}
 
-          {/* روابط التنقل في المنتصف */}
+          {/* روابط التنقل */}
           <nav className="hidden md:flex items-center gap-6">
             <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('home')}</NavLink>
             <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('about')}</HashLink>
@@ -60,7 +60,7 @@ export default function Navbar({ program }) {
             <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-medium">{t('newsAndReports')}</NavLink>
           </nav>
 
-          {/* الأزرار يسار */}
+          {/* الأزرار */}
           <div className="flex items-center gap-3">
             <button 
               onClick={toggleLanguage}
