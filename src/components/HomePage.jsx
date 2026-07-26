@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Globe } from 'lucide-react'; // أيقونة الكرة الأرضية
+import { Globe, Bot, Send } from 'lucide-react'; // إضافة أيقونات الشات
 
 const HomePage = () => {
   const { t, i18n } = useTranslation();
   const [latestNews, setLatestNews] = useState([]);
   const [currentLang, setCurrentLang] = useState('ar');
+
+  // حالات خاصة بالمساعد الذكي للشات والتلخيص
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، جاهز لتلخيص التقارير والرد على استفساراتك حول المنصة.' }
+  ]);
+  const [userInput, setUserInput] = useState('');
 
   useEffect(() => {
     // التحقق من اللغة الحالية عبر الكوكيز الخاصة بـ Google Translate
@@ -43,13 +49,32 @@ const HomePage = () => {
     return words.slice(0, wordLimit).join(' ') + '...';
   };
 
+  // دالة إرسال السؤال أو طلب التلخيص للمساعد الذكي
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!userInput.trim()) return;
+
+    const newMsg = userInput;
+    setChatMessages(prev => [...prev, { sender: 'user', text: newMsg }]);
+    setUserInput('');
+
+    // محاكاة استجابة الذكاء الاصطناعي (يمكنك استبدالها بربطها بـ API الخاص بك)
+    setTimeout(() => {
+      let botResponse = "جاري تحليل الطلب... يمكنك ربط هذا الحقل بـ Backend الخاص بـ Gemini API لتلخيص التقارير بدقة.";
+      if (newMsg.includes('تلخيص') || newMsg.includes('تقرير')) {
+        botResponse = "📋 **ملخص التقرير:** يوضح النظام تقدم العمل في مشاريع خلية الأعمال الإنسانية بنسبة نمو مستقرة واستجابة عالية للبيانات المدخلة.";
+      }
+      setChatMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
+    }, 1000);
+  };
+
   return (
     <div className="home-page">
       
-      {/* عنصر ترجمة جوجل المخفي المطلوب لعمل الإضافة */}
+      {/* عنصر ترجمة جوجل المخفي */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
-      {/* زر الترجمة الخاص بالصفحة الرئيسية مباشرة */}
+      {/* زر الترجمة */}
       <div className="max-w-[1400px] mx-auto px-6 pt-4 flex justify-end">
         <button 
           onClick={handleGoogleTranslate}
@@ -70,7 +95,7 @@ const HomePage = () => {
         <button>{t('moreProjects') || "المزيد من المشاريع"}</button>
       </Link>
 
-      {/* قسم الأخبار في الصفحة الرئيسية */}
+      {/* قسم الأخبار */}
       <section className="projects" id="news">
         <div className="container">
           <div className="section-header">
@@ -111,7 +136,7 @@ const HomePage = () => {
             ))}
           </div>
 
-          {/* الزر الرئيسي لعرض كافة الأخبار والتقارير */}
+          {/* زر عرض كافة الأخبار */}
           <div className="view-all-container" style={{ textAlign: 'center', marginTop: '40px' }}>
             <Link 
               to="/news" 
@@ -134,10 +159,44 @@ const HomePage = () => {
 
         </div>
       </section>
+
+      {/* ===== قسم المساعد الذكي (تلخيص التقارير والرد على الأسئلة) ===== */}
+      <section className="ai-assistant-section" style={{ padding: '60px 20px', background: '#f7f9fc' }}>
+        <div className="ai-assistant-container">
+          <div className="section-header" style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <h3 className="section-title" style={{ fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+              <Bot className="w-6 h-6 text-[#c9a84c]" />
+              المساعد الذكي <span>للتلخيص والإجابة</span>
+            </h3>
+            <p style={{ color: '#4a5568', fontSize: '14px' }}>اسأل عن التقارير أو اطلب تلخيصاً فورياً للبيانات البرمجية والإدارية</p>
+          </div>
+
+          {/* صندوق المحادثة */}
+          <div className="ai-chat-box">
+            {chatMessages.map((msg, index) => (
+              <div key={index} className={`ai-message ${msg.sender}`}>
+                {msg.text}
+              </div>
+            ))}
+          </div>
+
+          {/* نموذج إرسال الأسئلة */}
+          <form onSubmit={handleSendMessage} className="ai-input-group">
+            <input 
+              type="text" 
+              value={userInput} 
+              onChange={(e) => setUserInput(e.target.value)} 
+              placeholder="اكتب سؤالك هنا أو اطلب تلخيص التقارير..." 
+            />
+            <button type="submit">
+              <Send className="w-4 h-4" /> إرسال
+            </button>
+          </form>
+        </div>
+      </section>
+
     </div>
   );
 };
-
-HomePage;
 
 export default HomePage;
