@@ -9,6 +9,9 @@ export default function Navbar({ program }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // التحقق مما إذا كانت الصفحة الحالية هي الصفحة الرئيسية
+  const isHomePage = location.pathname === '/';
+
   useEffect(() => {
     const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
     if (match) {
@@ -38,11 +41,10 @@ export default function Navbar({ program }) {
     <>
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
-      {/* تثبيت الاتجاه عربي RTL والخلفية بيضاء واضحة والنصوص داكنة */}
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200 text-slate-800" dir="rtl">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
           
-          {/* الشعار */}
+          {/* الجانب الأيمن: الشعار أو زر العودة */}
           {program ? (
             <button
               onClick={() => navigate('/programs')}
@@ -61,24 +63,27 @@ export default function Navbar({ program }) {
             </a>
           )}
 
-          {/* روابط التنقل بلون داكن وواضح */}
-          <nav className="hidden md:flex items-center gap-6">
+          {/* المنتصف: روابط التنقل */}
+          <nav className="hidden md:flex items-center gap-5">
             <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">الرئيسية</NavLink>
             <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">من نحن</HashLink>
             <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">المشاريع</NavLink>
             <NavLink to="/programs" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">البرامج</NavLink>
             <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">الأخبار والتقارير</NavLink>
+            <NavLink to="/contact" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">تواصل معنا</NavLink>
           </nav>
 
-          {/* الأزرار */}
+          {/* الجانب الأيسر: زر الترجمة (يظهر فقط في الصفحة الرئيسية) مع زر التبرع */}
           <div className="flex items-center gap-3">
-            <button 
-              onClick={handleGoogleTranslate}
-              className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100 transition text-sm font-bold flex items-center gap-2 cursor-pointer shadow-sm"
-            >
-              <Globe className="w-4 h-4 text-slate-600" />
-              <span>{currentLang === 'en' ? 'العربية' : 'English'}</span>
-            </button>
+            {isHomePage && (
+              <button 
+                onClick={handleGoogleTranslate}
+                className="px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100 transition text-sm font-semibold flex items-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <Globe className="w-4 h-4 text-[#c9a84c]" />
+                <span>{currentLang === 'en' ? 'العربية' : 'English'}</span>
+              </button>
+            )}
 
             <NavLink to="/donate" className="bg-[#c9a84c] text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition shadow-sm">
               <Heart className="w-4 h-4 fill-current" />
