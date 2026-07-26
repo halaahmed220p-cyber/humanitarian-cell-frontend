@@ -72,23 +72,24 @@ export default function ProgramsPage() {
                   <div className="relative z-10 p-10 h-full flex flex-col justify-between">
                     {/* Top */}
                     <div className="flex justify-between items-start mb-6">
-                      <div
-                        className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl relative overflow-hidden"
-                        style={{ background: `${style.color}20`, border: `1px solid ${style.color}40` }}
-                      >
-                        <div className="absolute inset-0 opacity-20 rounded-2xl" style={{ background: style.color }} />
-                        
-                        {/* إذا كان البرنامج هو رافد، نضع الشعار بدلاً من الإيموجي وبحجم أكبر قليلاً، وإلا نضع الإيموجي الافتراضي */}
-                        {id === 'rafed' ? (
+                      {/* إذا كان البرنامج هو رافد، نعرض الشعار مباشرة بدون المربع الخلفي وبحجم أكبر */}
+                      {id === 'rafed' ? (
+                        <div className="flex items-center">
                           <img 
                             src="/rafid-logo.png" 
                             alt="شعار رافد" 
-                            className="w-14 h-14 object-contain relative z-10 drop-shadow-sm" 
+                            className="w-24 h-24 object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-105" 
                           />
-                        ) : (
+                        </div>
+                      ) : (
+                        <div
+                          className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl relative overflow-hidden"
+                          style={{ background: `${style.color}20`, border: `1px solid ${style.color}40` }}
+                        >
+                          <div className="absolute inset-0 opacity-20 rounded-2xl" style={{ background: style.color }} />
                           <span className="relative z-10">{prog.icon}</span>
-                        )}
-                      </div>
+                        </div>
+                      )}
 
                       <span className="text-7xl font-black opacity-[0.08] leading-none">0{index + 1}</span>
                     </div>
