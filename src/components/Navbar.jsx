@@ -26,15 +26,17 @@ export default function Navbar({ program }) {
   }, []);
 
   // دالة لتغيير اللغة المباشرة عبر كوكيز ترجمة جوجل وإعادة تحميل الصفحة
-  const handleGoogleTranslate = () => {
-    if (currentLang === 'ar') {
-      document.cookie = "googtrans=/ar/en; path=/";
-      document.cookie = "googtrans=/ar/en; domain=" + window.location.hostname + "; path=/";
+const handleGoogleTranslate = () => {
+    const select = document.querySelector('.goog-te-combo');
+    if (select) {
+      // إذا كانت اللغة الحالية إنجليزية، حولها إلى العربية والعكس
+      const targetLang = isEnglish ? 'ar' : 'en';
+      select.value = targetLang;
+      select.dispatchEvent(new Event('change'));
+      setIsEnglish(!isEnglish);
     } else {
-      document.cookie = "googtrans=/ar/ar; path=/";
-      document.cookie = "googtrans=/ar/ar; domain=" + window.location.hostname + "; path=/";
+      alert('جاري تفعيل الترجمة، يرجى النقر مرة أخرى.');
     }
-    window.location.reload();
   };
 
   return (
@@ -73,12 +75,13 @@ export default function Navbar({ program }) {
           {/* الأزرار */}
           <div className="flex items-center gap-3">
             <button 
-              onClick={handleGoogleTranslate}
-              className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
-            >
-              <Globe className="w-4 h-4 text-slate-500" />
-              <span>{currentLang === 'ar' ? 'English' : 'العربية'}</span>
-            </button>
+  onClick={handleGoogleTranslate}
+  className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
+>
+  <Globe className="w-4 h-4 text-slate-500" />
+  {/* إذا كان الموقع بالإنجليزية الآن، اعرض زر "العربية"، والعكس صحيح */}
+  <span>{isEnglish ? 'العربية' : 'English'}</span>
+</button>
 
             <NavLink to="/donate" className="bg-[#c9a84c] text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition shadow-sm">
               <Heart className="w-4 h-4 fill-current" />
