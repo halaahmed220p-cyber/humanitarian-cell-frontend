@@ -25,15 +25,14 @@ export default function Navbar({ program }) {
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
 
-  // دالة لتغيير اللغة المباشرة عبر كوكيز ترجمة جوجل وإعادة تحميل الصفحة
-const handleGoogleTranslate = () => {
+  // دالة لتغيير اللغة عبر كوكيز ترجمة جوجل وتحديث الحالة
+  const handleGoogleTranslate = () => {
     const select = document.querySelector('.goog-te-combo');
     if (select) {
-      // إذا كانت اللغة الحالية إنجليزية، حولها إلى العربية والعكس
-      const targetLang = isEnglish ? 'ar' : 'en';
+      const targetLang = currentLang === 'ar' ? 'en' : 'ar';
       select.value = targetLang;
       select.dispatchEvent(new Event('change'));
-      setIsEnglish(!isEnglish);
+      setCurrentLang(targetLang);
     } else {
       alert('جاري تفعيل الترجمة، يرجى النقر مرة أخرى.');
     }
@@ -75,13 +74,12 @@ const handleGoogleTranslate = () => {
           {/* الأزرار */}
           <div className="flex items-center gap-3">
             <button 
-  onClick={handleGoogleTranslate}
-  className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
->
-  <Globe className="w-4 h-4 text-slate-500" />
-  {/* إذا كان الموقع بالإنجليزية الآن، اعرض زر "العربية"، والعكس صحيح */}
-  <span>{isEnglish ? 'العربية' : 'English'}</span>
-</button>
+              onClick={handleGoogleTranslate}
+              className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <Globe className="w-4 h-4 text-slate-500" />
+              <span>{currentLang === 'ar' ? 'English' : 'العربية'}</span>
+            </button>
 
             <NavLink to="/donate" className="bg-[#c9a84c] text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition shadow-sm">
               <Heart className="w-4 h-4 fill-current" />
