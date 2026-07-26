@@ -4,15 +4,32 @@ import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ScrollReveal from '../components/ScrollReveal';
-import Navbar from '../components/Navbar'; // استدعاء الهيدر الموحد للمشروع
-import Footer from '../components/Footer'; // استدعاء الفوتر الموحد للمشروع
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { programsData, programIds } from '../data/programsData';
 
+// تحديد مسارات الشعارات وألوان الهوية البصرية لكل برنامج
 const programStyles = {
-  rafed: { color: '#e8a87c', glowPos: 'top-[-50px] right-[-50px]' },
-  himaya: { color: '#7ec8e8', glowPos: 'bottom-[-50px] left-[-50px]' },
-  sarh: { color: '#a8e87e', glowPos: 'top-1/2 right-[-80px]' },
-  wasam: { color: '#e87ec8', glowPos: 'bottom-[-50px] right-[-50px]' },
+  rafed: { 
+    color: '#e8a87c', 
+    glowPos: 'top-[-50px] right-[-50px]',
+    logo: '/rafid-logo.png' 
+  },
+  himaya: { 
+    color: '#7ec8e8', 
+    glowPos: 'bottom-[-50px] left-[-50px]',
+    logo: '/himaya-logo.png' // استبدليه بمسار شعار الحماية عند توفره
+  },
+  sarh: { 
+    color: '#a8e87e', 
+    glowPos: 'top-1/2 right-[-80px]',
+    logo: '/sarh-logo.png' // مسار شعار صرح
+  },
+  wasam: { 
+    color: '#e87ec8', 
+    glowPos: 'bottom-[-50px] right-[-50px]',
+    logo: '/wasam-logo.png' // مسار شعار وسم
+  },
 };
 
 export default function ProgramsPage() {
@@ -72,26 +89,22 @@ export default function ProgramsPage() {
                   <div className="relative z-10 p-10 h-full flex flex-col justify-between">
                     {/* Top */}
                     <div className="flex justify-between items-start mb-6">
-                      {/* إذا كان البرنامج هو رافد، نعرض الشعار مباشرة بدون المربع الخلفي وبحجم أكبر */}
-                      {id === 'rafed' ? (
-                        <div className="flex items-center">
-                          <img 
-                            src="/rafid-logo.png" 
-                            alt="شعار رافد" 
-                            className="w-24 h-24 object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-105" 
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl relative overflow-hidden"
-                          style={{ background: `${style.color}20`, border: `1px solid ${style.color}40` }}
-                        >
-                          <div className="absolute inset-0 opacity-20 rounded-2xl" style={{ background: style.color }} />
-                          <span className="relative z-10">{prog.icon}</span>
-                        </div>
-                      )}
+                      {/* عرض الشعار مباشرة بدون خلفية أو مربعات وبحجم واضح */}
+                      <div className="flex items-center">
+                        <img 
+                          src={style.logo} 
+                          alt={prog.name} 
+                          className="w-24 h-24 object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-105" 
+                          onError={(e) => {
+                            // في حال لم يتم رفع الصورة بعد، يتم إظهار الإيموجي الاحتياطي مؤقتاً
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                        <span className="text-4xl hidden" style={{ color: style.color }}>{prog.icon}</span>
+                      </div>
 
-                      <span className="text-7xl font-black opacity-[0.08] leading-none">0{index + 1}</span>
+                      <span className="text-7xl font-black opacity-[0.08] leading-none" style={{ color: style.color }}>0{index + 1}</span>
                     </div>
 
                     {/* Body */}
@@ -99,7 +112,7 @@ export default function ProgramsPage() {
                       <h2 className="text-3xl font-extrabold mb-3" style={{ color: style.color }}>
                         {prog.name}
                       </h2>
-                      <p className="text-base font-medium mb-4 opacity-90" style={{ color: prog.colorLight }}>
+                      <p className="text-base font-medium mb-4 opacity-90" style={{ color: style.color }}>
                         {prog.slogan}
                       </p>
 
@@ -125,19 +138,19 @@ export default function ProgramsPage() {
                           <span className="text-xl font-extrabold block" style={{ color: style.color }}>
                             {prog.stats[0].value}
                           </span>
-                          <span className="text-xs opacity-70">{prog.stats[0].label}</span>
+                          <span className="text-xs opacity-70 text-white/70">{prog.stats[0].label}</span>
                         </div>
                         <div className="text-center">
                           <span className="text-xl font-extrabold block" style={{ color: style.color }}>
                             {prog.stats[1].value}
                           </span>
-                          <span className="text-xs opacity-70">{prog.stats[1].label}</span>
+                          <span className="text-xs opacity-70 text-white/70">{prog.stats[1].label}</span>
                         </div>
                         <div className="text-center">
                           <span className="text-xl font-extrabold block" style={{ color: style.color }}>
                             {prog.stats[2].value}
                           </span>
-                          <span className="text-xs opacity-70">{prog.stats[2].label}</span>
+                          <span className="text-xs opacity-70 text-white/70">{prog.stats[2].label}</span>
                         </div>
                       </div>
                     </div>
@@ -145,15 +158,18 @@ export default function ProgramsPage() {
                     {/* Footer */}
                     <div className="flex gap-3">
                       <button
-                        className="flex-1 py-3.5 px-6 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5"
-                        style={{ background: prog.gradient, color: '#1a1a1a' }}
+                        className="flex-1 py-3.5 px-6 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-lg"
+                        style={{ background: style.color, color: '#1a1a1a' }}
                       >
                         <span className="flex items-center justify-center gap-2">
                           اكتشف البرنامج
                           <ArrowLeft className="w-4 h-4" />
                         </span>
                       </button>
-                      <button className="py-3.5 px-6 rounded-xl font-bold text-sm bg-transparent border border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300">
+                      <button 
+                        className="py-3.5 px-6 rounded-xl font-bold text-sm bg-transparent border transition-all duration-300 hover:bg-white/10"
+                        style={{ borderColor: `${style.color}66`, color: style.color }}
+                      >
                         التفاصيل
                       </button>
                     </div>
