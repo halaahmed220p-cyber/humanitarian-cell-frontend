@@ -11,7 +11,7 @@ import { programsData, programIds } from '../data/programsData';
 // تحديد الهوية البصرية بدقة بناءً على ألوان الشعارات الفعليّة لكل برنامج
 const programStyles = {
   rafed: { 
-    color: '#e8a87c', // البرتقالي الدافئ الخاص برافد
+    color: '#16a34a', // اللون الأخضر المستوحى من شعار برنامج رافد
     glowPos: 'top-[-50px] right-[-50px]',
     logo: '/rafid-logo.png' 
   },
