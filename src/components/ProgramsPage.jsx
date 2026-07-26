@@ -26,16 +26,7 @@ export default function ProgramsPage() {
       {/* --- محتوى الصفحة الرئيسي --- */}
       <main className="flex-1 max-w-[1400px] mx-auto px-6 w-full relative z-[2] pt-24">
         {/* Header Section */}
-        <header className="text-center pt-20 pb-16 relative">
-          {/* إضافة شعار برنامج رافد هنا في الهيدر الرئيسي كرمز جمالي وتوثيقي */}
-          <div className="flex justify-center mb-4">
-            <img 
-              src="/rafid-logo.png" 
-              alt="شعار برنامج رافد" 
-              className="w-16 h-16 object-contain drop-shadow-md animate-pulse" 
-            />
-          </div>
-
+        <header className="text-center pt-20 pb-16">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 bg-[#c9a84c]/15 border border-[#c9a84c]/30 text-[#c9a84c] px-6 py-2 rounded-full text-sm font-bold mb-6">
               <span className="w-2 h-2 bg-[#c9a84c] rounded-full animate-pulse" />
@@ -86,19 +77,20 @@ export default function ProgramsPage() {
                         style={{ background: `${style.color}20`, border: `1px solid ${style.color}40` }}
                       >
                         <div className="absolute inset-0 opacity-20 rounded-2xl" style={{ background: style.color }} />
-                        <span className="relative z-10">{prog.icon}</span>
+                        
+                        {/* إذا كان البرنامج هو رافد، نضع الشعار بدلاً من الإيموجي وبحجم أكبر قليلاً، وإلا نضع الإيموجي الافتراضي */}
+                        {id === 'rafed' ? (
+                          <img 
+                            src="/rafid-logo.png" 
+                            alt="شعار رافد" 
+                            className="w-14 h-14 object-contain relative z-10 drop-shadow-sm" 
+                          />
+                        ) : (
+                          <span className="relative z-10">{prog.icon}</span>
+                        )}
                       </div>
-                      
-                      {/* تخصيص عرض الشعار خصيصاً لبطاقة برنامج رافد إذا رغبت، أو إبقاء الرقم */}
-                      {id === 'rafed' ? (
-                        <img 
-                          src="/rafid-logo.png" 
-                          alt="رافد" 
-                          className="w-12 h-12 object-contain opacity-80 group-hover:opacity-100 transition-opacity" 
-                        />
-                      ) : (
-                        <span className="text-7xl font-black opacity-[0.08] leading-none">0{index + 1}</span>
-                      )}
+
+                      <span className="text-7xl font-black opacity-[0.08] leading-none">0{index + 1}</span>
                     </div>
 
                     {/* Body */}
