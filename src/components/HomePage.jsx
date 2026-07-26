@@ -1,24 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // استيراد الترجمة
+import { useTranslation } from 'react-i18next';
+import { Globe } from 'lucide-react'; // أيقونة الكرة الأرضية
 
 const HomePage = () => {
   const { t, i18n } = useTranslation();
   const [latestNews, setLatestNews] = useState([]);
+  const [currentLang, setCurrentLang] = useState('ar');
 
   useEffect(() => {
-    // استخدام رابط السيرفر المباشر على Render بدلاً من localhost
+    // التحقق من اللغة الحالية عبر الكوكيز الخاصة بـ Google Translate
+    const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
+    if (match) {
+      const langValue = decodeURIComponent(match[1]);
+      if (langValue.includes('/en')) {
+        setCurrentLang('en');
+      }
+    }
+
+    // استخدام رابط السيرفر المباشر على Render
     fetch('https://humanitarian-cell-frontend.onrender.com/api/news/latest')
       .then(res => res.json())
       .then(data => {
-        console.log("البيانات الأصلية من السيرفر:", data);
         const topThree = Array.isArray(data) ? data.slice(0, 3) : []; 
         setLatestNews(topThree);
       })
       .catch(err => console.error("Error:", err));
   }, []);
 
-  // دالة ذكية لاختصار نص الخبر
+  // دالة تغيير اللغة عبر Google Translate
+  const handleGoogleTranslate = () => {
+    const targetLang = currentLang === 'ar' ? 'en' : 'ar';
+    document.cookie = `googtrans=/ar/${targetLang}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/ar/${targetLang}; path=/`;
+    window.location.reload();
+  };
+
   const truncateText = (text, wordLimit = 18) => {
     if (!text) return '';
     const words = text.split(/\s+/);
@@ -28,7 +45,22 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
-      <h1>{t('welcomeMessage') || "مرحباً بك في خلية الأعمال الإنسانية"}</h1>
+      
+      {/* عنصر ترجمة جوجل المخفي المطلوب لعمل الإضافة */}
+      <div id="google_translate_element" style={{ display: 'none' }}></div>
+
+      {/* زر الترجمة الخاص بالصفحة الرئيسية مباشرة */}
+      <div className="max-w-[1400px] mx-auto px-6 pt-4 flex justify-end">
+        <button 
+          onClick={handleGoogleTranslate}
+          className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 transition text-sm font-bold flex items-center gap-2 cursor-pointer shadow-sm"
+        >
+          <Globe className="w-4 h-4 text-[#c9a84c]" />
+          <span>{currentLang === 'en' ? 'العربية (Arabic)' : 'English'}</span>
+        </button>
+      </div>
+
+      <h1 className="px-6 mt-4">{t('welcomeMessage') || "مرحباً بك في خلية الأعمال الإنسانية"}</h1>
       
       {/* قسم المشاريع */}
       <div className="projects-section">
@@ -63,7 +95,6 @@ const HomePage = () => {
                 
                 <div className="project-content">
                   <h3>{item.title}</h3>
-                  
                   <p>{truncateText(item.description)}</p>
                   
                   <div className="project-meta">
@@ -106,5 +137,7 @@ const HomePage = () => {
     </div>
   );
 };
+
+HomePage;
 
 export default HomePage;
