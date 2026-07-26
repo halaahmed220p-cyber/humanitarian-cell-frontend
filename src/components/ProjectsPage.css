@@ -616,3 +616,23 @@ body {
   flex-direction: column;
   min-height: 100vh;
 }
+
+@media (max-width: 900px) {
+    .hac-projects-page {
+        margin-top: 70px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hac-projects-page .hac-dash-main-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* إلغاء أي ارتفاع اجباري أو هوامش سفلية تسبب الفراغ */
+    .hac-projects-page .hac-dash-map-wrapper {
+        height: 350px; /* تقليص ارتفاع الخريطة قليلاً في الموبايل لتناسب الشاشة */
+    }
+}
