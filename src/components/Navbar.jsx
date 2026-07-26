@@ -37,6 +37,23 @@ export default function Navbar({ program }) {
     window.location.reload();
   };
 
+  // دالة التعامل مع الانتقال للفوتر من أي صفحة (بما فيها البرامج)
+  const handleContactClick = (e) => {
+    e.preventDefault();
+    navigate('/');
+    setTimeout(() => {
+      const footerElement = document.getElementById('footer');
+      if (footerElement) {
+        footerElement.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 150);
+  };
+
   return (
     <>
       <div id="google_translate_element" style={{ display: 'none' }}></div>
@@ -70,7 +87,7 @@ export default function Navbar({ program }) {
             <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">المشاريع</NavLink>
             <NavLink to="/programs" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">البرامج</NavLink>
             <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">الأخبار والتقارير</NavLink>
-            <NavLink to="/contact" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">تواصل معنا</NavLink>
+            <a href="/#footer" onClick={handleContactClick} className="text-slate-700 hover:text-[#c9a84c] font-semibold transition cursor-pointer">تواصل معنا</a>
           </nav>
 
           {/* 3. الجانب الأيسر: زر الترجمة (يظهر فقط في الرئيسية) وزر التبرع */}
