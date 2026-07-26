@@ -9,7 +9,7 @@ export default function Navbar({ program }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // فحص دقيق لكوننا في الصفحة الرئيسية (سواء المسار '/' أو فارغ)
+  // التحقق من الصفحة الرئيسية
   const isHomePage = location.pathname === '/' || location.pathname === '';
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function Navbar({ program }) {
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200 text-slate-800" dir="rtl">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
           
-          {/* الجانب الأيمن: الشعار أو زر العودة */}
+          {/* 1. الجانب الأيمن: الشعار أو زر العودة */}
           {program ? (
             <button
               onClick={() => navigate('/programs')}
@@ -63,8 +63,8 @@ export default function Navbar({ program }) {
             </a>
           )}
 
-          {/* المنتصف: روابط التنقل */}
-          <nav className="hidden md:flex items-center gap-5">
+          {/* 2. المنتصف: روابط التنقل الأساسية */}
+          <nav className="hidden md:flex items-center gap-6">
             <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">الرئيسية</NavLink>
             <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">من نحن</HashLink>
             <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">المشاريع</NavLink>
@@ -73,12 +73,12 @@ export default function Navbar({ program }) {
             <NavLink to="/contact" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">تواصل معنا</NavLink>
           </nav>
 
-          {/* الجانب الأيسر: زر الترجمة (يظهر حصرياً في الرئيسية) بجانب زر التبرع */}
+          {/* 3. الجانب الأيسر: زر الترجمة (يظهر فقط في الرئيسية) وزر التبرع */}
           <div className="flex items-center gap-3">
             {isHomePage && (
               <button 
                 onClick={handleGoogleTranslate}
-                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100 transition text-sm font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100 transition text-sm font-bold flex items-center gap-2 cursor-pointer shadow-sm"
               >
                 <Globe className="w-4 h-4 text-[#c9a84c]" />
                 <span>{currentLang === 'en' ? 'العربية' : 'English'}</span>
