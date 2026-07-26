@@ -15,6 +15,14 @@ const statusConfig = {
   ongoing: { label: 'قيد التنفيذ', className: 'bg-orange-400/25 text-orange-400 border-orange-400/30' },
 }
 
+// خريطة الشعارات الثابتة في حال لم تقم بإرجاع مسار الشعار من الـ Backend
+const programLogos = {
+  rafed: '/rafid-logo.png',
+  himaya: '/himaya-logo.png',
+  sarh: '/sarh-logo.png',
+  wasam: '/wasam-logo.png',
+}
+
 export default function ProgramDetail() {
   const { programId } = useParams()
   const navigate = useNavigate()
@@ -26,7 +34,7 @@ export default function ProgramDetail() {
   // جلب بيانات البرنامج وماريعه من الـ Backend الخاص بك
   useEffect(() => {
     setLoading(true)
-    fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${programId}`)// استبدل الرابط برابط السيرفر لديك
+    fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${programId}`)
       .then(res => res.json())
       .then(data => {
         setProgram(data)
@@ -65,6 +73,8 @@ export default function ProgramDetail() {
   }
 
   const { color, gradient } = program
+  // استخدام الشعار القادم من الـ Backend أو الاعتماد على الخريطة الثابتة حسب الـ ID
+  const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-28">
@@ -72,25 +82,43 @@ export default function ProgramDetail() {
       <Navbar program={program} />
 
       <div className="flex-1 max-w-[1400px] mx-auto px-6 relative z-[2] w-full pt-10">
-        {/* Hero Section */}
-        <section className="pt-12 pb-16">
+        
+        {/* Hero Section مع الشعار البارز والأنيق */}
+        <section className="pt-12 pb-16 text-center flex flex-col items-center">
+          
+          {/* عرض الشعار في بداية الصفحة بدون خلفية مربعة */}
           <ScrollReveal>
+            <div className="mb-6 flex justify-center">
+              <img 
+                src={logoSrc} 
+                alt={program.name} 
+                className="w-28 h-28 md:w-36 md:h-36 object-contain drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.1}>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color }}>
               {program.badge}
             </div>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.1}>
+          <ScrollReveal delay={0.2}>
             <h1 className="text-5xl md:text-6xl font-black leading-tight mb-5 text-white">
-              {program.name}<br />
-              <span className="relative" style={{ color }}>
-                {program.slogan}
-                <span className="absolute -bottom-2 right-0 w-full h-1 rounded-full" style={{ background: gradient }} />
-              </span>
+              {program.name}
             </h1>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.2}>
+          <ScrollReveal delay={0.3}>
+            <p className="text-xl md:text-2xl font-bold mb-6" style={{ color }}>
+              {program.slogan}
+            </p>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.4}>
             <p className="text-lg text-[#b0b8c8] max-w-3xl leading-relaxed">
               {program.description}
             </p>
