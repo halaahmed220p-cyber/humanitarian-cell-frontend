@@ -4,6 +4,20 @@
 
 @import 'leaflet/dist/leaflet.css';
 
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #0b192c; /* توحيد لون خلفية الصفحة مع الفوتر تماماً */
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 /* عزل النطاق بالكامل لصفحة المشاريع حصرياً باستخدام الحاوية الجذرية */
 .hac-projects-page {
     font-family: 'Tajawal', sans-serif;
