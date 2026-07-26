@@ -182,9 +182,17 @@ const ProjectsPage = () => {
                     <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
                         
-                        <div className="hac-modal-header">
-                            <span className="hac-modal-badge">مشاريع محافظة {currentGovData.name}</span>
-                            <h2>لوحة معلومات المحافظة</h2>
+                        <div className="hac-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                                <span className="hac-modal-badge">مشاريع محافظة {currentGovData.name}</span>
+                                <h2>لوحة معلومات المحافظة</h2>
+                            </div>
+                            {/* عرض شعار برنامج رافد هنا في الهيدر */}
+                            <img 
+                                src="/rafid-logo.png" 
+                                alt="شعار برنامج رافد" 
+                                style={{ width: '55px', height: '55px', objectFit: 'contain' }} 
+                            />
                         </div>
 
                         <div className="hac-modal-stats">
@@ -231,9 +239,17 @@ const ProjectsPage = () => {
                     <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
                         
-                        <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
-                            <h2>{selectedProject.title}</h2>
+                        <div className="hac-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                                <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
+                                <h2>{selectedProject.title}</h2>
+                            </div>
+                            {/* عرض شعار برنامج رافد هنا أيضاً */}
+                            <img 
+                                src="/rafid-logo.png" 
+                                alt="شعار برنامج رافد" 
+                                style={{ width: '55px', height: '55px', objectFit: 'contain' }} 
+                            />
                         </div>
 
                         <div className="deep-modal-content">
