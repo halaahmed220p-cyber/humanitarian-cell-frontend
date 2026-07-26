@@ -10,7 +10,7 @@ export default function Navbar({ program }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // قراءة اللغة الحالية من الكوكيز للتعرف على الوضع الحالي
+    // قراءة اللغة الحالية من الكوكيز
     const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
     if (match && match[1].endsWith('/en')) {
       setCurrentLang('en');
@@ -25,7 +25,7 @@ export default function Navbar({ program }) {
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
 
-  // دالة لتغيير اللغة عبر كوكيز ترجمة جوجل وتحديث الحالة
+  // دالة لتغيير اللغة بسلاسة
   const handleGoogleTranslate = () => {
     const select = document.querySelector('.goog-te-combo');
     if (select) {
@@ -34,12 +34,29 @@ export default function Navbar({ program }) {
       select.dispatchEvent(new Event('change'));
       setCurrentLang(targetLang);
     } else {
-      alert('جاري تفعيل الترجمة، يرجى النقر مرة أخرى.');
+      // إذا لم يتم تحميل السكربت بعد، نقوم بإنشاء ودائع جوجل وإجبارها على الظهور مؤقتاً أو إعادة المحاولة
+      const translateElement = document.getElementById('google_translate_element');
+      if (translateElement && window.google && window.google.translate) {
+        // محاولة إعادة تهيئة العنصر إذا وجد السكربت
+        setTimeout(() => {
+          const retrySelect = document.querySelector('.goog-te-combo');
+          if (retrySelect) {
+            retrySelect.value = currentLang === 'ar' ? 'en' : 'ar';
+            retrySelect.dispatchEvent(new Event('change'));
+            setCurrentLang(currentLang === 'ar' ? 'en' : 'ar');
+          }
+        }, 500);
+      } else {
+        alert('يرجى الانتظار ثوانٍ حتى يتم تحميل سكريبت الترجمة بالكامل.');
+      }
     }
   };
 
   return (
     <>
+      {/* عنصر ترجمة جوجل مخفي بصرياً لضمان وجود القائمة البرمجية دائماً */}
+      <div id="google_translate_element" style={{ display: 'none' }}></div>
+
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200" dir="rtl">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
           
