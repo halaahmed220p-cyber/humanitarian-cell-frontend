@@ -9,21 +9,16 @@ export default function Navbar({ program }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // فحص دقيق للغة من الكوكيز عند تحميل الصفحة
   useEffect(() => {
-    const checkLangCookie = () => {
-      const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
-      if (match) {
-        const langValue = decodeURIComponent(match[1]);
-        if (langValue.includes('/en')) {
-          setCurrentLang('en');
-          return;
-        }
+    const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
+    if (match) {
+      const langValue = decodeURIComponent(match[1]);
+      if (langValue.includes('/en')) {
+        setCurrentLang('en');
+        return;
       }
-      setCurrentLang('ar');
-    };
-
-    checkLangCookie();
+    }
+    setCurrentLang('ar');
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
     fetch(`${baseUrl}/api/news/ticker`)
@@ -32,15 +27,10 @@ export default function Navbar({ program }) {
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
 
-  // دالة التبديل المباشر عبر تلاعب نظيف بكوكيز جوجل وإعادة تحميل بسيط إن لم تتوفر القائمة
   const handleGoogleTranslate = () => {
     const targetLang = currentLang === 'ar' ? 'en' : 'ar';
-    
-    // ضبط الكوكيز الخاص بترجمة جوجل مباشرة لضمان العمل الفوري
     document.cookie = `googtrans=/ar/${targetLang}; path=/; domain=${window.location.hostname}`;
     document.cookie = `googtrans=/ar/${targetLang}; path=/`;
-
-    // تحديث الحالة وإعادة تحميل الصفحة لتطبيق الترجمة فورياً وبشكل نظيف
     window.location.reload();
   };
 
@@ -48,7 +38,8 @@ export default function Navbar({ program }) {
     <>
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
-      <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200" dir="rtl">
+      {/* تثبيت الاتجاه عربي RTL والخلفية بيضاء واضحة والنصوص داكنة */}
+      <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200 text-slate-800" dir="rtl">
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center">
           
           {/* الشعار */}
@@ -70,23 +61,22 @@ export default function Navbar({ program }) {
             </a>
           )}
 
-          {/* روابط التنقل */}
+          {/* روابط التنقل بلون داكن وواضح */}
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-medium">الرئيسية</NavLink>
-            <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-medium">من نحن</HashLink>
-            <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-medium">المشاريع</NavLink>
-            <NavLink to="/programs" className="text-slate-700 hover:text-[#c9a84c] font-medium">البرامج</NavLink>
-            <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-medium">الأخبار والتقارير</NavLink>
+            <NavLink to="/" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">الرئيسية</NavLink>
+            <HashLink smooth to="/#about" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">من نحن</HashLink>
+            <NavLink to="/projects" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">المشاريع</NavLink>
+            <NavLink to="/programs" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">البرامج</NavLink>
+            <NavLink to="/news" className="text-slate-700 hover:text-[#c9a84c] font-semibold transition">الأخبار والتقارير</NavLink>
           </nav>
 
           {/* الأزرار */}
           <div className="flex items-center gap-3">
             <button 
               onClick={handleGoogleTranslate}
-              className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 hover:bg-slate-100 transition text-sm font-bold flex items-center gap-2 cursor-pointer shadow-sm"
             >
-              <Globe className="w-4 h-4 text-slate-500" />
-              {/* إذا كانت الصفحة حالياً إنجليزية، الزر يعرض "العربية" والعكس صحيح */}
+              <Globe className="w-4 h-4 text-slate-600" />
               <span>{currentLang === 'en' ? 'العربية' : 'English'}</span>
             </button>
 
