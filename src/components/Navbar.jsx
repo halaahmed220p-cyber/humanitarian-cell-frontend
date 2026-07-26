@@ -38,20 +38,25 @@ export default function Navbar({ program }) {
   };
 
   // دالة التعامل مع الانتقال للفوتر من أي صفحة (بما فيها البرامج)
-  const handleContactClick = (e) => {
+const handleContactClick = (e) => {
     e.preventDefault();
-    navigate('/');
-    setTimeout(() => {
-      const footerElement = document.getElementById('footer');
-      if (footerElement) {
-        footerElement.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth'
-        });
-      }
-    }, 150);
+    
+    // البحث عن الفوتر في الصفحة الحالية مباشرة
+    const footerElement = document.getElementById('footer');
+    
+    if (footerElement) {
+      // إذا كان الفوتر موجوداً في الصفحة الحالية (مثل الرئيسية أو البرامج)، انزل إليه بسلاسة
+      footerElement.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // إذا لم يكن موجوداً، انتقل للصفحة الرئيسية أولاً ثم انزل للفوتر
+      navigate('/');
+      setTimeout(() => {
+        const homeFooter = document.getElementById('footer');
+        if (homeFooter) {
+          homeFooter.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    }
   };
 
   return (
