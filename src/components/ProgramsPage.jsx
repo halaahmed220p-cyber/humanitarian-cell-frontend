@@ -8,27 +8,27 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { programsData, programIds } from '../data/programsData';
 
-// تحديد مسارات الشعارات وألوان الهوية البصرية لكل برنامج
+// تحديد الهوية البصرية بدقة بناءً على ألوان الشعارات الفعليّة لكل برنامج
 const programStyles = {
   rafed: { 
-    color: '#e8a87c', 
+    color: '#e8a87c', // البرتقالي الدافئ الخاص برافد
     glowPos: 'top-[-50px] right-[-50px]',
     logo: '/rafid-logo.png' 
   },
   himaya: { 
-    color: '#7ec8e8', 
+    color: '#38bdf8', // الأزرق السماوي الخاص بالحماية
     glowPos: 'bottom-[-50px] left-[-50px]',
-    logo: '/himaya-logo.png' // استبدليه بمسار شعار الحماية عند توفره
+    logo: '/himaya-logo.png' 
   },
   sarh: { 
-    color: '#a8e87e', 
+    color: '#2563eb', // الأزرق الداكن / النيلي المستوحى من شعار صرح
     glowPos: 'top-1/2 right-[-80px]',
-    logo: '/sarh-logo.png' // مسار شعار صرح
+    logo: '/sarh-logo.png' 
   },
   wasam: { 
-    color: '#e87ec8', 
+    color: '#eab308', // الأصفر الذهبي المستوحى من حرف W في شعار وسم
     glowPos: 'bottom-[-50px] right-[-50px]',
-    logo: '/wasam-logo.png' // مسار شعار وسم
+    logo: '/wasam-logo.png' 
   },
 };
 
@@ -89,14 +89,12 @@ export default function ProgramsPage() {
                   <div className="relative z-10 p-10 h-full flex flex-col justify-between">
                     {/* Top */}
                     <div className="flex justify-between items-start mb-6">
-                      {/* عرض الشعار مباشرة بدون خلفية أو مربعات وبحجم واضح */}
                       <div className="flex items-center">
                         <img 
                           src={style.logo} 
                           alt={prog.name} 
                           className="w-24 h-24 object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-105" 
                           onError={(e) => {
-                            // في حال لم يتم رفع الصورة بعد، يتم إظهار الإيموجي الاحتياطي مؤقتاً
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'block';
                           }}
