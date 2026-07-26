@@ -9,14 +9,21 @@ export default function Navbar({ program }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // فحص دقيق للغة من الكوكيز عند تحميل الصفحة
   useEffect(() => {
-    // قراءة اللغة الحالية من الكوكيز
-    const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
-    if (match && match[1].endsWith('/en')) {
-      setCurrentLang('en');
-    } else {
+    const checkLangCookie = () => {
+      const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
+      if (match) {
+        const langValue = decodeURIComponent(match[1]);
+        if (langValue.includes('/en')) {
+          setCurrentLang('en');
+          return;
+        }
+      }
       setCurrentLang('ar');
-    }
+    };
+
+    checkLangCookie();
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
     fetch(`${baseUrl}/api/news/ticker`)
@@ -25,36 +32,20 @@ export default function Navbar({ program }) {
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
 
-  // دالة لتغيير اللغة بسلاسة
+  // دالة التبديل المباشر عبر تلاعب نظيف بكوكيز جوجل وإعادة تحميل بسيط إن لم تتوفر القائمة
   const handleGoogleTranslate = () => {
-    const select = document.querySelector('.goog-te-combo');
-    if (select) {
-      const targetLang = currentLang === 'ar' ? 'en' : 'ar';
-      select.value = targetLang;
-      select.dispatchEvent(new Event('change'));
-      setCurrentLang(targetLang);
-    } else {
-      // إذا لم يتم تحميل السكربت بعد، نقوم بإنشاء ودائع جوجل وإجبارها على الظهور مؤقتاً أو إعادة المحاولة
-      const translateElement = document.getElementById('google_translate_element');
-      if (translateElement && window.google && window.google.translate) {
-        // محاولة إعادة تهيئة العنصر إذا وجد السكربت
-        setTimeout(() => {
-          const retrySelect = document.querySelector('.goog-te-combo');
-          if (retrySelect) {
-            retrySelect.value = currentLang === 'ar' ? 'en' : 'ar';
-            retrySelect.dispatchEvent(new Event('change'));
-            setCurrentLang(currentLang === 'ar' ? 'en' : 'ar');
-          }
-        }, 500);
-      } else {
-        alert('يرجى الانتظار ثوانٍ حتى يتم تحميل سكريبت الترجمة بالكامل.');
-      }
-    }
+    const targetLang = currentLang === 'ar' ? 'en' : 'ar';
+    
+    // ضبط الكوكيز الخاص بترجمة جوجل مباشرة لضمان العمل الفوري
+    document.cookie = `googtrans=/ar/${targetLang}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/ar/${targetLang}; path=/`;
+
+    // تحديث الحالة وإعادة تحميل الصفحة لتطبيق الترجمة فورياً وبشكل نظيف
+    window.location.reload();
   };
 
   return (
     <>
-      {/* عنصر ترجمة جوجل مخفي بصرياً لضمان وجود القائمة البرمجية دائماً */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-white shadow-md border-b border-slate-200" dir="rtl">
@@ -95,7 +86,8 @@ export default function Navbar({ program }) {
               className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition text-sm font-medium flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
               <Globe className="w-4 h-4 text-slate-500" />
-              <span>{currentLang === 'ar' ? 'English' : 'العربية'}</span>
+              {/* إذا كانت الصفحة حالياً إنجليزية، الزر يعرض "العربية" والعكس صحيح */}
+              <span>{currentLang === 'en' ? 'العربية' : 'English'}</span>
             </button>
 
             <NavLink to="/donate" className="bg-[#c9a84c] text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-[#e5c158] transition shadow-sm">
