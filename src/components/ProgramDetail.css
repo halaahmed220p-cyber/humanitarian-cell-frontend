@@ -27,3 +27,23 @@
   border-radius: 16px;
   backdrop-filter: blur(10px);
 }
+
+/* تنسيقات حركة الشريط الإخباري القادم من قاعدة البيانات */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 28s linear infinite;
+}
+
+/* إيقاف حركة الشريط عند تمرير الماوس لقراءة الخبر بوضوح */
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
