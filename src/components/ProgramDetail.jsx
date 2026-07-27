@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Calendar, Users, X, Image as ImageIcon } from 'lucide-react'
+import { MapPin, Calendar, Users, X, Image as ImageIcon, Download } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -15,9 +15,8 @@ const statusConfig = {
   ongoing: { label: 'قيد التنفيذ', className: 'bg-orange-400/25 text-orange-400 border-orange-400/30' },
 }
 
-// خريطة الشعارات الثابتة في حال لم تقم بإرجاع مسار الشعار من الـ Backend
 const programLogos = {
-  rafed: '/rafid-logo.png',
+  rafid: '/rafid-logo.png',
   himaya: '/himaya-logo.png',
   sarh: '/sarh-logo.png',
   wasam: '/wasam-logo.png',
@@ -31,7 +30,6 @@ export default function ProgramDetail() {
   const [loading, setLoading] = useState(true)
   const [selectedProject, setSelectedProject] = useState(null)
 
-  // جلب بيانات البرنامج وماريعه من الـ Backend الخاص بك
   useEffect(() => {
     setLoading(true)
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${programId}`)
@@ -73,7 +71,6 @@ export default function ProgramDetail() {
   }
 
   const { color, gradient } = program
-  // استخدام الشعار القادم من الـ Backend أو الاعتماد على الخريطة الثابتة حسب الـ ID
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
 
   return (
@@ -83,10 +80,7 @@ export default function ProgramDetail() {
 
       <div className="flex-1 max-w-[1400px] mx-auto px-6 relative z-[2] w-full pt-10">
         
-        {/* Hero Section مع الشعار البارز والأنيق */}
         <section className="pt-12 pb-16 text-center flex flex-col items-center">
-          
-          {/* عرض الشعار في بداية الصفحة بدون خلفية مربعة */}
           <ScrollReveal>
             <div className="mb-6 flex justify-center">
               <img 
@@ -125,7 +119,6 @@ export default function ProgramDetail() {
           </ScrollReveal>
         </section>
 
-        {/* Projects Section الخاصة بالبرنامج فقط */}
         {program.projects && program.projects.length > 0 && (
           <section className="pb-20">
             <ScrollReveal>
@@ -201,7 +194,6 @@ export default function ProgramDetail() {
         )}
       </div>
 
-      {/* نافذة تفاصيل المشروع مع توثيق الصور والفيديوهات */}
       <AnimatePresence>
         {selectedProject && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-md overflow-y-auto py-10">
@@ -233,7 +225,38 @@ export default function ProgramDetail() {
                   <p className="leading-relaxed">{selectedProject.description}</p>
                 </div>
 
-                {/* قسم توثيق الصور والفيديوهات القادم من قاعدة البيانات */}
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                    <span className="text-gray-400 block mb-1">الموقع:</span>
+                    <span className="font-bold text-white">{selectedProject.location || 'غير محدد'}</span>
+                  </div>
+                  <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                    <span className="text-gray-400 block mb-1">التاريخ / الموسم:</span>
+                    <span className="font-bold text-white">{selectedProject.date || 'مستمر'}</span>
+                  </div>
+                  <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                    <span className="text-gray-400 block mb-1">نسبة الإنجاز:</span>
+                    <span className="font-bold" style={{ color }}>{selectedProject.progress}%</span>
+                  </div>
+                  <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                    <span className="text-gray-400 block mb-1">المستفيدون:</span>
+                    <span className="font-bold text-white">{selectedProject.beneficiaries || 'غير محدد'}</span>
+                  </div>
+                </div>
+
+                {selectedProject.download_url && (
+                  <div className="pt-2">
+                    <a 
+                      href={selectedProject.download_url} 
+                      download 
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white bg-white/10 border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>تحميل تفاصيل المشروع / التقرير (PDF)</span>
+                    </a>
+                  </div>
+                )}
+
                 {selectedProject.media && selectedProject.media.length > 0 && (
                   <div className="mt-6 pt-6 border-t border-white/10">
                     <h4 className="font-extrabold text-white mb-4 flex items-center gap-2 text-base">
