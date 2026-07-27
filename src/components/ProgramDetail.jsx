@@ -225,6 +225,41 @@ export default function ProgramDetail() {
                   <p className="leading-relaxed">{selectedProject.description}</p>
                 </div>
 
+                {/* التعريف الاستراتيجي */}
+                {selectedProject.strategic_overview && (
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                    <h4 className="font-extrabold text-white mb-2 flex items-center gap-2 text-sm" style={{ color }}>
+                      التعريف الاستراتيجي (OVERVIEW)
+                    </h4>
+                    <p className="text-sm text-[#b0b8c8] leading-relaxed mb-2">{selectedProject.strategic_overview}</p>
+                    {selectedProject.strategic_overview_en && (
+                      <p className="text-xs text-gray-500 italic">{selectedProject.strategic_overview_en}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* الأهداف الاستراتيجية الميدانية */}
+                {selectedProject.strategic_goals && selectedProject.strategic_goals.length > 0 && (
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                    <h4 className="font-extrabold text-white mb-3 text-sm" style={{ color }}>
+                      الأهداف الاستراتيجية الميدانية
+                    </h4>
+                    <ul className="space-y-2 text-sm text-[#b0b8c8] list-disc list-inside">
+                      {selectedProject.strategic_goals.map((goal, idx) => (
+                        <li key={idx} className="leading-relaxed">{goal}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* التوافق الدولي */}
+                {selectedProject.sdg_alignment && (
+                  <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-xs font-bold text-amber-400 flex items-center gap-2">
+                    <span>التوافق الدولي:</span>
+                    <span>{selectedProject.sdg_alignment}</span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="bg-white/5 p-3 rounded-xl border border-white/5">
                     <span className="text-gray-400 block mb-1">الموقع:</span>
