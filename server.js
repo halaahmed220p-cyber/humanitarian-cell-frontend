@@ -4,7 +4,7 @@ import cors from 'cors';
 import multer from 'multer';
 import XLSX from 'xlsx';
 import pdfParse from 'pdf-parse';
-import { GoogleGenAI } from '@google/genai'; // استيراد مكتبة جوجل للذكاء الاصطناعي
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const { Pool } = pg;
 const app = express();
