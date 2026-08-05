@@ -68,9 +68,9 @@ function AIChatSection() {
         setChatMessages(prev => [...prev, { sender: 'bot', text: '📋 تم استلام الملف والتقرير بنجاح وجاري تلخيصه وتحليل محطاته الأساسية.' }]);
       }
     } catch (err) {
-      setSelectedFile(null);
-      setChatMessages(prev => [...prev, { sender: 'bot', text: '📋 تلخيص تجريبي للتقرير المرفق: يوضح البيانات المالية وبرامج البنية التحتية والمؤشرات الإنسانية بدقة.' }]);
-    }
+  setSelectedFile(null);
+  setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب. تأكدي من عمل سيرفر Render.' }]);
+}
   };
 
   return (
