@@ -3,21 +3,23 @@ import pg from 'pg';
 import cors from 'cors'; 
 import multer from 'multer';
 import XLSX from 'xlsx';
+import { GoogleGenAI } from '@google/genai';
 import { createRequire } from 'module';
+
 const require = createRequire(import.meta.url);
 const pdfParse = require('pdf-parse');
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const { Pool } = pg;
 const app = express();
+const port = process.env.PORT || 3000;
+
+// إعداد الاتصال وتهيئة جيميناي (مرة واحدة فقط بشكل صحيح)
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // إعداد التخزين المؤقت للملفات المرفوعة في الذاكرة لتسهيل قراءتها
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 1. جعل المنفذ ديناميكياً ليناسب بيئة تشغيل Render
-const port = process.env.PORT || 3000;
-
-// 2. قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن
+// قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن
 const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_PUk42FhVoziK@ep-raspy-math-atr8pmc2-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require';
 
 // إعداد الاتصال بقاعدة البيانات (Neon PostgreSQL)
@@ -25,11 +27,9 @@ const pool = new Pool({
   connectionString: connectionString,
 });
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 // تفعيل CORS و JSON
 app.use(cors({
-  origin: '*', // السماح لأي موقع بالاتصال
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -39,7 +39,6 @@ app.use(express.json());
 // ==========================================
 // 1. مسارات البرامج ومشاريعها الخاصة (Programs & Sub-Projects)
 // ==========================================
-
 app.get('/api/programs/:programId', async (req, res) => {
   const { programId } = req.params;
 
@@ -61,11 +60,9 @@ app.get('/api/programs/:programId', async (req, res) => {
   }
 });
 
-
 // ==========================================
 // 2. مسارات المشاريع العامة (Projects)
 // ==========================================
-
 app.get('/api/projects/active', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM projects WHERE needs_donation = TRUE ORDER BY id DESC');
@@ -123,7 +120,6 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
-
 // ==========================================
 // 3. مسار استقبال التبرعات (Donations)
 // ==========================================
@@ -159,7 +155,6 @@ app.post('/api/donations', async (req, res) => {
   }
 });
 
-
 // ==========================================
 // 4. مسارات الأخبار (News)
 // ==========================================
@@ -193,7 +188,6 @@ app.get('/api/news', async (req, res) => {
   }
 });
 
-
 // ==========================================
 // 5. مسار التقارير (Reports)
 // ==========================================
@@ -206,7 +200,6 @@ app.get('/api/reports', async (req, res) => {
     res.status(500).send('حدث خطأ في الخادم أثناء جلب التقارير');
   }
 });
-
 
 // ==========================================
 // 6. مسار الاشتراكات (Subscribers)
@@ -225,7 +218,6 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
-
 // ==========================================
 // 7. مسار المساعد الذكي وتلخيص الملفات (AI Assistant & File Processing)
 // ==========================================
@@ -236,7 +228,6 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
   try {
     let fileTextContent = "";
 
-    // 1. قراءة محتوى الملف المرفق بدقة (سواء كان إكسل، PDF أو نص)
     if (file) {
       const buffer = file.buffer;
       const fileName = file.originalname.toLowerCase();
@@ -245,7 +236,6 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-        // قراءة الصفوف وتحويلها إلى نص ميكروي يفهمه الذكاء الاصطناعي
         fileTextContent = JSON.stringify(sheetData, null, 2); 
       } else if (fileName.endsWith('.pdf')) {
         const pdfData = await pdfParse(buffer);
@@ -255,23 +245,20 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
       }
     }
 
-    // 2. توجيه ذكي لنموذج جيميناي ليتصرف بذكائه المعهود
     const systemInstruction = `أنت نموذج Google Gemini الذكي والمحترف جداً. مهمتك هي تحليل البيانات والتقارير بدقة متناهية، وتقديم إجابات وتلخيصات مفصلة، منظمة في نقاط وواضحة باللغة العربية الفصحى، وبدون أي اختصار مخل.`;
 
     let prompt = message || "قم بتحليل وتلخيص هذا الملف بدقة تامة.";
     
-    // إذا وجد ملف، ندمج محتواه بالكامل مع رسالة المستخدم ليحلله جيميناي كأنه يقرأه أمامه
     if (fileTextContent) {
-      prompt = `إليك محتوى المستند أو بيانات الإكسل المرفقة بالكامل:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم أو سؤاله حول الملف: ${message || "قم بإعداد تقزار وتحليل شامل ومفصل يتضمن أبرز المؤشرات والأرقام والنتائج."}`;
+      prompt = `إليك محتوى المستند أو بيانات الإكسل المرفقة بالكامل:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم أو سؤاله حول الملف: ${message || "قم بإعداد تقرير وتحليل شامل ومفصل يتضمن أبرز المؤشرات والأرقام والنتائج."}`;
     }
 
-    // 3. استدعاء نموذج جيميناي بأحدث إعدادات
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash', // أو gemini-1.5-pro للحصول على قدرة تحليلية أعمق للملفات الضخمة
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
-        temperature: 0.4, // لضمان دقة التحليل والالتزام ببيانات الملف
+        temperature: 0.4,
       }
     });
 
@@ -281,7 +268,6 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: 'حدث خطأ أثناء معالجة وتلخيص الملف عبر الذكاء الاصطناعي.' });
   }
 });
-
 
 // تشغيل الخادم
 app.listen(port, () => {
