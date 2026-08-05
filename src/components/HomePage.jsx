@@ -54,31 +54,42 @@ const HomePage = () => {
     return words.slice(0, wordLimit).join(' ') + '...';
   };
 
-  const handleSendMessage = async (e) => {
+const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!userInput.trim()) return;
+    if (!userInput.trim() && !selectedFile) return;
 
-    const newMsg = userInput;
-    setChatMessages(prev => [...prev, { sender: 'user', text: newMsg }]);
+    const messageText = userInput;
+    if (userInput.trim()) {
+      setChatMessages(prev => [...prev, { sender: 'user', text: messageText }]);
+    }
     setUserInput('');
 
+    const formData = new FormData();
+    formData.append('message', messageText);
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+    }
+
     try {
+      // إرسال الطلب للسيرفر المضاف على Render
       const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: newMsg })
+        body: formData 
       });
       
       const data = await response.json();
-      
-      if (response.ok) {
+      setSelectedFile(null); // تفريغ الملف بعد الإرسال
+
+      if (response.ok && data.response) {
+        // عرض رد جيميناي الحقيقي والقادم من السيرفر تماماً
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
       } else {
-        setChatMessages(prev => [...prev, { sender: 'bot', text: '📋 ملخص التقرير: يوضح النظام تقدم العمل في مشاريع خلية الأعمال الإنسانية بنسبة نمو مستقرة.' }]);
+        setChatMessages(prev => [...prev, { sender: 'bot', text: data.error || 'عذراً، لم يتمكن السيرفر من معالجة الرد.' }]);
       }
     } catch (err) {
-      console.error("Error:", err);
-      setChatMessages(prev => [...prev, { sender: 'bot', text: '📋 ملخص تفاعلي: العمل جاري في مشاريع البنية التحتية والتعليم والتحول الرقمي للأنظمة الإنسانية.' }]);
+      // إزالة الرد التجريبي القديم، وعرض رسالة خطأ واضحة في حال تعذر الاتصال بالسيرفر
+      setSelectedFile(null);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: 'خطأ في الاتصال بالسيرفر أو مفتاح الـ API. تأكدي من تشغيل وتحديث الباك إند على Render.' }]);
     }
   };
 
