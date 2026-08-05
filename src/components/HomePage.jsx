@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Globe, Bot, Send, Calendar, ArrowLeft } from 'lucide-react';
+import { Globe, Bot, Send, Calendar, ArrowLeft, Paperclip } from 'lucide-react';
 
 const HomePage = () => {
   const { t } = useTranslation();
   const [latestNews, setLatestNews] = useState([]);
   const [currentLang, setCurrentLang] = useState('ar');
 
-  // حالات خاصة بالمساعد الذكي للشات والتلخيص
+  // حالات خاصة بالمساعد الذكي للشات والتلخيص وإرفاق الملفات
   const [chatMessages, setChatMessages] = useState([
-    { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، جاهز لتلخيص التقارير والرد على استفساراتك حول المنصة.' }
+    { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، جاهز لتلخيص التقارير وإجابتك على أي سؤال بكل سلاسة ودقة.' }
   ]);
   const [userInput, setUserInput] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // التحقق من اللغة الحالية عبر الكوكيز الخاصة بـ Google Translate
@@ -33,7 +35,6 @@ const HomePage = () => {
       })
       .catch(err => {
         console.error("Error fetching news:", err);
-        // بيانات تجريبية مؤقتة لضمان ظهور السكشن في حال تعطل الـ API
         setLatestNews([
           { id: 1, title: 'تقرير إنجاز مشاريع الإغاثة والتنمية للعام الحالي', description: 'تم بحمد الله استكمال المرحلة الأولى من توزيع المساعدات الإنسانية وتوفير الاحتياجات الأساسية.', date: '2026' }
         ]);
@@ -54,7 +55,17 @@ const HomePage = () => {
     return words.slice(0, wordLimit).join(' ') + '...';
   };
 
-const handleSendMessage = async (e) => {
+  // دالة التعامل مع اختيار الملف
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setChatMessages(prev => [...prev, { sender: 'user', text: `📎 تم إرفاق الملف: ${file.name}` }]);
+    }
+  };
+
+  // دالة إرسال الرسالة والملف للسيرفر للحصول على رد جيميناي الحقيقي والمفصل
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!userInput.trim() && !selectedFile) return;
 
@@ -63,33 +74,33 @@ const handleSendMessage = async (e) => {
       setChatMessages(prev => [...prev, { sender: 'user', text: messageText }]);
     }
     setUserInput('');
+    setIsLoading(true);
 
     const formData = new FormData();
-    formData.append('message', messageText);
+    formData.append('message', messageText || "قم بتلخيص وتحليل هذا المستند أو الملف بدقة واحترافية.");
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
 
     try {
-      // إرسال الطلب للسيرفر المضاف على Render
       const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
         method: 'POST',
         body: formData 
       });
       
       const data = await response.json();
-      setSelectedFile(null); // تفريغ الملف بعد الإرسال
+      setSelectedFile(null); 
+      setIsLoading(false);
 
       if (response.ok && data.response) {
-        // عرض رد جيميناي الحقيقي والقادم من السيرفر تماماً
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
       } else {
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.error || 'عذراً، لم يتمكن السيرفر من معالجة الرد.' }]);
       }
     } catch (err) {
-      // إزالة الرد التجريبي القديم، وعرض رسالة خطأ واضحة في حال تعذر الاتصال بالسيرفر
       setSelectedFile(null);
-      setChatMessages(prev => [...prev, { sender: 'bot', text: 'خطأ في الاتصال بالسيرفر أو مفتاح الـ API. تأكدي من تشغيل وتحديث الباك إند على Render.' }]);
+      setIsLoading(false);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: 'خطأ في الاتصال بالسيرفر. تأكدي من تشغيل وتحديث الباك إند على Render.' }]);
     }
   };
 
@@ -114,7 +125,7 @@ const handleSendMessage = async (e) => {
         <h1 className="text-3xl font-bold text-[#10355c]">{t('welcomeMessage') || "مرحباً بك في خلية الأعمال الإنسانية"}</h1>
       </div>
       
-      {/* قسم الأخبار والمستجدات (مع تصميم صريح يضمن الظهور) */}
+      {/* قسم الأخبار والمستجدات */}
       <section style={{ padding: '60px 20px', backgroundColor: '#fff' }} id="news">
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -140,7 +151,7 @@ const handleSendMessage = async (e) => {
                   <h3 style={{ fontSize: '18px', color: '#10355c', fontWeight: 'bold', marginBottom: '10px' }}>{item.title}</h3>
                   <p style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.6', flexGrow: 1, marginBottom: '15px' }}>{truncateText(item.description)}</p>
                   
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'between', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
                     <span style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <Calendar size={14} /> {item.date || "2026"}
                     </span>
@@ -173,49 +184,67 @@ const handleSendMessage = async (e) => {
         </div>
       </section>
 
-      {/* ===== قسم المساعد الذكي (تلخيص التقارير والرد على الأسئلة) ===== */}
+      {/* ===== قسم المساعد الذكي (تلخيص التقارير وإرفاق الملفات) ===== */}
       <section style={{ padding: '60px 20px', background: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <div style={{ marginBottom: '20px', textAlign: 'center' }}>
             <h3 style={{ fontSize: '24px', color: '#10355c', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               <Bot className="w-6 h-6 text-[#c9a84c]" />
-              المساعد الذكي <span style={{ color: '#c9a84c' }}>للتلخيص والإجابة</span>
+              المساعد الذكي <span style={{ color: '#c9a84c' }}>للتلخيص وإرفاق التقارير</span>
             </h3>
-            <p style={{ color: '#64748b', fontSize: '14px', marginTop: '5px' }}>اسأل عن التقارير أو اطلب تلخيصاً فورياً للبيانات البرمجية والإدارية</p>
+            <p style={{ color: '#64748b', fontSize: '14px', marginTop: '5px' }}>قم برفع ملفات التقارير (Excel / PDF) أو اكتب استفسارك ليقوم جيميناي بتحليلها وتلخيصها فوراً</p>
           </div>
 
           {/* صندوق المحادثة */}
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', height: '300px', overflowY: 'auto', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', height: '350px', overflowY: 'auto', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {chatMessages.map((msg, index) => (
               <div key={index} style={{
                 padding: '12px 16px',
                 borderRadius: '10px',
-                maxWidth: '80%',
+                maxWidth: '85%',
                 alignSelf: msg.sender === 'user' ? 'flex-start' : 'flex-end',
                 backgroundColor: msg.sender === 'user' ? '#10355c' : '#f8fafc',
                 color: msg.sender === 'user' ? '#fff' : '#1e293b',
                 border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
                 fontSize: '14px',
-                lineHeight: '1.5'
+                lineHeight: '1.6',
+                whiteSpace: 'pre-wrap'
               }}>
                 {msg.text}
               </div>
             ))}
+            {isLoading && (
+              <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-end', backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
+                ⏳ جاري قراءة الملف وتحليل محتواه بواسطة جيميناي بدقة...
+              </div>
+            )}
           </div>
 
-          {/* نموذج إرسال الأسئلة */}
-          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px' }}>
+          {/* نموذج إرسال الأسئلة وإرفاق الملفات */}
+          <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <label style={{ cursor: 'pointer', background: '#fff', border: '1px solid #cbd5e1', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
+              <Paperclip size={18} color="#64748b" />
+              <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".xlsx,.xls,.pdf,.txt,.csv" />
+            </label>
+
             <input 
               type="text" 
               value={userInput} 
               onChange={(e) => setUserInput(e.target.value)} 
-              placeholder="اكتب سؤالك هنا أو اطلب تلخيص التقارير..." 
-              style={{ flexGrow: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+              placeholder={selectedFile ? `ملف مرفق: ${selectedFile.name} (اكتب سؤالك أو اضغط إرسال)` : "اكتب سؤالك أو اطلب تلخيص التقارير المرفقة..."} 
+              style={{ flexGrow: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', background: '#fff' }}
             />
-            <button type="submit" style={{ padding: '12px 24px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            
+            <button type="submit" disabled={isLoading} style={{ padding: '12px 24px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isLoading ? 0.7 : 1 }}>
               <Send size={16} /> إرسال
             </button>
           </form>
+
+          {selectedFile && (
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#047857', fontWeight: 'bold' }}>
+              ✓ الملف جاهز للإرسال والتحليل: {selectedFile.name}
+            </div>
+          )}
         </div>
       </section>
 
