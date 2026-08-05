@@ -202,7 +202,8 @@ const HomePage = () => {
                 padding: '12px 16px',
                 borderRadius: '10px',
                 maxWidth: '85%',
-                alignSelf: msg.sender === 'user' ? 'flex-start' : 'flex-end',
+                // تصحيح المحاذاة لتبدو رسائل المستخدم يسار/يمين بشكل متناسق
+                alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                 backgroundColor: msg.sender === 'user' ? '#10355c' : '#f8fafc',
                 color: msg.sender === 'user' ? '#fff' : '#1e293b',
                 border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
@@ -214,7 +215,7 @@ const HomePage = () => {
               </div>
             ))}
             {isLoading && (
-              <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-end', backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
+              <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-start', backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
                 ⏳ جاري قراءة الملف وتحليل محتواه بواسطة جيميناي بدقة...
               </div>
             )}
