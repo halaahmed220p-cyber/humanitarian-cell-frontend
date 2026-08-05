@@ -49,8 +49,8 @@ const HomePage = () => {
     return words.slice(0, wordLimit).join(' ') + '...';
   };
 
-  // دالة إرسال السؤال أو طلب التلخيص للمساعد الذكي
-  const handleSendMessage = (e) => {
+  // دالة إرسال السؤال أو طلب التلخيص للمساعد الذكي والاتصال بالسيرفر الفعلي
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!userInput.trim()) return;
 
@@ -58,14 +58,24 @@ const HomePage = () => {
     setChatMessages(prev => [...prev, { sender: 'user', text: newMsg }]);
     setUserInput('');
 
-    // محاكاة استجابة الذكاء الاصطناعي (يمكنك استبدالها بربطها بـ API الخاص بك)
-    setTimeout(() => {
-      let botResponse = "جاري تحليل الطلب... يمكنك ربط هذا الحقل بـ Backend الخاص بـ Gemini API لتلخيص التقارير بدقة.";
-      if (newMsg.includes('تلخيص') || newMsg.includes('تقرير')) {
-        botResponse = "📋 **ملخص التقرير:** يوضح النظام تقدم العمل في مشاريع خلية الأعمال الإنسانية بنسبة نمو مستقرة واستجابة عالية للبيانات المدخلة.";
+    try {
+      const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newMsg })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setChatMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
+      } else {
+        setChatMessages(prev => [...prev, { sender: 'bot', text: 'عذراً، حدث خطأ في معالجة الطلب من الخادم.' }]);
       }
-      setChatMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
-    }, 1000);
+    } catch (err) {
+      console.error("Error:", err);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: 'عذراً، تعذر الاتصال بالمساعد الذكي تأكد من تشغيل الخادم.' }]);
+    }
   };
 
   return (
