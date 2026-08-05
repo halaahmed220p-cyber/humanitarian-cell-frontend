@@ -3,7 +3,8 @@ import pg from 'pg';
 import cors from 'cors'; 
 import multer from 'multer';
 import XLSX from 'xlsx';
-import pdfParse from 'pdf-parse';
+import pkg from 'pdf-parse';
+const pdfParse = pkg;
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const { Pool } = pg;
