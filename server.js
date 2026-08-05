@@ -13,7 +13,6 @@ const { Pool } = pg;
 const app = express();
 const port = process.env.PORT || 3000;
 
-// إعداد الاتصال وتهيئة جيميناي (مرة واحدة فقط بشكل صحيح)
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // إعداد التخزين المؤقت للملفات المرفوعة في الذاكرة لتسهيل قراءتها
