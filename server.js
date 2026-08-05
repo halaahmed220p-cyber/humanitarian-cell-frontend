@@ -3,8 +3,9 @@ import pg from 'pg';
 import cors from 'cors'; 
 import multer from 'multer';
 import XLSX from 'xlsx';
-import pkg from 'pdf-parse';
-const pdfParse = pkg;
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pdfParse = require('pdf-parse');
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const { Pool } = pg;
