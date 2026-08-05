@@ -3,14 +3,16 @@ import pg from 'pg';
 import cors from 'cors'; 
 import multer from 'multer';
 import XLSX from 'xlsx';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 const { Pool } = pg;
 const app = express();
 const port = process.env.PORT || 3000;
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// تهيئة جيميناي بالطريقة الصحيحة والمستقرة
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const aiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // إعداد التخزين المؤقت للملفات المرفوعة في الذاكرة لتسهيل قراءتها
 const upload = multer({ storage: multer.memoryStorage() });
@@ -249,16 +251,14 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
       prompt = `إليك محتوى المستند أو بيانات الإكسل المرفقة بالكامل:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم أو سؤاله حول الملف: ${message || "قم بإعداد تقرير وتحليل شامل ومفصل يتضمن أبرز المؤشرات والأرقام والنتائج."}`;
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+   const response = await aiModel.generateContent({
       contents: prompt,
-      config: {
-        systemInstruction: systemInstruction,
+      generationConfig: {
         temperature: 0.4,
       }
     });
 
-    res.json({ response: response.text });
+    res.json({ response: response.response.text() });
   } catch (err) {
     console.error("خطأ في معالجة الذكاء الاصطناعي للملف:", err);
     res.status(500).json({ error: 'حدث خطأ أثناء معالجة وتلخيص الملف عبر الذكاء الاصطناعي.' });

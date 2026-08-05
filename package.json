@@ -16,7 +16,7 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "@google/genai": "^0.1.1",
+    "@google/generative-ai": "^0.21.0",
     "axios": "^1.18.1",
     "chart.js": "^4.5.1",
     "cors": "^2.8.6",
@@ -29,6 +29,7 @@
     "lucide-react": "^1.16.0",
     "multer": "^2.2.0",
     "pdf-parse": "1.1.1",
+    
     "pg": "^8.22.0",
     "react": "^19.2.7",
     "react-chartjs-2": "^5.3.1",
