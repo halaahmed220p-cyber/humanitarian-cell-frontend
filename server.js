@@ -1,6 +1,7 @@
 import express from 'express';
 import pg from 'pg';
 import cors from 'cors'; 
+import { GoogleGenAI } from '@google/genai'; // استيراد مكتبة جوجل للذكاء الاصطناعي
 const { Pool } = pg;
 
 const app = express();
@@ -15,6 +16,7 @@ const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:
 const pool = new Pool({
   connectionString: connectionString,
 });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // تفعيل CORS و JSON
 app.use(cors({
@@ -230,6 +232,36 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
+app.post('/api/ai-assistant', async (req, res) => {
+  const { message, type } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ error: 'الرجاء إرسال النص المطلوب للمعالجة' });
+  }
+
+  try {
+    let systemInstruction = "أنت مساعد ذكي لـ 'خلية الأعمال الإنسانية'، مهمتك هي الرد باحترافية على استفسارات الزوار والعملاء، وتلخيص التقارير بدقة عالية ووضوح باللغة العربية.";
+    let prompt = message;
+
+    if (type === 'summarize' || message.includes('تلخيص') || message.includes('تقرير')) {
+      prompt = `قم بتلخيص النص/التقرير التالي بشكل احترافي، نقاط رئيسية ومختصرة: \n\n ${message}`;
+    }
+
+    // استدعاء نموذج Gemini لتوليد الرد
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        systemInstruction: systemInstruction,
+      }
+    });
+
+    res.json({ response: response.text });
+  } catch (err) {
+    console.error("خطأ في معالجة الذكاء الاصطناعي:", err);
+    res.status(500).json({ error: 'حدث خطأ في خادم الذكاء الاصطناعي، يجدر التحقق من مفتاح الـ API.' });
+  }
+});
 
 // تشغيل الخادم
 app.listen(port, () => {
