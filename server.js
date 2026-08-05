@@ -234,7 +234,7 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
   try {
     let fileTextContent = "";
 
-    // إذا تم إرفاق ملف، نقوم بقراءته استناداً لنوعه (Excel, PDF, Text)
+    // 1. قراءة محتوى الملف المرفق بدقة (سواء كان إكسل، PDF أو نص)
     if (file) {
       const buffer = file.buffer;
       const fileName = file.originalname.toLowerCase();
@@ -243,7 +243,8 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-        fileTextContent = JSON.stringify(sheetData.slice(0, 100), null, 2); // قراءة عينة من بيانات الإكسل
+        // قراءة الصفوف وتحويلها إلى نص ميكروي يفهمه الذكاء الاصطناعي
+        fileTextContent = JSON.stringify(sheetData, null, 2); 
       } else if (fileName.endsWith('.pdf')) {
         const pdfData = await pdfParse(buffer);
         fileTextContent = pdfData.text;
@@ -252,19 +253,23 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
       }
     }
 
-    let systemInstruction = "أنت مساعد ذكي خبير ومحترف لـ 'خلية الأعمال الإنسانية'، مهمتك هي تقديم تحليلات دقيقة، تلخيص التقارير بأسلوب مرتب ونقاط واضحة، والرد على استفسارات المستخدمين باللغة العربية الفصحى.";
+    // 2. توجيه ذكي لنموذج جيميناي ليتصرف بذكائه المعهود
+    const systemInstruction = `أنت نموذج Google Gemini الذكي والمحترف جداً. مهمتك هي تحليل البيانات والتقارير بدقة متناهية، وتقديم إجابات وتلخيصات مفصلة، منظمة في نقاط وواضحة باللغة العربية الفصحى، وبدون أي اختصار مخل.`;
+
+    let prompt = message || "قم بتحليل وتلخيص هذا الملف بدقة تامة.";
     
-    let prompt = message || "قم بتلخيص هذا التقرير بدقة واحترافية.";
+    // إذا وجد ملف، ندمج محتواه بالكامل مع رسالة المستخدم ليحلله جيميناي كأنه يقرأه أمامه
     if (fileTextContent) {
-      prompt = `إليك محتوى المستند المرفق:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم بخصوص هذا الملف: ${message || "قم بتلخيص هذا التقرير بأبرز النقاط والمؤشرات الرئيسية بدقة تامة."}`;
+      prompt = `إليك محتوى المستند أو بيانات الإكسل المرفقة بالكامل:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم أو سؤاله حول الملف: ${message || "قم بإعداد تقزار وتحليل شامل ومفصل يتضمن أبرز المؤشرات والأرقام والنتائج."}`;
     }
 
-    // استدعاء نموذج Gemini لتوليد الرد بدقة
+    // 3. استدعاء نموذج جيميناي بأحدث إعدادات
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash', // أو gemini-1.5-pro للحصول على قدرة تحليلية أعمق للملفات الضخمة
       contents: prompt,
       config: {
         systemInstruction: systemInstruction,
+        temperature: 0.4, // لضمان دقة التحليل والالتزام ببيانات الملف
       }
     });
 
