@@ -4,10 +4,7 @@ import cors from 'cors';
 import multer from 'multer';
 import XLSX from 'xlsx';
 import { GoogleGenAI } from '@google/genai';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 
 const { Pool } = pg;
 const app = express();
