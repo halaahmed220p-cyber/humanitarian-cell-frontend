@@ -1,21 +1,28 @@
 import express from 'express';
 import pg from 'pg';
 import cors from 'cors'; 
+import multer from 'multer';
+import XLSX from 'xlsx';
+import pdfParse from 'pdf-parse';
 import { GoogleGenAI } from '@google/genai'; // استيراد مكتبة جوجل للذكاء الاصطناعي
-const { Pool } = pg;
 
+const { Pool } = pg;
 const app = express();
+
+// إعداد التخزين المؤقت للملفات المرفوعة في الذاكرة لتسهيل قراءتها
+const upload = multer({ storage: multer.memoryStorage() });
 
 // 1. جعل المنفذ ديناميكياً ليناسب بيئة تشغيل Render
 const port = process.env.PORT || 3000;
 
-// 2. قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن، واستخدام الرابط الحالي كاحتياطي للمحلي
+// 2. قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن
 const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_PUk42FhVoziK@ep-raspy-math-atr8pmc2-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require';
 
 // إعداد الاتصال بقاعدة البيانات (Neon PostgreSQL)
 const pool = new Pool({
   connectionString: connectionString,
 });
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // تفعيل CORS و JSON
@@ -31,12 +38,10 @@ app.use(express.json());
 // 1. مسارات البرامج ومشاريعها الخاصة (Programs & Sub-Projects)
 // ==========================================
 
-// جلب تفاصيل البرنامج المحدد مع مشاريعه الخاصة وتوثيقها
 app.get('/api/programs/:programId', async (req, res) => {
   const { programId } = req.params;
 
   try {
-    // 1. جلب بيانات البرنامج الأساسية
     const programResult = await pool.query('SELECT * FROM programs WHERE id = $1', [programId]);
     
     if (programResult.rows.length === 0) {
@@ -44,11 +49,7 @@ app.get('/api/programs/:programId', async (req, res) => {
     }
 
     const program = programResult.rows[0];
-
-    // 2. جلب المشاريع التابعة لهذا البرنامج حصرياً من جدول program_projects
     const projectsResult = await pool.query('SELECT * FROM program_projects WHERE program_id = $1', [programId]);
-    
-    // إدراج المشاريع داخل كائن البرنامج ليطابق هيكل الواجهة
     program.projects = projectsResult.rows;
 
     res.json(program);
@@ -63,10 +64,8 @@ app.get('/api/programs/:programId', async (req, res) => {
 // 2. مسارات المشاريع العامة (Projects)
 // ==========================================
 
-// وضعنا المسار الفرعي النشط أولاً لتجنب مشكلة الـ 404 وتداخل المسارات في Express
 app.get('/api/projects/active', async (req, res) => {
   try {
-    // جلب المشاريع المفعلة للتبرع (needs_donation = true)
     const result = await pool.query('SELECT * FROM projects WHERE needs_donation = TRUE ORDER BY id DESC');
     res.json(result.rows);
   } catch (err) {
@@ -75,14 +74,10 @@ app.get('/api/projects/active', async (req, res) => {
   }
 });
 
-// مسار لجلب المشاريع بناءً على المحافظة
 app.get('/api/projects/:location', async (req, res) => {
   try {
     const { location } = req.params;
-    const result = await pool.query(
-      'SELECT * FROM projects WHERE location = $1',
-      [location]
-    );
+    const result = await pool.query('SELECT * FROM projects WHERE location = $1', [location]);
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -90,7 +85,6 @@ app.get('/api/projects/:location', async (req, res) => {
   }
 });
 
-// جلب جميع المشاريع (العام)
 app.get('/api/projects', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM projects ORDER BY id DESC');
@@ -101,7 +95,6 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-// إضافة مشروع جديد إلى قاعدة البيانات
 app.post('/api/projects', async (req, res) => {
   const { title, description, target, raised, needs_donation } = req.body;
 
@@ -148,7 +141,6 @@ app.post('/api/donations', async (req, res) => {
     const values = [fullName, email, phone, amount, project, paymentMethod];
     await pool.query(queryText, values);
 
-    // تحديث مبالغ التبرعات الفعلية للمشروع في قاعدة البيانات تلقائياً
     if (project && project !== 'عام') {
       const updateProjectQuery = `
         UPDATE projects 
@@ -189,7 +181,6 @@ app.get('/api/news/latest', async (req, res) => {
   }
 });
 
-// جلب الأخبار العادية (غير العاجلة) فقط
 app.get('/api/news', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM news WHERE is_urgent = false OR is_urgent IS NULL ORDER BY date_published DESC');
@@ -224,7 +215,7 @@ app.post('/api/subscribe', async (req, res) => {
     await pool.query('INSERT INTO subscribers (email) VALUES ($1)', [email]);
     res.status(200).json({ message: 'تم الاشتراك بنجاح!' });
   } catch (err) {
-    if (err.code === '23505') { // خطأ تكرار الإيميل
+    if (err.code === '23505') {
       res.status(400).json({ message: 'هذا البريد الإلكتروني مشترك بالفعل.' });
     } else {
       res.status(500).json({ message: 'حدث خطأ، حاول مجدداً لاحقاً.' });
@@ -232,22 +223,43 @@ app.post('/api/subscribe', async (req, res) => {
   }
 });
 
-app.post('/api/ai-assistant', async (req, res) => {
-  const { message, type } = req.body;
 
-  if (!message) {
-    return res.status(400).json({ error: 'الرجاء إرسال النص المطلوب للمعالجة' });
-  }
+// ==========================================
+// 7. مسار المساعد الذكي وتلخيص الملفات (AI Assistant & File Processing)
+// ==========================================
+app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
+  const { message } = req.body;
+  const file = req.file;
 
   try {
-    let systemInstruction = "أنت مساعد ذكي لـ 'خلية الأعمال الإنسانية'، مهمتك هي الرد باحترافية على استفسارات الزوار والعملاء، وتلخيص التقارير بدقة عالية ووضوح باللغة العربية.";
-    let prompt = message;
+    let fileTextContent = "";
 
-    if (type === 'summarize' || message.includes('تلخيص') || message.includes('تقرير')) {
-      prompt = `قم بتلخيص النص/التقرير التالي بشكل احترافي، نقاط رئيسية ومختصرة: \n\n ${message}`;
+    // إذا تم إرفاق ملف، نقوم بقراءته استناداً لنوعه (Excel, PDF, Text)
+    if (file) {
+      const buffer = file.buffer;
+      const fileName = file.originalname.toLowerCase();
+
+      if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        const workbook = XLSX.read(buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        fileTextContent = JSON.stringify(sheetData.slice(0, 100), null, 2); // قراءة عينة من بيانات الإكسل
+      } else if (fileName.endsWith('.pdf')) {
+        const pdfData = await pdfParse(buffer);
+        fileTextContent = pdfData.text;
+      } else if (fileName.endsWith('.txt') || fileName.endsWith('.csv')) {
+        fileTextContent = buffer.toString('utf8');
+      }
     }
 
-    // استدعاء نموذج Gemini لتوليد الرد
+    let systemInstruction = "أنت مساعد ذكي خبير ومحترف لـ 'خلية الأعمال الإنسانية'، مهمتك هي تقديم تحليلات دقيقة، تلخيص التقارير بأسلوب مرتب ونقاط واضحة، والرد على استفسارات المستخدمين باللغة العربية الفصحى.";
+    
+    let prompt = message || "قم بتلخيص هذا التقرير بدقة واحترافية.";
+    if (fileTextContent) {
+      prompt = `إليك محتوى المستند المرفق:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم بخصوص هذا الملف: ${message || "قم بتلخيص هذا التقرير بأبرز النقاط والمؤشرات الرئيسية بدقة تامة."}`;
+    }
+
+    // استدعاء نموذج Gemini لتوليد الرد بدقة
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
@@ -258,10 +270,11 @@ app.post('/api/ai-assistant', async (req, res) => {
 
     res.json({ response: response.text });
   } catch (err) {
-    console.error("خطأ في معالجة الذكاء الاصطناعي:", err);
-    res.status(500).json({ error: 'حدث خطأ في خادم الذكاء الاصطناعي، يجدر التحقق من مفتاح الـ API.' });
+    console.error("خطأ في معالجة الذكاء الاصطناعي للملف:", err);
+    res.status(500).json({ error: 'حدث خطأ أثناء معالجة وتلخيص الملف عبر الذكاء الاصطناعي.' });
   }
 });
+
 
 // تشغيل الخادم
 app.listen(port, () => {
