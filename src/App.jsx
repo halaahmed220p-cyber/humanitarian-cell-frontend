@@ -62,10 +62,10 @@ function AIChatSection() {
       const data = await response.json();
       setSelectedFile(null); // إعادة تعيين الملف بعد الإرسال
 
-      if (response.ok) {
+  if (data && data.response) {
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
       } else {
-        setChatMessages(prev => [...prev, { sender: 'bot', text: '📋 تم استلام الملف والتقرير بنجاح وجاري تلخيصه وتحليل محطاته الأساسية.' }]);
+        setChatMessages(prev => [...prev, { sender: 'bot', text: data.error || 'عذراً، لم يتم العثور على حقل الرد في البيانات المسترجعة.' }]);
       }
     } catch (err) {
   setSelectedFile(null);
