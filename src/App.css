@@ -1183,6 +1183,7 @@
   width: 100%;
   overflow: hidden;
   background-color: #d4af37; /* لون خلفية خفيف */
+  color: #ffffff;
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
 }
