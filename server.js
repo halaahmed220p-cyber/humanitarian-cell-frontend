@@ -262,6 +262,22 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
 });
 
 // تشغيل الخادم
+const path = require('path');
+
+// خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
+if (process.env.NODE_ENV === 'production' || true) {
+  app.use(express.static(path.join(__dirname, 'dist'))); // أو 'build' حسب المجلد لديكِ
+  
+  app.get('*', (req, res, next) => {
+    // استثناء مسارات الـ API لتستمر بالعمل بشكل طبيعي
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+}
+
+// تشغيل الخادم
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
