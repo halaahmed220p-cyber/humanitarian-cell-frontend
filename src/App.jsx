@@ -54,8 +54,9 @@ function AIChatSection() {
     try {
       // ملاحظة: تأكدي أن مسار الـ API يدعم استقبال الـ FormData والملفات في الباك اند (Backend)
       // اجعلي الطلب هكذا تماماً:
-const response = await fetch('/api/ai-assistant', {
+const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
   method: 'POST',
+  mode: 'cors', // ضروري جداً لتجنب مشاكل التصريح
   body: formData 
 });
       

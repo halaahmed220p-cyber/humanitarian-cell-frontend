@@ -24,10 +24,11 @@ const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:
 const pool = new Pool({
   connectionString: connectionString,
 });
+app.get('/', (req, res) => res.send('Server is running and API is active!'));
 
 // تفعيل CORS و JSON
 app.use(cors({
-  origin: '*', 
+  origin: 'https://humanitarian-cell-frontend.vercel.app', // رابط موقعك على Vercel حصرياً
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
