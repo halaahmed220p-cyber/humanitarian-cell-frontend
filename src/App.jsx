@@ -53,12 +53,10 @@ function AIChatSection() {
 
     try {
       // ملاحظة: تأكدي أن مسار الـ API يدعم استقبال الـ FormData والملفات في الباك اند (Backend)
-  const response = await fetch('/api/ai-assistant', {
+      // اجعلي الطلب هكذا تماماً:
+const response = await fetch('/api/ai-assistant', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ /* البيانات الخاصة بكِ هنا */ })
+  body: formData 
 });
       
       const data = await response.json();
