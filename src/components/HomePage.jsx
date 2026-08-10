@@ -83,7 +83,7 @@ const HomePage = () => {
     }
 
     try {
-     const response = await fetch('https://humanitarian-cell-backend.onrender.com/api/ai-assistant', {
+     const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
         method: 'POST',
         body: formData 
       });
