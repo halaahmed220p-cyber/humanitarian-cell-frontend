@@ -53,7 +53,7 @@ function AIChatSection() {
 
     try {
       // ملاحظة: تأكدي أن مسار الـ API يدعم استقبال الـ FormData والملفات في الباك اند (Backend)
-      const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
+      const response = await fetch('api/ai-assistant', {
         method: 'POST',
         // لا تقومي بتحديد 'Content-Type' يدويًا عند استخدام FormData لكي يقوم المتصفح بضبطه تلقائياً مع الحدود (boundary)
         body: formData 
