@@ -53,11 +53,13 @@ function AIChatSection() {
 
     try {
       // ملاحظة: تأكدي أن مسار الـ API يدعم استقبال الـ FormData والملفات في الباك اند (Backend)
-      const response = await fetch('api/ai-assistant', {
-        method: 'POST',
-        // لا تقومي بتحديد 'Content-Type' يدويًا عند استخدام FormData لكي يقوم المتصفح بضبطه تلقائياً مع الحدود (boundary)
-        body: formData 
-      });
+  const response = await fetch('/api/ai-assistant', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ /* البيانات الخاصة بكِ هنا */ })
+});
       
       const data = await response.json();
       setSelectedFile(null); // إعادة تعيين الملف بعد الإرسال
