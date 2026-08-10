@@ -269,10 +269,12 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
 });
 
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
+// خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 if (process.env.NODE_ENV === 'production' || true) {
   app.use(express.static(path.join(__dirname, 'dist')));
   
-  app.get('*', (req, res, next) => {
+  // استخدمنا التعبير النمطي /.*/ لتجنب خطأ path-to-regexp الجديد
+  app.get(/.*/, (req, res, next) => {
     if (req.path.startsWith('/api/')) {
       return next();
     }
