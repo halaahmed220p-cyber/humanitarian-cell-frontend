@@ -19,7 +19,7 @@ const port = process.env.PORT || 3000;
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // التعديل الصحيح
 // التعديل الصحيح
-const aiModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });// إعداد التخزين المؤقت للملفات المرفوعة في الذاكرة لتسهيل قراءتها
+const aiModel = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
 const upload = multer({ storage: multer.memoryStorage() });
 
 // قراءة رابط قاعدة البيانات من متغيرات البيئة بشكل آمن
