@@ -5,6 +5,11 @@ import multer from 'multer';
 import XLSX from 'xlsx';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse/lib/pdf-parse.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const { Pool } = pg;
 const app = express();
@@ -24,6 +29,7 @@ const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:
 const pool = new Pool({
   connectionString: connectionString,
 });
+
 app.get('/', (req, res) => res.send('Server is running and API is active!'));
 
 // تفعيل CORS و JSON
@@ -262,15 +268,11 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
   }
 });
 
-// تشغيل الخادم
-const path = require('path');
-
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 if (process.env.NODE_ENV === 'production' || true) {
-  app.use(express.static(path.join(__dirname, 'dist'))); // أو 'build' حسب المجلد لديكِ
+  app.use(express.static(path.join(__dirname, 'dist')));
   
   app.get('*', (req, res, next) => {
-    // استثناء مسارات الـ API لتستمر بالعمل بشكل طبيعي
     if (req.path.startsWith('/api/')) {
       return next();
     }
