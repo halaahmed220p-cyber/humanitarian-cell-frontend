@@ -251,14 +251,10 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
       prompt = `إليك محتوى المستند أو بيانات الإكسل المرفقة بالكامل:\n"""\n${fileTextContent}\n"""\n\nطلب المستخدم أو سؤاله حول الملف: ${message || "قم بإعداد تقرير وتحليل شامل ومفصل يتضمن أبرز المؤشرات والأرقام والنتائج."}`;
     }
 
-   const response = await aiModel.generateContent({
-      contents: prompt,
-      generationConfig: {
-        temperature: 0.4,
-      }
-    });
+    const result = await aiModel.generateContent(prompt);
+    const responseText = result.response.text();
 
-    res.json({ response: response.response.text() });
+    res.json({ response: responseText });
   } catch (err) {
     console.error("خطأ في معالجة الذكاء الاصطناعي للملف:", err);
     res.status(500).json({ error: 'حدث خطأ أثناء معالجة وتلخيص الملف عبر الذكاء الاصطناعي.' });
