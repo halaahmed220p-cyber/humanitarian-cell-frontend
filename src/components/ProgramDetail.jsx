@@ -54,7 +54,7 @@ export default function ProgramDetail() {
 
   if (!program || !program.name) {
     return (
-      <div className="program-detail-page min-h-screen flex flex-col justify-between pt-0 bg-[#0b132b]">
+      <div className="program-detail-page min-h-screen flex flex-col justify-between pt-29 bg-[#0b132b]">
         <Header />
         <div className="text-center py-24">
           <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود</h1>
@@ -74,7 +74,7 @@ export default function ProgramDetail() {
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
 
   return (
-    <div className="program-detail-page min-h-screen flex flex-col relative pt-28">
+    <div className="program-detail-page min-h-screen flex flex-col relative pt-0">
       <BackgroundAnimation />
       <Header program={program} />
 
