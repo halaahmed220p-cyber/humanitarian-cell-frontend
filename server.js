@@ -309,6 +309,20 @@ app.post('/api/partners', async (req, res) => {
     res.status(500).json({ error: 'فشل حفظ البيانات في قاعدة البيانات' });
   }
 });
+// جلب التقارير الخاصة بشريك أو مانح معين بناءً على معرفه
+app.get('/api/partners/:id/reports', async (req, res) => {
+  const partnerId = req.params.id;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM project_reports WHERE partner_id = $1 ORDER BY created_at DESC',
+      [partnerId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("خطأ في جلب تقارير الشريك:", err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
 
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
