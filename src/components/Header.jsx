@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 
 const Header = () => {
@@ -10,12 +9,9 @@ const Header = () => {
   const [currentLang, setCurrentLang] = useState('ar');
   const location = useLocation();
 
-  // التحقق مما إذا كانت الصفحة الحالية هي الصفحة الرئيسية
   const isHomePage = location.pathname === '/' || location.pathname === '';
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  // جلب الأخبار العاجلة والتحقق من لغة المتصفح/الكوكيز
   useEffect(() => {
     const match = document.cookie.match(/(?:^|; )googtrans=([^;]*)/);
     if (match) {
@@ -33,7 +29,6 @@ const Header = () => {
       .catch(err => console.error("Error fetching ticker news:", err));
   }, []);
 
-  // دالة تبديل اللغة عبر جوجل
   const handleGoogleTranslate = () => {
     const targetLang = currentLang === 'ar' ? 'en' : 'ar';
     document.cookie = `googtrans=/ar/${targetLang}; path=/; domain=${window.location.hostname}`;
@@ -41,7 +36,6 @@ const Header = () => {
     window.location.reload();
   };
 
-  // تحديث الرابط النشط عند تغيير الصفحة أو الهاش
   useEffect(() => {
     if (location.hash) {
       setActiveAnchor(location.hash);
@@ -63,70 +57,87 @@ const Header = () => {
 
   return (
     <>
-      {/* عنصر ترجمة جوجل المخفي الضروري لتشغيل الترجمة */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
-      <header className="header" id="header">
-        <div className="header-inner">
-          <a href="/" className="logo" onClick={() => setActiveAnchor('')}>
+      <header className="header" id="header" style={{ background: '#0b1d3a', borderBottom: '1px solid rgba(201, 168, 76, 0.3)', position: 'sticky', top: 0, zIndex: 1000, direction: 'rtl' }}>
+        <div className="header-inner" style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px' }}>
+          
+          {/* الشعار */}
+          <Link to="/" className="logo" onClick={() => setActiveAnchor('')} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src="/logo.png" alt="شعار الخلية" style={{ width: '45px', height: '45px', objectFit: 'contain' }} />
-            <div className="logo-text">
-              <span className="brand-ar">خلية الأعمال الإنسانية</span>
-              <span className="brand-en">HUMANITARIAN ACTION CELL</span>
+            <div className="logo-text" style={{ display: 'flex', flexDirection: 'column' }}>
+              <span className="brand-ar" style={{ fontSize: '15px', color: '#fff', fontWeight: 'bold' }}>خلية الأعمال الإنسانية</span>
+              <span className="brand-en" style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '0.5px' }}>HUMANITARIAN ACTION CELL</span>
             </div>
-          </a>
+          </Link>
 
+          {/* القائمة الرئيسية بالترتيب الاستراتيجي الجديد */}
           <nav>
-            <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} id="navMenu">
+            <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} id="navMenu" style={{ display: 'flex', alignItems: 'center', gap: '20px', listStyle: 'none', margin: 0, padding: 0 }}>
+              
               <li>
-                <NavLink to="/" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} end onClick={() => setActiveAnchor('')}>
+                <NavLink to="/" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} end onClick={() => setActiveAnchor('')} style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                   الرئيسية
                 </NavLink>
               </li>
+
               <li>
-                <HashLink smooth to="/#about" className={activeAnchor === '#about' ? 'active' : ''} onClick={() => { setActiveAnchor('#about'); setIsMenuOpen(false); }}>
+                <HashLink smooth to="/#about" className={activeAnchor === '#about' ? 'active' : ''} onClick={() => { setActiveAnchor('#about'); setIsMenuOpen(false); }} style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                   من نحن
                 </HashLink>
               </li>
+
+              {/* تبويب البرامج الاستراتيجية أولاً */}
               <li>
-                <NavLink to="/projects" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
-                  المشاريع
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/programs" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
+                <NavLink to="/programs" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')} style={{ color: '#c9a84c', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
                   البرامج
                 </NavLink>
               </li>
+
+              {/* تبويب محفظة المشاريع تليها مباشرة */}
               <li>
-                <NavLink to="/news" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')}>
+                <NavLink to="/projects" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')} style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
+                  محفظة المشاريع
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink to="/news" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')} style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                   الأخبار والتقارير
                 </NavLink>
               </li>
+
               <li>
-                <a href="#footer" className={activeAnchor === '#footer' ? 'active' : ''} onClick={handleContactClick}>
+                <a href="#footer" className={activeAnchor === '#footer' ? 'active' : ''} onClick={handleContactClick} style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                   تواصل معنا
                 </a>
               </li>
 
-              {/* زر الترجمة: يظهر حصرياً إذا كنا في الصفحة الرئيسية */}
+              {/* بوابة الشركاء (VIP) */}
+              <li className="nav-item">
+                <Link className="nav-link" to="/partners" style={{ fontWeight: 'bold', color: '#c9a84c', textDecoration: 'none', fontSize: '14px', border: '1px solid rgba(201, 168, 76, 0.4)', padding: '6px 12px', borderRadius: '8px', background: 'rgba(201, 168, 76, 0.1)' }}>
+                  بوابة الشركاء
+                </Link>
+              </li>
+
+              {/* زر الترجمة */}
               {isHomePage && (
                 <li>
                   <button 
                     onClick={handleGoogleTranslate}
                     className="translate-btn"
                     style={{
-                      padding: '8px 14px',
+                      padding: '6px 12px',
                       borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
-                      backgroundColor: '#f8fafc',
-                      color: '#1e293b',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: 'rgba(255,255,255,0.05)',
+                      color: '#fff',
                       fontWeight: 'bold',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px',
-                      fontSize: '14sspx'
+                      fontSize: '13px'
                     }}
                   >
                     <i className="fas fa-globe" style={{ color: '#c9a84c' }}></i>
@@ -135,30 +146,27 @@ const Header = () => {
                 </li>
               )}
 
-                  <li className="nav-item">
-  <Link className="nav-link" to="/partners" style={{ fontWeight: 'bold', color: '#10355c' }}>بوابة الشركاء</Link>
-</li>
-
+              {/* زر التبرع الفخم */}
               <li>
-                <NavLink to="/donate" className="donate-btn" onClick={() => { setActiveAnchor(''); setIsMenuOpen(false); }}>
+                <NavLink to="/donate" className="donate-btn" onClick={() => { setActiveAnchor(''); setIsMenuOpen(false); }} style={{ background: '#c9a84c', color: '#0b1d3a', padding: '8px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 4px 12px rgba(201, 168, 76, 0.3)' }}>
                   تبرّع الآن
                 </NavLink>
               </li>
             </ul>
           </nav>
 
-          <button className="mobile-toggle" id="mobileToggle" onClick={toggleMenu}>
+          <button className="mobile-toggle" id="mobileToggle" onClick={toggleMenu} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '22px', cursor: 'pointer', display: 'none' }}>
             <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
           </button>
         </div>
 
         {/* الشريط الإخباري الديناميكي */}
         {tickerNews.length > 0 && (
-          <div className="news-ticker">
-            <div className="ticker-content">
+          <div className="news-ticker" style={{ background: 'rgba(0,0,0,0.2)', padding: '6px 0', overflow: 'hidden', whiteSpace: 'nowrap', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="ticker-content" style={{ display: 'inline-block', animation: 'ticker 25s linear infinite', color: '#cbd5e1', fontSize: '13px' }}>
               {tickerNews.map((item, index) => (
-                <span key={index}>
-                  {item.title} {index < tickerNews.length - 1 ? " | " : ""}
+                <span key={index} style={{ margin: '0 25px' }}>
+                  <span style={{ color: '#c9a84c' }}>▪</span> {item.title}
                 </span>
               ))}
             </div>

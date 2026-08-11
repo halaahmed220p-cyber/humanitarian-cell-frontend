@@ -1,185 +1,202 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FolderKanban, Calendar, Star, DollarSign, CheckCircle2 } from 'lucide-react';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ScrollReveal from '../components/ScrollReveal';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { programsData, programIds } from '../data/programsData';
 
-// تحديد الهوية البصرية بدقة بناءً على ألوان الشعارات الفعليّة لكل برنامج
-const programStyles = {
-  rafed: { 
-    color: '#16a34a', // اللون الأخضر المستوحى من شعار برنامج رافد
-    glowPos: 'top-[-50px] right-[-50px]',
-    logo: '/rafid-logo.png' 
-  },
-  himaya: { 
-    color: '#38bdf8', // الأزرق السماوي الخاص بالحماية
-    glowPos: 'bottom-[-50px] left-[-50px]',
-    logo: '/himaya-logo.png' 
-  },
-  sarh: { 
-    color: '#2563eb', // الأزرق الداكن / النيلي المستوحى من شعار صرح
-    glowPos: 'top-1/2 right-[-80px]',
-    logo: '/sarh-logo.png' 
-  },
-  wasam: { 
-    color: '#eab308', // الأصفر الذهبي المستوحى من حرف W في شعار وسم
-    glowPos: 'bottom-[-50px] right-[-50px]',
-    logo: '/wasam-logo.png' 
-  },
-};
+export default function ProjectsPage() {
+  const [filter, setFilter] = useState('all'); // all, major, seasonal
 
-export default function ProgramsPage() {
+  // محفظة المشاريع (المشاريع الكبرى الاستراتيجية والمشاريع الموسمية)
+  const projectsList = [
+    {
+      id: 1,
+      title: 'برنامج إفطار الصائم السنوي',
+      category: 'seasonal',
+      program: 'وسم (المشاريع الموسمية)',
+      description: 'مشروع موسمي رمضاني مبارك يستهدف توزيع السلال الغذائية وإفطار الصائمين في العائلات الأكثر احتياجاً.',
+      budget: '$45,000',
+      status: 'منجز وموثق',
+      progress: 100,
+      color: '#eab308'
+    },
+    {
+      id: 2,
+      title: 'توفير المياه النظيفة للمناطق النائية',
+      category: 'major',
+      program: 'صرح (التنمية المستدامة)',
+      description: 'مشروع استراتيجي حيوي لمد شبكات المياه، حفر الآبار الارتوازية، وتركيب محطات التحلية لتوفير المياه الآمنة.',
+      budget: '$120,000',
+      status: 'جاري التنفيذ',
+      progress: 75,
+      color: '#2563eb'
+    },
+    {
+      id: 3,
+      title: 'كسوة العيد للأطفال الأيتام',
+      category: 'seasonal',
+      program: 'الحماية الرعائية',
+      description: 'إدخال البهجة والسرور في قلوب الأطفال الأيتام والأسر المتعففة وتوفير ملابس العيد كاملة.',
+      budget: '$30,000',
+      status: 'موسمي متجدد',
+      progress: 90,
+      color: '#38bdf8'
+    },
+    {
+      id: 4,
+      title: 'دعم المستشفيات التخصصية بالأدوية',
+      category: 'major',
+      program: 'رافد (الإغاثة الطارئة)',
+      description: 'توفير الأدوية المنقذة للحياة، المحاليل، والمستلزمات الطبية العاجلة لدعم القطاع الصحي في ظل الظروف الصعبة.',
+      budget: '$200,000',
+      status: 'استراتيجي مستمر',
+      progress: 85,
+      color: '#16a34a'
+    }
+  ];
+
+  const filteredProjects = filter === 'all' 
+    ? projectsList 
+    : projectsList.filter(p => p.category === filter);
+
   return (
-    <div className="programs-theme min-h-screen flex flex-col">
+    <div className="projects-theme min-h-screen flex flex-col" style={{ background: '#0b1d3a', color: '#fff' }}>
       <BackgroundAnimation />
 
-      {/* --- استدعاء الهيدر الموحد --- */}
+      {/* استدعاء الهيدر الموحد */}
       <Navbar />
 
-      {/* --- محتوى الصفحة الرئيسي --- */}
+      {/* محتوى الصفحة الرئيسي */}
       <main className="flex-1 max-w-[1400px] mx-auto px-6 w-full relative z-[2] pt-24">
-        {/* Header Section */}
-        <header className="text-center pt-20 pb-16">
+        
+        {/* الترويسة */}
+        <header className="text-center pt-20 pb-14">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 bg-[#c9a84c]/15 border border-[#c9a84c]/30 text-[#c9a84c] px-6 py-2 rounded-full text-sm font-bold mb-6">
               <span className="w-2 h-2 bg-[#c9a84c] rounded-full animate-pulse" />
-              برامجنا الإنسانية والتنموية
+              محفظة المشاريع الاستراتيجية والموسمية
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
             <h1 className="text-5xl md:text-6xl font-black mb-5 leading-tight">
-              نُحدث <span className="text-[#c9a84c] relative">فرقاً<span className="absolute -bottom-1 right-0 w-full h-1 bg-gradient-to-l from-[#c9a84c] to-transparent rounded-full" /></span> في حياة الناس
+              محفظة <span className="text-[#c9a84c] relative">المشاريع<span className="absolute -bottom-1 right-0 w-full h-1 bg-gradient-to-l from-[#c9a84c] to-transparent rounded-full" /></span> الإنسانية
             </h1>
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
             <p className="text-lg text-[#b0b8c8] max-w-2xl mx-auto leading-relaxed">
-              أربعة برامج استراتيجية متخصصة (رافد، صرح، وسم، والحماية) تعمل بشكل متكامل لتقديم الدعم والإغاثة والتنمية المستدامة في المجتمعات الأكثر احتياجاً.
+              استعراض تفصيلي لأبرز المشاريع الحيوية الكبرى والمشاريع الموسمية التي تم إنجازها أو جارٍ تنفيذها بأعلى معايير الشفافية والأثر المستدام.
             </p>
           </ScrollReveal>
         </header>
 
-        {/* Programs Grid */}
+        {/* أزرار التصفية الفخمة (فلترة المحفظة) */}
+        <ScrollReveal delay={0.3}>
+          <div className="flex justify-center gap-4 mb-16 flex-wrap">
+            <button 
+              onClick={() => setFilter('all')}
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+                filter === 'all' 
+                  ? 'bg-[#c9a84c] text-[#0b1d3a] shadow-lg shadow-[#c9a84c]/20' 
+                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+              }`}
+            >
+              جميع المشاريع
+            </button>
+            <button 
+              onClick={() => setFilter('major')}
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+                filter === 'major' 
+                  ? 'bg-[#c9a84c] text-[#0b1d3a] shadow-lg shadow-[#c9a84c]/20' 
+                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+              }`}
+            >
+              ⭐ المشاريع الحيوية الكبرى
+            </button>
+            <button 
+              onClick={() => setFilter('seasonal')}
+              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+                filter === 'seasonal' 
+                  ? 'bg-[#c9a84c] text-[#0b1d3a] shadow-lg shadow-[#c9a84c]/20' 
+                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+              }`}
+            >
+              🌙 المشاريع الموسمية
+            </button>
+          </div>
+        </ScrollReveal>
+
+        {/* شبكة المشاريع */}
         <div className="grid md:grid-cols-2 gap-8 pb-24">
-          {programIds.map((id, index) => {
-            const prog = programsData[id];
-            const style = programStyles[id];
+          {filteredProjects.map((proj, index) => (
+            <ScrollReveal key={proj.id} delay={index * 0.1}>
+              <div className="group relative rounded-3xl overflow-hidden p-8 bg-white/[0.06] backdrop-blur-xl border border-white/10 transition-all duration-500 hover:-translate-y-2 hover:border-[#c9a84c]/50 hover:bg-white/[0.09] shadow-xl flex flex-col justify-between h-full">
+                
+                <div>
+                  {/* ترويسة البطاقة */}
+                  <div className="flex justify-between items-center mb-5">
+                    <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: `${proj.color}20`, color: proj.color, border: `1px solid ${proj.color}40` }}>
+                      {proj.category === 'major' ? 'مشروع استراتيجي كبير' : 'مشروع موسمي'}
+                    </span>
+                    <span className="text-sm font-bold text-[#4ade80] flex items-center gap-1">
+                      <DollarSign className="w-4 h-4" /> {proj.budget}
+                    </span>
+                  </div>
 
-            return (
-              <ScrollReveal key={id} delay={index * 0.1}>
-                <Link
-                  to={`/program/${id}`}
-                  className="group block relative rounded-3xl overflow-hidden min-h-[420px] transition-all duration-500 hover:-translate-y-2.5 hover:scale-[1.02]"
-                >
-                  {/* Glass Background */}
-                  <div className="absolute inset-0 bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl transition-all duration-500 group-hover:bg-white/10 group-hover:border-white/20" />
+                  <span className="text-xs text-[#c9a84c] font-semibold block mb-2">البرنامج التابع: {proj.program}</span>
+                  <h3 className="text-2xl font-extrabold mb-3 text-white group-hover:text-[#c9a84c] transition-colors">
+                    {proj.title}
+                  </h3>
+                  <p className="text-sm text-[#b0b8c8] leading-relaxed mb-6">
+                    {proj.description}
+                  </p>
+                </div>
 
-                  {/* Glow Effect */}
-                  <div
-                    className={`absolute w-[200px] h-[200px] rounded-full blur-[60px] opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none ${style.glowPos}`}
-                    style={{ background: style.color }}
-                  />
-
-                  {/* Content */}
-                  <div className="relative z-10 p-10 h-full flex flex-col justify-between">
-                    {/* Top */}
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="flex items-center">
-                        <img 
-                          src={style.logo} 
-                          alt={prog.name} 
-                          className="w-24 h-24 object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-105" 
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'block';
-                          }}
-                        />
-                        <span className="text-4xl hidden" style={{ color: style.color }}>{prog.icon}</span>
-                      </div>
-
-                      <span className="text-7xl font-black opacity-[0.08] leading-none" style={{ color: style.color }}>0{index + 1}</span>
+                <div>
+                  {/* شريط الإنجاز */}
+                  <div className="mb-6">
+                    <div className="flex justify-between text-xs text-slate-300 mb-2 font-medium">
+                      <span>نسبة الإنجاز والأثر</span>
+                      <span style={{ color: proj.color }}>{proj.progress}%</span>
                     </div>
-
-                    {/* Body */}
-                    <div className="flex-1">
-                      <h2 className="text-3xl font-extrabold mb-3" style={{ color: style.color }}>
-                        {prog.name}
-                      </h2>
-                      <p className="text-base font-medium mb-4 opacity-90" style={{ color: style.color }}>
-                        {prog.slogan}
-                      </p>
-
-                      {/* Progress */}
-                      <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mb-5">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: style.color }}
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${[85, 72, 90, 68][index]}%` }}
-                          transition={{ duration: 1.5, delay: 0.3 }}
-                          viewport={{ once: true }}
-                        />
-                      </div>
-
-                      <p className="text-sm text-[#b0b8c8] leading-relaxed mb-6">
-                        {prog.description.slice(0, 120)}...
-                      </p>
-
-                      {/* Stats */}
-                      <div className="flex gap-6 mb-6">
-                        <div className="text-center">
-                          <span className="text-xl font-extrabold block" style={{ color: style.color }}>
-                            {prog.stats[0].value}
-                          </span>
-                          <span className="text-xs opacity-70 text-white/70">{prog.stats[0].label}</span>
-                        </div>
-                        <div className="text-center">
-                          <span className="text-xl font-extrabold block" style={{ color: style.color }}>
-                            {prog.stats[1].value}
-                          </span>
-                          <span className="text-xs opacity-70 text-white/70">{prog.stats[1].label}</span>
-                        </div>
-                        <div className="text-center">
-                          <span className="text-xl font-extrabold block" style={{ color: style.color }}>
-                            {prog.stats[2].value}
-                          </span>
-                          <span className="text-xs opacity-70 text-white/70">{prog.stats[2].label}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex gap-3">
-                      <button
-                        className="flex-1 py-3.5 px-6 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-lg"
-                        style={{ background: style.color, color: '#1a1a1a' }}
-                      >
-                        <span className="flex items-center justify-center gap-2">
-                          اكتشف البرنامج
-                          <ArrowLeft className="w-4 h-4" />
-                        </span>
-                      </button>
-                      <button 
-                        className="py-3.5 px-6 rounded-xl font-bold text-sm bg-transparent border transition-all duration-300 hover:bg-white/10"
-                        style={{ borderColor: `${style.color}66`, color: style.color }}
-                      >
-                        التفاصيل
-                      </button>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ background: proj.color }}
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${proj.progress}%` }}
+                        transition={{ duration: 1.2, delay: 0.2 }}
+                        viewport={{ once: true }}
+                      />
                     </div>
                   </div>
-                </Link>
-              </ScrollReveal>
-            );
-          })}
+
+                  {/* تذييل البطاقة */}
+                  <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                    <span className="text-xs text-slate-400 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-[#4ade80]" /> {proj.status}
+                    </span>
+                    <Link 
+                      to={`/projects`} 
+                      className="inline-flex items-center gap-2 text-sm font-bold text-[#c9a84c] hover:underline"
+                    >
+                      التفاصيل الكاملة <ArrowLeft className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+
+              </div>
+            </ScrollReveal>
+          ))}
         </div>
+
       </main>
 
-      {/* --- استدعاء الفوتر الموحد --- */}
+      {/* استدعاء الفوتر الموحد */}
       <Footer />
     </div>
   );
