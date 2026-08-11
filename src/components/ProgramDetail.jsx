@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Users, X, Image as ImageIcon, Download } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
 import Header from '../components/Header';
-import Navbar from '../components/Navbar';
 
 import Footer from '../components/Footer'
 import ScrollReveal from '../components/ScrollReveal'
