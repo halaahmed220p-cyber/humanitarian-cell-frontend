@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Users, X, Image as ImageIcon, Download } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
-import Navbar from '../components/Navbar'
+import Header from '../components/Header';
+import Header from '../components/Navbar';
+
 import Footer from '../components/Footer'
 import ScrollReveal from '../components/ScrollReveal'
 import ProgressBar from '../components/ProgressBar'
@@ -55,7 +57,7 @@ export default function ProgramDetail() {
   if (!program || !program.name) {
     return (
       <div className="program-detail-page min-h-screen flex flex-col justify-between pt-24 bg-[#0b132b]">
-        <Navbar />
+        <Header />
         <div className="text-center py-24">
           <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود</h1>
           <button

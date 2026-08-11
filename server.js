@@ -46,8 +46,10 @@ app.use(express.json());
 // ==========================================
 app.get('/api/programs/:programId', async (req, res) => {
   const { programId } = req.params;
+  const { province } = req.query; // استلام المحافظة في حال تم الضغط عليها من الخريطة
 
   try {
+    // 1. جلب بيانات البرنامج الأساسية
     const programResult = await pool.query('SELECT * FROM programs WHERE id = $1', [programId]);
     
     if (programResult.rows.length === 0) {
@@ -55,13 +57,50 @@ app.get('/api/programs/:programId', async (req, res) => {
     }
 
     const program = programResult.rows[0];
-    const projectsResult = await pool.query('SELECT * FROM program_projects WHERE program_id = $1', [programId]);
-    program.projects = projectsResult.rows;
+
+    // 2. جلب المشاريع الحقيقية المرتبطة بهذا البرنامج ديناميكياً من قاعدة البيانات
+    let queryStr = 'SELECT * FROM projects WHERE program_id = $1';
+    let queryParams = [programId];
+
+    // إذا حدد المستخدم محافظة معينة من الخريطة، نقوم بتصفية المشاريع بناءً عليها أيضاً
+    if (province) {
+      queryStr += ' AND province = $2';
+      queryParams.push(province);
+    }
+
+    queryStr += ' ORDER BY id DESC';
+
+    const projectsResult = await pool.query(queryStr, queryParams);
+    
+    // توحيد أسماء الحقول لتتوافق تماماً مع الواجهة الأمامية React
+    program.projects = projectsResult.rows.map(p => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      location: p.province + (p.district ? ` - ${p.district}` : ''),
+      province: p.province,
+      beneficiaries: p.beneficiaries || 'غير محدد',
+      progress: p.target > 0 ? Math.min(Math.round(((p.raised || 0) / p.target) * 100), 100) : 0,
+      status: p.status || 'active',
+      date: p.date || '2026',
+      icon: p.icon || '📁'
+    }));
 
     res.json(program);
   } catch (err) {
-    console.error('خطأ في جلب بيانات البرنامج:', err);
+    console.error('خطأ في جلب بيانات البرنامج وماريعه:', err);
     res.status(500).json({ error: 'خطأ في الخادم الداخلي' });
+  }
+});
+
+app.get('/api/projects/province/:provinceName', async (req, res) => {
+  try {
+    const { provinceName } = req.params;
+    const result = await pool.query('SELECT * FROM projects WHERE province = $1 ORDER BY id DESC', [provinceName]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("خطأ في جلب مشاريع المحافظة:", err);
+    res.status(500).json({ error: 'حدث خطأ أثناء جلب مشاريع هذه المحافظة.' });
   }
 });
 
@@ -100,23 +139,36 @@ app.get('/api/projects', async (req, res) => {
 });
 
 app.post('/api/projects', async (req, res) => {
-  const { title, description, target, raised, needs_donation } = req.body;
+  const { title, description, target, raised, needs_donation, program_id, province, district, beneficiaries, status, date } = req.body;
 
-  if (!title || !description || !target) {
-    return res.status(400).json({ error: 'يرجى ملء جميع الحقول المطلوبة (العنوان، الوصف، المبلغ المطلوب)' });
+  if (!title || !description || !target || !program_id || !province) {
+    return res.status(400).json({ error: 'يرجى ملء الحقول الأساسية: العنوان، الوصف، المبلغ المطلوب، البرنامج، والمحافظة' });
   }
 
   try {
     const queryText = `
-      INSERT INTO projects (title, description, target, raised, needs_donation) 
-      VALUES ($1, $2, $3, $4, $5) 
+      INSERT INTO projects (title, description, target, raised, needs_donation, program_id, province, district, beneficiaries, status, date) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
       RETURNING *;
     `;
-    const values = [title, description, target, raised || 0, needs_donation !== undefined ? needs_donation : true];
+    const values = [
+      title, 
+      description, 
+      target, 
+      raised || 0, 
+      needs_donation !== undefined ? needs_donation : true,
+      program_id,
+      province,
+      district || '',
+      beneficiaries || 'غير محدد',
+      status || 'active',
+      date || new Date().getFullYear().toString()
+    ];
+    
     const result = await pool.query(queryText, values);
     
     res.status(201).json({
-      message: 'تمت إضافة المشروع بنجاح!',
+      message: 'تمت إضافة المشروع وربطه بالبرنامج والمحافظة بنجاح!',
       project: result.rows[0]
     });
   } catch (err) {
