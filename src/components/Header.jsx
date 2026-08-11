@@ -57,12 +57,28 @@ const Header = () => {
 
   return (
     <>
+      {/* حقن حركة الأنيميشن للشريط الإخباري مباشرة لضمان عملها */}
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+        .ticker-animate {
+          display: inline-block;
+          white-space: nowrap;
+          animation: marquee 30s linear infinite;
+        }
+        .ticker-animate:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
       <header className="header" id="header" style={{ background: '#0b1d3a', borderBottom: '1px solid rgba(201, 168, 76, 0.3)', position: 'sticky', top: 0, zIndex: 1000, direction: 'rtl' }}>
         <div className="header-inner" style={{ maxWidth: '1350px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 25px' }}>
           
-          {/* الشعار (يمين الهيدر بالعربية) */}
+          {/* الشعار */}
           <Link to="/" className="logo" onClick={() => setActiveAnchor('')} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <img src="/logo.png" alt="شعار الخلية" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
             <div className="logo-text" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -71,7 +87,7 @@ const Header = () => {
             </div>
           </Link>
 
-          {/* القائمة الرئيسية ووسائل الإبحار */}
+          {/* القائمة الرئيسية */}
           <nav>
             <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} id="navMenu" style={{ display: 'flex', alignItems: 'center', gap: '15px', listStyle: 'none', margin: 0, padding: 0 }}>
               
@@ -159,13 +175,13 @@ const Header = () => {
           </button>
         </div>
 
-        {/* الشريط الإخباري الديناميكي */}
+        {/* الشريط الإخباري المتحرك */}
         {tickerNews.length > 0 && (
-          <div className="news-ticker" style={{ background: 'rgba(0,0,0,0.25)', padding: '5px 0', overflow: 'hidden', whiteSpace: 'nowrap', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="ticker-content" style={{ display: 'inline-block', animation: 'ticker 25s linear infinite', color: '#cbd5e1', fontSize: '13px' }}>
+          <div className="news-ticker" style={{ background: 'rgba(0,0,0,0.3)', padding: '6px 0', overflow: 'hidden', whiteSpace: 'nowrap', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="ticker-animate" style={{ color: '#cbd5e1', fontSize: '13px' }}>
               {tickerNews.map((item, index) => (
-                <span key={index} style={{ margin: '0 25px' }}>
-                  <span style={{ color: '#c9a84c' }}>▪</span> {item.title}
+                <span key={index} style={{ margin: '0 30px' }}>
+                  <span style={{ color: '#c9a84c', fontWeight: 'bold' }}>خبر عاجل:</span> {item.title}
                 </span>
               ))}
             </div>
