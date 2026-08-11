@@ -135,8 +135,8 @@ const Header = () => {
                 </li>
               )}
 
-<li className="nav-item">
-  <Link className="nav-link" to="/partners">بوابة الشركاء</Link>
+                  <li className="nav-item">
+  <Link className="nav-link" to="/partners" style={{ fontWeight: 'bold', color: '#10355c' }}>بوابة الشركاء</Link>
 </li>
 
               <li>
