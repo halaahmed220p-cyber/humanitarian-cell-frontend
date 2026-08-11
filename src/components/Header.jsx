@@ -134,6 +134,11 @@ const Header = () => {
                 </li>
               )}
 
+              // ابحثي عن قائمة الـ nav-links وأضيفي هذا الرابط
+<li className="nav-item">
+  <Link className="nav-link" to="/partners">بوابة الشركاء</Link>
+</li>
+
               <li>
                 <NavLink to="/donate" className="donate-btn" onClick={() => { setActiveAnchor(''); setIsMenuOpen(false); }}>
                   تبرّع الآن

@@ -12,19 +12,19 @@ import NewsPage from './components/NewsPage';
 import Donation from './components/Donation'; 
 import ProgramsPage from './components/ProgramsPage';
 import ProgramDetail from './components/ProgramDetail';
+import PartnersPortal from './components/PartnersPortal'; // تم استيراد بوابة الشركاء والمانحين
 import { programsData } from './data/programsData';
 import ScrollToTop from './components/ScrollToTop'; 
 import { Bot, Send } from 'lucide-react';
 import './App.css';
 
-// مكون الشات والتلخيص المدمج
 // مكون الشات والتلخيص المدمج مع دعم إرسال ورفع الملفات
 function AIChatSection() {
   const [chatMessages, setChatMessages] = useState([
     { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، يمكنك كتابة سؤالك أو إرفاق ملف/تقرير لتلخيصه فوراً.' }
   ]);
   const [userInput, setUserInput] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null); // حالة لحفظ الملف المرفق
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -44,7 +44,6 @@ function AIChatSection() {
     }
     setUserInput('');
 
-    // تجهيز البيانات للإرسال (FormData لدعم الملفات والرسائل النصية معاً)
     const formData = new FormData();
     formData.append('message', messageText);
     if (selectedFile) {
@@ -52,26 +51,24 @@ function AIChatSection() {
     }
 
     try {
-      // ملاحظة: تأكدي أن مسار الـ API يدعم استقبال الـ FormData والملفات في الباك اند (Backend)
-      // اجعلي الطلب هكذا تماماً:
-const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
-  method: 'POST',
-  mode: 'cors', // ضروري جداً لتجنب مشاكل التصريح
-  body: formData 
-});
+      const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
+        method: 'POST',
+        mode: 'cors',
+        body: formData 
+      });
       
       const data = await response.json();
-      setSelectedFile(null); // إعادة تعيين الملف بعد الإرسال
+      setSelectedFile(null);
 
-  if (data && data.response) {
+      if (data && data.response) {
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
       } else {
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.error || 'عذراً، لم يتم العثور على حقل الرد في البيانات المسترجعة.' }]);
       }
     } catch (err) {
-  setSelectedFile(null);
-  setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب. تأكدي من عمل سيرفر Render.' }]);
-}
+      setSelectedFile(null);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب. تأكدي من عمل سيرفر Render.' }]);
+    }
   };
 
   return (
@@ -103,13 +100,10 @@ const response = await fetch('https://humanitarian-cell-frontend.onrender.com/ap
           ))}
         </div>
 
-        {/* نموذج الإرسال مع زر إرفاق الملفات */}
         <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          
-          {/* زر إرفاق ملف المخفي الذي يتم تفعيله عبر أيقونة */}
           <label style={{ cursor: 'pointer', background: '#fff', border: '1px solid #cbd5e1', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
             <span style={{ fontSize: '18px' }}>📎</span>
-            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.txt" />
+            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.csv" />
           </label>
 
           <input 
@@ -133,11 +127,6 @@ const response = await fetch('https://humanitarian-cell-frontend.onrender.com/ap
     </section>
   );
 }
-    
-  
-     
-
-   
 
 // مكون يجمع أقسام الصفحة الرئيسية
 function HomePage() {
@@ -148,7 +137,7 @@ function HomePage() {
       <Stats />
       <Projects />
       <News />
-      <AIChatSection /> {/* تم إضافة الشات هنا ليظهر بالصفحة الرئيسية */}
+      <AIChatSection />
     </>
   );
 }
@@ -163,6 +152,7 @@ function App() {
         <Route path="/donate" element={<><Header /><Donation /><Footer /></>} />
         <Route path="/programs" element={<ProgramsPage />} />
         <Route path="/program/:programId" element={<ProgramDetail programs={programsData} />} />
+        <Route path="/partners" element={<><Header /><PartnersPortal /><Footer /></>} /> {/* تم إضافة مسار بوابة الشركاء */}
         <Route path="/projects" element={
           <div>
             <Header />
