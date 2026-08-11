@@ -1,202 +1,169 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, FolderKanban, Calendar, Star, DollarSign, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ScrollReveal from '../components/ScrollReveal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { programsData, programIds } from '../data/programsData';
 
-export default function ProjectsPage() {
-  const [filter, setFilter] = useState('all'); // all, major, seasonal
+// تحديد الهوية البصرية بدقة بناءً على ألوان الشعارات الفعليّة لكل برنامج مع ربط المشاريع التابعة رسمياً
+const programStyles = {
+  rafid: { 
+    color: '#16a34a', 
+    glowPos: 'top-[-50px] right-[-50px]',
+    logo: '/rafid-logo.png',
+    subProjects: ['نسك (لحوم الأضاحي)', 'قطوف (تمرة الإفطار)', 'موائد الخير (الوجبات)', 'يُسر (المساعدات النقدية)']
+  },
+  himaya: { 
+    color: '#38bdf8', 
+    glowPos: 'bottom-[-50px] left-[-50px]',
+    logo: '/himaya-logo.png',
+    subProjects: ['إعفاف (الزواج الجماعي)', 'عيدكم عيدنا (كسوة العيد)']
+  },
+  sarh: { 
+    color: '#2563eb', 
+    glowPos: 'top-1/2 right-[-80px]',
+    logo: '/sarh-logo.png',
+    subProjects: ['المشاريع التنموية', 'مشاريع البنية التحتية والاستدامة']
+  },
+  wasam: { 
+    color: '#eab308', 
+    glowPos: 'bottom-[-50px] right-[-50px]',
+    logo: '/wasam-logo.png',
+    subProjects: ['إقرأ (الحقيبة المدرسية)', 'أهل الذكر (مسابقة القرآن الكريم)']
+  },
+};
 
-  // محفظة المشاريع (المشاريع الكبرى الاستراتيجية والمشاريع الموسمية)
-  const projectsList = [
-    {
-      id: 1,
-      title: 'برنامج إفطار الصائم السنوي',
-      category: 'seasonal',
-      program: 'وسم (المشاريع الموسمية)',
-      description: 'مشروع موسمي رمضاني مبارك يستهدف توزيع السلال الغذائية وإفطار الصائمين في العائلات الأكثر احتياجاً.',
-      budget: '$45,000',
-      status: 'منجز وموثق',
-      progress: 100,
-      color: '#eab308'
-    },
-    {
-      id: 2,
-      title: 'توفير المياه النظيفة للمناطق النائية',
-      category: 'major',
-      program: 'صرح (التنمية المستدامة)',
-      description: 'مشروع استراتيجي حيوي لمد شبكات المياه، حفر الآبار الارتوازية، وتركيب محطات التحلية لتوفير المياه الآمنة.',
-      budget: '$120,000',
-      status: 'جاري التنفيذ',
-      progress: 75,
-      color: '#2563eb'
-    },
-    {
-      id: 3,
-      title: 'كسوة العيد للأطفال الأيتام',
-      category: 'seasonal',
-      program: 'الحماية الرعائية',
-      description: 'إدخال البهجة والسرور في قلوب الأطفال الأيتام والأسر المتعففة وتوفير ملابس العيد كاملة.',
-      budget: '$30,000',
-      status: 'موسمي متجدد',
-      progress: 90,
-      color: '#38bdf8'
-    },
-    {
-      id: 4,
-      title: 'دعم المستشفيات التخصصية بالأدوية',
-      category: 'major',
-      program: 'رافد (الإغاثة الطارئة)',
-      description: 'توفير الأدوية المنقذة للحياة، المحاليل، والمستلزمات الطبية العاجلة لدعم القطاع الصحي في ظل الظروف الصعبة.',
-      budget: '$200,000',
-      status: 'استراتيجي مستمر',
-      progress: 85,
-      color: '#16a34a'
-    }
-  ];
-
-  const filteredProjects = filter === 'all' 
-    ? projectsList 
-    : projectsList.filter(p => p.category === filter);
-
+export default function ProgramsPage() {
   return (
-    <div className="projects-theme min-h-screen flex flex-col" style={{ background: '#0b1d3a', color: '#fff' }}>
+    <div className="programs-theme min-h-screen flex flex-col" style={{ background: '#0b1d3a', color: '#fff' }}>
       <BackgroundAnimation />
 
-      {/* --- استدعاء الهيدر الموحد --- */}
-<Header />
+      {/* --- استدعاء الهيدر الموحد الجديد --- */}
+      <Header />
 
-      {/* محتوى الصفحة الرئيسي */}
+      {/* --- محتوى الصفحة الرئيسي --- */}
       <main className="flex-1 max-w-[1400px] mx-auto px-6 w-full relative z-[2] pt-24">
         
-        {/* الترويسة */}
-        <header className="text-center pt-20 pb-14">
+        {/* Header Section */}
+        <header className="text-center pt-16 pb-16">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 bg-[#c9a84c]/15 border border-[#c9a84c]/30 text-[#c9a84c] px-6 py-2 rounded-full text-sm font-bold mb-6">
               <span className="w-2 h-2 bg-[#c9a84c] rounded-full animate-pulse" />
-              محفظة المشاريع الاستراتيجية والموسمية
+              البرامج الاستراتيجية والمشاريع المندرجة
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
-            <h1 className="text-5xl md:text-6xl font-black mb-5 leading-tight">
-              محفظة <span className="text-[#c9a84c] relative">المشاريع<span className="absolute -bottom-1 right-0 w-full h-1 bg-gradient-to-l from-[#c9a84c] to-transparent rounded-full" /></span> الإنسانية
+            <h1 className="text-4xl md:text-5xl font-black mb-5 leading-tight">
+              البرامج <span className="text-[#c9a84c] relative">الرباعية الرئيسية<span className="absolute -bottom-1 right-0 w-full h-1 bg-gradient-to-l from-[#c9a84c] to-transparent rounded-full" /></span>
             </h1>
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
-            <p className="text-lg text-[#b0b8c8] max-w-2xl mx-auto leading-relaxed">
-              استعراض تفصيلي لأبرز المشاريع الحيوية الكبرى والمشاريع الموسمية التي تم إنجازها أو جارٍ تنفيذها بأعلى معايير الشفافية والأثر المستدام.
+            <p className="text-base text-[#b0b8c8] max-w-2xl mx-auto leading-relaxed">
+              تندرج تحت البرامج الاستراتيجية الأربعة (رافد، وسم، الحماية، صرح) كافة المشاريع التنموية والموسميّة لخلية الأعمال الإنسانية وفق خطط العمل المعتمدة.
             </p>
           </ScrollReveal>
         </header>
 
-        {/* أزرار التصفية الفخمة (فلترة المحفظة) */}
-        <ScrollReveal delay={0.3}>
-          <div className="flex justify-center gap-4 mb-16 flex-wrap">
-            <button 
-              onClick={() => setFilter('all')}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
-                filter === 'all' 
-                  ? 'bg-[#c9a84c] text-[#0b1d3a] shadow-lg shadow-[#c9a84c]/20' 
-                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
-              }`}
-            >
-              جميع المشاريع
-            </button>
-            <button 
-              onClick={() => setFilter('major')}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
-                filter === 'major' 
-                  ? 'bg-[#c9a84c] text-[#0b1d3a] shadow-lg shadow-[#c9a84c]/20' 
-                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
-              }`}
-            >
-              ⭐ المشاريع الحيوية الكبرى
-            </button>
-            <button 
-              onClick={() => setFilter('seasonal')}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
-                filter === 'seasonal' 
-                  ? 'bg-[#c9a84c] text-[#0b1d3a] shadow-lg shadow-[#c9a84c]/20' 
-                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
-              }`}
-            >
-              🌙 المشاريع الموسمية
-            </button>
-          </div>
-        </ScrollReveal>
-
-        {/* شبكة المشاريع */}
+        {/* Programs Grid */}
         <div className="grid md:grid-cols-2 gap-8 pb-24">
-          {filteredProjects.map((proj, index) => (
-            <ScrollReveal key={proj.id} delay={index * 0.1}>
-              <div className="group relative rounded-3xl overflow-hidden p-8 bg-white/[0.06] backdrop-blur-xl border border-white/10 transition-all duration-500 hover:-translate-y-2 hover:border-[#c9a84c]/50 hover:bg-white/[0.09] shadow-xl flex flex-col justify-between h-full">
-                
-                <div>
-                  {/* ترويسة البطاقة */}
-                  <div className="flex justify-between items-center mb-5">
-                    <span className="px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: `${proj.color}20`, color: proj.color, border: `1px solid ${proj.color}40` }}>
-                      {proj.category === 'major' ? 'مشروع استراتيجي كبير' : 'مشروع موسمي'}
-                    </span>
-                    <span className="text-sm font-bold text-[#4ade80] flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" /> {proj.budget}
-                    </span>
-                  </div>
+          {programIds.map((id, index) => {
+            const prog = programsData[id] || { name: id, slogan: '', description: '', stats: [] };
+            const style = programStyles[id] || { color: '#c9a84c', glowPos: '', logo: '', subProjects: [] };
 
-                  <span className="text-xs text-[#c9a84c] font-semibold block mb-2">البرنامج التابع: {proj.program}</span>
-                  <h3 className="text-2xl font-extrabold mb-3 text-white group-hover:text-[#c9a84c] transition-colors">
-                    {proj.title}
-                  </h3>
-                  <p className="text-sm text-[#b0b8c8] leading-relaxed mb-6">
-                    {proj.description}
-                  </p>
-                </div>
+            return (
+              <ScrollReveal key={id} delay={index * 0.1}>
+                <div
+                  className="group block relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2.5 hover:scale-[1.01]"
+                >
+                  {/* Glass Background */}
+                  <div className="absolute inset-0 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl transition-all duration-500 group-hover:bg-white/[0.07] group-hover:border-white/20" />
 
-                <div>
-                  {/* شريط الإنجاز */}
-                  <div className="mb-6">
-                    <div className="flex justify-between text-xs text-slate-300 mb-2 font-medium">
-                      <span>نسبة الإنجاز والأثر</span>
-                      <span style={{ color: proj.color }}>{proj.progress}%</span>
+                  {/* Glow Effect */}
+                  <div
+                    className={`absolute w-[200px] h-[200px] rounded-full blur-[60px] opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none ${style.glowPos}`}
+                    style={{ background: style.color }}
+                  />
+
+                  {/* Content */}
+                  <div className="relative z-10 p-8 h-full flex flex-col justify-between">
+                    
+                    {/* Top: Logo & Number */}
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-3 shadow-inner">
+                          <img 
+                            src={style.logo} 
+                            alt={prog.name} 
+                            className="w-full h-full object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-110" 
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if(e.target.nextSibling) e.target.nextSibling.style.display = 'block';
+                            }}
+                          />
+                          <span className="text-2xl hidden font-bold" style={{ color: style.color }}>{prog.name?.[0]}</span>
+                        </div>
+                        <div>
+                          <h2 className="text-2xl font-extrabold mb-1" style={{ color: style.color }}>
+                            {prog.name}
+                          </h2>
+                          <span className="text-xs font-medium text-white/70 block">
+                            {prog.slogan}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="text-6xl font-black opacity-[0.07] leading-none" style={{ color: style.color }}>0{index + 1}</span>
                     </div>
-                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: proj.color }}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${proj.progress}%` }}
-                        transition={{ duration: 1.2, delay: 0.2 }}
-                        viewport={{ once: true }}
-                      />
-                    </div>
-                  </div>
 
-                  {/* تذييل البطاقة */}
-                  <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                    <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#4ade80]" /> {proj.status}
-                    </span>
-                    <Link 
-                      to={`/projects`} 
-                      className="inline-flex items-center gap-2 text-sm font-bold text-[#c9a84c] hover:underline"
-                    >
-                      التفاصيل الكاملة <ArrowLeft className="w-4 h-4" />
-                    </Link>
+                    {/* Body Description */}
+                    <div className="flex-1 mb-6">
+                      <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">
+                        {prog.description || "برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال."}
+                      </p>
+
+                      {/* Sub-projects Box (المشاريع المندرجة تحت البرنامج حسب توجيه العميل) */}
+                      <div className="bg-black/20 border border-white/5 rounded-2xl p-4">
+                        <span className="text-xs font-bold text-[#c9a84c] block mb-3 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c]"></span>
+                          المشاريع المندرجة تحت البرنامج:
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {style.subProjects.map((sub, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs text-white/80 bg-white/5 px-3 py-2 rounded-xl">
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: style.color }} />
+                              <span className="truncate">{sub}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex gap-3 pt-4 border-t border-white/5">
+                      <Link
+                        to={`/program/${id}`}
+                        className="flex-1 py-3 px-5 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-lg text-center flex items-center justify-center gap-2"
+                        style={{ background: style.color, color: '#0b1d3a' }}
+                      >
+                        <span>اكتشف تفاصيل البرنامج</span>
+                        <ArrowLeft className="w-4 h-4" />
+                      </Link>
+                    </div>
+
                   </div>
                 </div>
-
-              </div>
-            </ScrollReveal>
-          ))}
+              </ScrollReveal>
+            );
+          })}
         </div>
-
       </main>
 
-      {/* استدعاء الفوتر الموحد */}
+      {/* --- استدعاء الفوتر الموحد --- */}
       <Footer />
     </div>
   );
