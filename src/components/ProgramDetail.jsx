@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Users, X, Image as ImageIcon, Download } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
 import Header from '../components/Header';
-import Header from '../components/Navbar';
+import Navbar from '../components/Navbar';
 
 import Footer from '../components/Footer'
 import ScrollReveal from '../components/ScrollReveal'
 import ProgressBar from '../components/ProgressBar'
 import './ProgramDetail.css'
+import Navbar from './Navbar';
 
 const statusConfig = {
   active: { label: 'نشط', className: 'bg-green-400/25 text-green-400 border-green-400/30' },
