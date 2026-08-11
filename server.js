@@ -268,6 +268,48 @@ app.post('/api/ai-assistant', upload.single('file'), async (req, res) => {
   }
 });
 
+// ==========================================
+// 8. مسارات الشركاء والمانحين (Partners & Donors)
+// ==========================================
+
+// جلب قائمة الشركاء والمانحين
+app.get('/api/partners', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM partners_donors ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("خطأ في جلب بيانات الشركاء والمانحين:", err);
+    res.status(500).json({ error: 'خطأ في جلب البيانات من الخادم' });
+  }
+});
+
+// إضافة شريك أو مانح جديد (خاص بلوحة التحكم أو التسجيل)
+app.post('/api/partners', async (req, res) => {
+  const { name, type, email, phone, contribution_amount, logo_url, description } = req.body;
+
+  if (!name || !type) {
+    return res.status(400).json({ error: 'اسم الشريك/المانح ونوع الحساب حقول أساسية مطلوبة' });
+  }
+
+  try {
+    const queryText = `
+      INSERT INTO partners_donors (name, type, email, phone, contribution_amount, logo_url, description) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      RETURNING *;
+    `;
+    const values = [name, type, email, phone, contribution_amount || 0, logo_url, description];
+    const result = await pool.query(queryText, values);
+    
+    res.status(201).json({
+      message: 'تمت إضافة الشريك أو المانح بنجاح!',
+      partner: result.rows[0]
+    });
+  } catch (err) {
+    console.error("خطأ في إضافة الشريك أو المانح:", err);
+    res.status(500).json({ error: 'فشل حفظ البيانات في قاعدة البيانات' });
+  }
+});
+
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 if (process.env.NODE_ENV === 'production' || true) {
