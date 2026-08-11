@@ -324,6 +324,47 @@ app.get('/api/partners/:id/reports', async (req, res) => {
   }
 });
 
+// مسار تسجيل دخول الشركاء والمانحين
+app.post('/api/partners/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'يرجى إدخال اسم المستخدم وكلمة المرور' });
+  }
+
+  try {
+    // البحث عن الشريك بواسطة اسم المستخدم
+    const result = await pool.query('SELECT * FROM partners_donors WHERE username = $1', [username]);
+    
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
+    }
+
+    const partner = result.rows[0];
+
+    // التحقق من كلمة المرور (يمكنك مطابقتها مباشرة أو باستخدام التشفير إذا كنتِ تستخدمينه)
+    if (partner.password_hash !== password) {
+      return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
+    }
+
+    // إرسال بيانات الشريك بنجاح عند مطابقة بيانات الدخول
+    res.json({
+      message: 'تم تسجيل الدخول بنجاح',
+      partner: {
+        id: partner.id,
+        name: partner.name,
+        type: partner.type,
+        logo_url: partner.logo_url,
+        description: partner.description
+      }
+    });
+
+  } catch (err) {
+    console.error("خطأ في تسجيل الدخول:", err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 // خدمة ملفات الواجهة الأمامية الساكنة (React Build) إذا توفرت
 if (process.env.NODE_ENV === 'production' || true) {
