@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, FolderKanban, Calendar, Star, DollarSign, CheckCircle2 } from 'lucide-react';
 import BackgroundAnimation from '../components/BackgroundAnimation';
 import ScrollReveal from '../components/ScrollReveal';
-import Navbar from '../components/Navbar';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export default function ProjectsPage() {
@@ -66,8 +66,8 @@ export default function ProjectsPage() {
     <div className="projects-theme min-h-screen flex flex-col" style={{ background: '#0b1d3a', color: '#fff' }}>
       <BackgroundAnimation />
 
-      {/* استدعاء الهيدر الموحد */}
-      <Navbar />
+      {/* --- استدعاء الهيدر الموحد --- */}
+<Header />
 
       {/* محتوى الصفحة الرئيسي */}
       <main className="flex-1 max-w-[1400px] mx-auto px-6 w-full relative z-[2] pt-24">
