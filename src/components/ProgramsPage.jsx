@@ -8,7 +8,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { programsData, programIds } from '../data/programsData';
 
-// تحديد الهوية البصرية بدقة بناءً على ألوان الشعارات الفعليّة لكل برنامج مع ربط المشاريع التابعة رسمياً
+// تحديد الهوية البصرية وألوان الشعارات الفعليّة لكل برنامج مع المشاريع التابعة رسمياً
 const programStyles = {
   rafid: { 
     color: '#16a34a', 
@@ -77,9 +77,8 @@ export default function ProgramsPage() {
 
             return (
               <ScrollReveal key={id} delay={index * 0.1}>
-                <div
-                  className="group block relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2.5 hover:scale-[1.01]"
-                >
+                <div className="group block relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2.5 hover:scale-[1.01]">
+                  
                   {/* Glass Background */}
                   <div className="absolute inset-0 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl transition-all duration-500 group-hover:bg-white/[0.07] group-hover:border-white/20" />
 
@@ -126,7 +125,7 @@ export default function ProgramsPage() {
                         {prog.description || "برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال."}
                       </p>
 
-                      {/* Sub-projects Box (المشاريع المندرجة تحت البرنامج حسب توجيه العميل) */}
+                      {/* Sub-projects Box (المشاريع المندرجة تحت البرنامج) */}
                       <div className="bg-black/20 border border-white/5 rounded-2xl p-4">
                         <span className="text-xs font-bold text-[#c9a84c] block mb-3 flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c]"></span>
