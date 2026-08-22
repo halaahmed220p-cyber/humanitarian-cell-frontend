@@ -35,47 +35,64 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
+    // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بدقة متناهية تتوافق مع هيكلة جدول المشروع (الذي يحتوي على التصنيف) وجدول البرامج
+    // تصفية المشاريع بطريقة مستقلة (فلتر مستقل لكل حقل لضمان العمل عند اختيار فلترين أو أقل)
     const filteredProjects = projectsList.filter(proj => {
-        // 1. فلتر البحث النصي (إن وجد)
-        const matchesSearch = searchTerm === '' || 
-            (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (proj.official_name && proj.official_name.toLowerCase().includes(searchTerm.toLowerCase()));
+        // 1. فلتر البحث النصي
+        if (searchTerm.trim() !== '') {
+            const query = searchTerm.toLowerCase();
+            const matchesSearch = 
+                (proj.title && proj.title.toLowerCase().includes(query)) ||
+                (proj.description && proj.description.toLowerCase().includes(query)) ||
+                (proj.official_name && proj.official_name.toLowerCase().includes(query));
+            if (!matchesSearch) return false;
+        }
 
-        if (!matchesSearch) return false;
+        // 2. فلتر المركز الإداري / المنطقة
+        if (selectedAdministrativeArea !== 'عرض كلي') {
+            const locValue = proj.location || proj.province || proj.hub_center;
+            if (locValue !== selectedAdministrativeArea) return false;
+        }
 
-        // 2. التحقق من تطابق الموقع / المركز الإداري
-        const locValue = proj.location || proj.province || proj.hub_center;
-        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
-        if (!matchesAdmin) return false;
+        // 3. فلتر البرنامج (الرئيسي أو الموسمي) - يعمل بشكل مستقل تماماً
+        const isMainProgActive = selectedMainProgram !== 'الكل';
+        const isSeasonProgActive = selectedSeasonalProgram !== 'الكل';
 
-        // 3. مطابقة البرنامج (الرئيسي أو الموسمي)
-        const hasMainProg = selectedMainProgram !== 'الكل';
-        const hasSeason = selectedSeasonalProgram !== 'الكل';
+        if (isMainProgActive || isSeasonProgActive) {
+            let matchesProgram = false;
+            const targetMain = selectedMainProgram;
+            const targetSeason = selectedSeasonalProgram;
 
-        if (hasMainProg || hasSeason) {
-            const targetProg = hasMainProg ? selectedMainProgram : selectedSeasonalProgram;
-            
-            const matchesProgram = 
-                proj.program_id === targetProg || 
-                proj.main_program === targetProg ||
-                proj.seasonal_category === targetProg ||
-                (proj.program && (proj.program.name === targetProg || proj.program.title === targetProg)) ||
-                (proj.program_name && proj.program_name.trim() === targetProg.trim()) ||
-                (proj.title && proj.title.includes(targetProg));
+            // التحقق من البرنامج الرئيسي إن وجد
+            if (isMainProgActive) {
+                const matchesMain = 
+                    proj.program_id === targetMain || 
+                    proj.main_program === targetMain ||
+                    (proj.program && (proj.program.name === targetMain || proj.program.title === targetMain)) ||
+                    (proj.program_name && proj.program_name.trim() === targetMain.trim()) ||
+                    (proj.title && proj.title.includes(targetMain));
+                if (matchesMain) matchesProgram = true;
+            }
+
+            // التحقق من البرنامج الموسمي إن وجد
+            if (isSeasonProgActive) {
+                const matchesSeason = 
+                    proj.seasonal_category === targetSeason ||
+                    proj.program_id === targetSeason ||
+                    (proj.program && (proj.program.name === targetSeason || proj.program.title === targetSeason)) ||
+                    (proj.program_name && proj.program_name.trim() === targetSeason.trim()) ||
+                    (proj.title && proj.title.includes(targetSeason));
+                if (matchesSeason) matchesProgram = true;
+            }
 
             if (!matchesProgram) return false;
         }
 
-        // 4. مطابقة التصنيف / القطاع (الموجود في نفس جدول المشروع مثل sector أو category)
-        const hasSector = selectedSector !== 'الكل';
-        if (hasSector) {
+        // 4. فلتر القطاع / التصنيف - يعمل بشكل مستقل تماماً
+        if (selectedSector !== 'الكل') {
             const projectSector = proj.sector || proj.category || proj.classification || '';
-            
             const matchesSector = 
                 projectSector.trim() === selectedSector.trim() ||
                 projectSector.toLowerCase().includes(selectedSector.toLowerCase()) ||
@@ -357,12 +374,12 @@ const ProjectsPage = () => {
 
                         <div className="deep-modal-content">
                             <div className="deep-info-block">
-                                <strong>وصف المشروع:</strong>
+                                <strong style={{ color: '#fff' }}>وصف المشروع:</strong>
                                 <p>{selectedProject.description}</p>
                             </div>
 
                             <div className="deep-info-block" style={{ marginTop: '10px' }}>
-                                <strong>التفاصيل الكاملة (full_details):</strong>
+                                <strong style={{ color: '#fff' }}>التفاصيل الكاملة (full_details):</strong>
                                 <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
                             </div>
 
@@ -390,4 +407,4 @@ const ProjectsPage = () => {
     );
 };
 
-export default ProjectsPage;
+export  default ProjectsPage;
