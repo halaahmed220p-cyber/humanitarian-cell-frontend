@@ -35,17 +35,20 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => (p.location || p.province || p.المحافظة || '').trim()).filter(Boolean))];
+    // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات (دعم الخيارات العربية والإنجليزية)
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
+        const loc = p.location || p.province || p.hub_center || p.المحافظة || p.المديرية_النطاق_الميداني || '';
+        return loc.trim();
+    }).filter(Boolean))];
 
-    // تصفية المشاريع بطريقة دقيقة ومستقلة تماماً لكل حقل
+    // دالة تصفية دقيقة وشاملة تدعم جميع مسميات الخصائص في السيرفر وقاعدة البيانات
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
             const title = (proj.title || proj.اسم_المشروع_المعتمد || '').toLowerCase();
-            const desc = (proj.description || '').toLowerCase();
-            const official = (proj.official_name || '').toLowerCase();
+            const desc = (proj.description || proj.ملاحظات_وضبط_الجودة || '').toLowerCase();
+            const official = (proj.official_name || proj.الجهة_المانحة_والداعمة || '').toLowerCase();
             if (!title.includes(query) && !desc.includes(query) && !official.includes(query)) return false;
         }
 
@@ -68,19 +71,19 @@ const ProjectsPage = () => {
         // 4. فلتر التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
-            const projSeason = (proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || '').trim();
+            const projSeason = (proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || proj.classification || '').trim();
             const title = (proj.title || proj.اسم_المشروع_المعتمد || '');
             
             const matchesSeason = (projSeason === targetSeason) || title.includes(targetSeason);
             if (!matchesSeason) return false;
         }
 
-        // 5. فلتر القطاع التنموي (مصحح ليطابق بدقة تامة ولا يتداخل)
+        // 5. فلتر القطاع التنموي (مفتاح أساسي وحاسم)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projectSector = (proj.sector || proj.القطاع_التنموي || '').trim();
+            const projectSector = (proj.sector || proj.القطاع_التنموي || proj.category || '').trim();
             
-            // مطابقة دقيقة تمنع تداخل النتائج الخاطئة
+            // مطابقة مرنة تضمن ظهور "الغذاء والمأوى" أو أي قطاع آخر بدقة عند اختياره وإخفائه عند اختيار غيره
             const matchesSector = 
                 projectSector === targetSector ||
                 projectSector.includes(targetSector) ||
@@ -226,8 +229,18 @@ const ProjectsPage = () => {
                         </select>
                     </div>
 
-                    {/* القطاعات التنموية */}
-                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
+                    {/* القطاعات التنموية (مع زر إعادة التعيين أو التبديل المباشر) */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>القطاعات التنموية</h4>
+                        {selectedSector !== 'الكل' && (
+                            <button 
+                                onClick={() => setSelectedSector('الكل')} 
+                                style={{ fontSize: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer' }}
+                            >
+                                إلغاء تصفية القطاع
+                            </button>
+                        )}
+                    </div>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ', 'البنية التحتية'].map(sector => (
                             <button 
