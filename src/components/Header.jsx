@@ -121,6 +121,13 @@ const Header = () => {
                 </NavLink>
               </li>
 
+              {/* رابط الآراء والبلاغات الجديد */}
+              <li>
+                <NavLink to="/reports-feedback" className={({ isActive }) => (isActive && activeAnchor === '' ? "active" : "")} onClick={() => setActiveAnchor('')} style={{ color: '#c9a84c', textDecoration: 'none', fontSize: '13.5px', fontWeight: 'bold', whiteSpace: 'nowrap', borderBottom: '2px solid #c9a84c', paddingBottom: '2px' }}>
+                  الآراء والبلاغات
+                </NavLink>
+              </li>
+
               <li>
                 <a href="#footer" className={activeAnchor === '#footer' ? 'active' : ''} onClick={handleContactClick} style={{ color: '#fff', textDecoration: 'none', fontSize: '13.5px', fontWeight: '500', whiteSpace: 'nowrap' }}>
                   تواصل معنا

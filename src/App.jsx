@@ -15,6 +15,7 @@ import ProgramDetail from './components/ProgramDetail';
 import PartnersPortal from './components/PartnersPortal';
 import { programsData } from './data/programsData';
 import ScrollToTop from './components/ScrollToTop'; 
+import ReportsAndFeedback from './components/ReportsAndFeedback'; // تأكدي من مسار الملف
 import { Bot, Send, Paperclip, X, Sparkles } from 'lucide-react';
 import './App.css';
 
@@ -23,7 +24,7 @@ function FloatingAIChat() {
   const [isOpen, setIsOpen] = useState(false);
   
   // معلومات وبيانات المنصة ليكون المساعد ملماً بكل شيء داخله
-  const platformContext = `
+const platformContext = `
 معلومات أساسية عن المنصة (خلية الأعمال الإنسانية):
 - هي منظمة إنسانية غير ربحية تعمل في اليمن، تسعى لتعزيز العمل الإغاثي والتنموي بالتنسيق مع الجهات المعنية.
 - الشعار: نعمل من أجل إنسان يستحق الحياة الكريمة.
@@ -33,9 +34,10 @@ function FloatingAIChat() {
   3. البرامج: البرامج الإنسانية والتنموية المختلفة التي تقدمها الخلية.
   4. محفظة المشاريع: استعراض كافة المشاريع الإغاثية والتنموية المنفذة.
   5. الأخبار والتقارير: آخر مستجدات وأخبار العمل الإنساني والتقارير الدورية.
-  6. تواصل معنا: قنوات الاتصال بالمنظمة.
-  7. بوابة الشركاء: مخصصة للشركاء والجهات الداعمة.
-  8. تبرع الآن: صفحة مخصصة للمساهمة ودعم المشاريع الخيرية والإنسانية.
+  6. الآراء والبلاغات: قسم مخصص لاستقبال بلاغات المواطنين، الشكاوى الإنسانية والميدانية، والمقترحات التطويرية. (ملاحظة للمساعد: يتطلب تقديم البلاغ أو الشكوى عبر هذا القسم تحديد الموقع الجغرافي GPS إجبارياً لضمان الاستجابة الميدانية السريعة).
+  7. تواصل معنا: قنوات الاتصال بالمنظمة.
+  8. بوابة الشركاء: مخصصة للشركاء والجهات الداعمة.
+  9. تبرع الآن: صفحة مخصصة للمساهمة ودعم المشاريع الخيرية والإنسانية.
 `;
 
   const [chatMessages, setChatMessages] = useState([
@@ -282,6 +284,7 @@ function App() {
         <Route path="/partners" element={<><Header /><PartnersPortal /><Footer /></>} />
         <Route path="/programs" element={<ProgramsPage />} />
         <Route path="/program/:programId" element={<ProgramDetail programs={programsData} />} />
+        <Route path="/reports-feedback" element={<ReportsAndFeedback />} />
         <Route path="/projects" element={
           <div>
             <Header />
