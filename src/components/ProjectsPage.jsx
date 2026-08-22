@@ -39,7 +39,7 @@ const ProjectsPage = () => {
         return loc.trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع الذكية (تتجاوز التعارض وتظهر النتائج بدقة)
+    // تصفية المشاريع (فلترة مرنة وتراكمية تدعم الفردي والمجتمع)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
@@ -55,21 +55,21 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي
+        // 3. فلتر البرنامج الرئيسي (إذا لم يكن 'الكل')
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
             const projMain = (proj.البرنامج_الرئيسي || proj.main_program || proj.program || '').trim();
-            if (!projMain.includes(targetMain)) return false;
+            if (projMain !== targetMain && !projMain.includes(targetMain)) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي (يعمل بمرونة إذا لم يتعارض مع البرنامج)
+        // 4. فلتر التصنيف الموسمي (إذا لم يكن 'الكل')
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
             const projSeason = (proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || proj.season || '').trim();
-            if (!projSeason.includes(targetSeason)) return false;
+            if (projSeason !== targetSeason && !projSeason.includes(targetSeason)) return false;
         }
 
-        // 5. فلتر القطاع التنموي
+        // 5. فلتر القطاع التنموي (إذا لم يكن 'الكل' - يدعم قطاع أو أكثر أو الغذاء والمأوى)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projectSector = (proj.القطاع_التنموي || proj.sector || '').trim();
@@ -82,7 +82,7 @@ const ProjectsPage = () => {
                     projectSector.includes('shelter');
                 if (!isFoodOrShelter) return false;
             } else {
-                if (!projectSector.includes(targetSector)) return false;
+                if (projectSector !== targetSector && !projectSector.includes(targetSector)) return false;
             }
         }
 
@@ -211,10 +211,7 @@ const ProjectsPage = () => {
                             <button 
                                 key={prog} 
                                 className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
-                                onClick={() => {
-                                    setSelectedMainProgram(prog);
-                                    if (prog !== 'الكل') setSelectedSeasonalProgram('الكل'); // منع التعارض
-                                }}
+                                onClick={() => setSelectedMainProgram(prog)}
                             >
                                 {prog}
                             </button>
@@ -228,10 +225,7 @@ const ProjectsPage = () => {
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
-                                onClick={() => {
-                                    setSelectedSeasonalProgram(season);
-                                    if (season !== 'الكل') setSelectedMainProgram('الكل'); // منع التعارض
-                                }}
+                                onClick={() => setSelectedSeasonalProgram(season)}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
                                 {season}
@@ -276,7 +270,7 @@ const ProjectsPage = () => {
                         ) : Object.keys(governoratesMap).length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '15px' }}>
                                 <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
-                                    لا توجد بيانات مطابقة لتداخل الفلاتر الحالية.
+                                    لا توجد بيانات مطابقة لهذه الفلاتر المشتركة.
                                 </p>
                                 <button 
                                     onClick={handleResetFilters}
