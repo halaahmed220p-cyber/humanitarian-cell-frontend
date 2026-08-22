@@ -35,22 +35,29 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج القوائم ديناميكياً من البيانات القادمة من قاعدة البيانات (بدون قيم ثابتة)
-    const uniqueMainPrograms = ['الكل', ...new Set(projectsList.map(p => p.main_program).filter(Boolean))];
-    const uniqueSeasonalPrograms = ['الكل', ...new Set(projectsList.map(p => p.seasonal_program).filter(Boolean))];
-    const uniqueSectors = ['الكل', ...new Set(projectsList.map(p => p.sector).filter(Boolean))];
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location).filter(Boolean))];
+    // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بناءً على الفلاتر وحقول البحث
+    // تصفية المشاريع بناءً على الأعمدة الصحيحة في قاعدة البيانات
     const filteredProjects = projectsList.filter(proj => {
         const matchesSearch = searchTerm === '' || 
             (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        const matchesMainProgram = selectedMainProgram === 'الكل' || proj.main_program === selectedMainProgram;
-        const matchesSeasonal = selectedSeasonalProgram === 'الكل' || proj.seasonal_program === selectedSeasonalProgram;
+        // مطابقة البرنامج الرئيسي عبر العمود program_id
+        const matchesMainProgram = selectedMainProgram === 'الكل' || proj.program_id === selectedMainProgram;
+
+        // مطابقة المشروع الموسمي عبر العمود seasonal_category أو حقل is_seasonal
+        const matchesSeasonal = selectedSeasonalProgram === 'الكل' || 
+            proj.seasonal_category === selectedSeasonalProgram ||
+            (selectedSeasonalProgram !== 'الكل' && proj.is_seasonal === true);
+
+        // مطابقة القطاع (إذا وجد حقل sector أو استخدام الوصف/الاسم)
         const matchesSector = selectedSector === 'الكل' || proj.sector === selectedSector;
-        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || proj.location === selectedAdministrativeArea;
+
+        // مطابقة المركز الإداري/الموقع
+        const locValue = proj.location || proj.province;
+        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
 
         return matchesSearch && matchesMainProgram && matchesSeasonal && matchesSector && matchesAdmin;
     });
@@ -58,7 +65,7 @@ const ProjectsPage = () => {
     // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = proj.location ? proj.location.trim() : 'أخرى';
+        const loc = (proj.location || proj.province) ? (proj.location || proj.province).trim() : 'أخرى';
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -139,10 +146,10 @@ const ProjectsPage = () => {
                         />
                     </div>
 
-                    {/* البرامج الرئيسية (تُجلب ديناميكياً من قاعدة البيانات) */}
-                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية</h4>
+                    {/* البرامج الرئيسية الأربعة (معتمدة على حقل program_id) */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية الأربعة</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {uniqueMainPrograms.map(prog => (
+                        {['الكل', 'رافد', 'صرح', 'وسم', 'الحماية'].map(prog => (
                             <button 
                                 key={prog} 
                                 className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
@@ -153,10 +160,10 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية (تُجلب ديناميكياً من قاعدة البيانات) */}
+                    {/* المشاريع الموسمية (معتمدة على حقل seasonal_category) */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {uniqueSeasonalPrograms.map(season => (
+                        {['الكل', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
@@ -168,7 +175,7 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* التصفية حسب المركز الإداري (تُجلب ديناميكياً) */}
+                    {/* التصفية حسب المركز الإداري */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>التصفية حسب المركز الإداري</h4>
                     <div style={{ marginBottom: '15px' }}>
                         <select 
@@ -182,10 +189,10 @@ const ProjectsPage = () => {
                         </select>
                     </div>
 
-                    {/* القطاعات التنموية (تُجلب ديناميكياً من قاعدة البيانات) */}
+                    {/* القطاعات التنموية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {uniqueSectors.map(sector => (
+                        {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ', 'البنية التحتية'].map(sector => (
                             <button 
                                 key={sector} 
                                 className={`filter-btn ${selectedSector === sector ? 'active' : ''}`}
@@ -263,7 +270,7 @@ const ProjectsPage = () => {
                 </aside>
             </main>
 
-            {/* نوافذ عرض التفاصيل (Modals) نفس الكود السابق */}
+            {/* نوافذ عرض التفاصيل (Modals) */}
             {isGovModalOpen && currentGovData && (
                 <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
                     <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
@@ -340,7 +347,7 @@ const ProjectsPage = () => {
                                 </div>
                                 <div className="deep-box">
                                     <span className="deep-label">الموقع:</span>
-                                    <span className="deep-val">{selectedProject.location}</span>
+                                    <span className="deep-val">{selectedProject.location || selectedProject.province}</span>
                                 </div>
                             </div>
                         </div>
@@ -357,4 +364,4 @@ const ProjectsPage = () => {
     );
 };
 
-export default ProjectsPage;
+export  default ProjectsPage;
