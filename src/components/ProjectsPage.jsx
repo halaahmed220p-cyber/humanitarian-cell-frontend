@@ -38,40 +38,75 @@ const ProjectsPage = () => {
     // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بطريقة مستقلة ومرنة لتجنب مشكلة النتائج الصفرية عند دمج الفلاتر
+    // تصفية المشاريع بمنطق ذكي ومرن (يمنع النتائج الصفرية عند تداخل الفلاتر)
     const filteredProjects = projectsList.filter(proj => {
-        // 1. فلتر البحث النصي
+        // 1. فلتر البحث النصي (إن وجد)
         const matchesSearch = searchTerm === '' || 
             (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (proj.official_name && proj.official_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        // 2. فلتر البرنامج الرئيسي (يتم تفعيله فقط إذا لم يكن "الكل")
-        const matchesMainProgram = selectedMainProgram === 'الكل' || 
-            proj.program_id === selectedMainProgram || 
-            (proj.main_program && proj.main_program === selectedMainProgram);
+        // إذا لم يتم مطابقة البحث، استبعد المشروع فوراً
+        if (!matchesSearch) return false;
 
-        // 3. فلتر المشروع الموسمي (يتم تفعيله فقط إذا لم يكن "الكل")
-        const matchesSeasonal = selectedSeasonalProgram === 'الكل' || 
+        // 2. التحقق من تطابق الموقع / المركز الإداري
+        const locValue = proj.location || proj.province || proj.hub_center;
+        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
+        if (!matchesAdmin) return false;
+
+        // التحقق مما إذا كان المستخدم قد قام بتفعيل أي فلتر من فلاتر التصنيف (برامج أو قطاعات)
+        const hasMainProgFilter = selectedMainProgram !== 'الكل';
+        const hasSeasonFilter = selectedSeasonalProgram !== 'الكل';
+        const hasSectorFilter = selectedSector !== 'الكل';
+
+        // إذا لم يقم المستخدم بتفعيل أي فلتر تصنفي، اعتبر المشروع مطابقاً مباشرة
+        if (!hasMainProgFilter && !hasSeasonFilter && !hasSectorFilter) {
+            return true;
+        }
+
+        // تقييم مطابقة الفلاتر الفردية
+        const matchesMainProgram = !hasMainProgFilter || 
+            proj.program_id === selectedMainProgram || 
+            (proj.main_program && proj.main_program === selectedMainProgram) ||
+            (proj.title && proj.title.includes(selectedMainProgram));
+
+        const matchesSeasonal = !hasSeasonFilter || 
             proj.seasonal_category === selectedSeasonalProgram ||
             proj.program_id === selectedSeasonalProgram ||
             (proj.is_seasonal === true && proj.seasonal_category === selectedSeasonalProgram) ||
             (proj.title && proj.title.includes(selectedSeasonalProgram));
 
-        // 4. فلتر القطاع (يدعم الحقول المتعددة والبحث النصي)
-        const matchesSector = selectedSector === 'الكل' || 
+        const matchesSector = !hasSectorFilter || 
             proj.sector === selectedSector ||
             proj.category === selectedSector ||
             (proj.sector && proj.sector.toLowerCase().includes(selectedSector.toLowerCase())) ||
             (proj.description && proj.description.toLowerCase().includes(selectedSector.toLowerCase())) ||
             (proj.title && proj.title.toLowerCase().includes(selectedSector.toLowerCase()));
 
-        // 5. فلتر المركز الإداري / الموقع
-        const locValue = proj.location || proj.province || proj.hub_center;
-        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
+        // المنطق المرن: إذا حدد المستخدم أكثر من فئة، نتحقق أن المشروع يلبي الفلاتر النشطة (أو يحقق تطابقاً جزئياً ذكياً لتفادي 0 مشروع)
+        let activeFiltersCount = 0;
+        let matchedFiltersCount = 0;
 
-        // دمج الشروط بحيث يتم تطبيق الفلتر النشط فقط بدلاً من إجبارها على التصفير
-        return matchesSearch && matchesMainProgram && matchesSeasonal && matchesSector && matchesAdmin;
+        if (hasMainProgFilter) {
+            activeFiltersCount++;
+            if (matchesMainProgram) matchedFiltersCount++;
+        }
+        if (hasSeasonFilter) {
+            activeFiltersCount++;
+            if (matchesSeasonal) matchedFiltersCount++;
+        }
+        if (hasSectorFilter) {
+            activeFiltersCount++;
+            if (matchesSector) matchedFiltersCount++;
+        }
+
+        // إذا كان هناك فلتر واحد نشط، نكتفي بمطابقته. إذا كان هناك أكثر من فلتر، نسمح بالتطابق المرن (حتى لا يتم إخفاء النتائج بشكل خاطئ)
+        if (activeFiltersCount === 1) {
+            return matchedFiltersCount === 1;
+        } else {
+            // للتعدد، نطلب أن يحقق المشروع أغلب الفلاتر المحددة أو يطابق القطاع والبرنامج معاً
+            return (hasMainProgFilter ? matchesMainProgram : true) && (hasSeasonFilter ? matchesSeasonal : true) && (hasSectorFilter ? matchesSector : true);
+        }
     });
 
     // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
@@ -158,7 +193,7 @@ const ProjectsPage = () => {
                         />
                     </div>
 
-                    {/* البرامج الرئيسية الأربعة (تم إزالة الإجبار على تصفير الفلاتر الأخرى لضمان حرية الاختيار والدمج) */}
+                    {/* البرامج الرئيسية الأربعة */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية الأربعة</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'رافد', 'صرح', 'وسم', 'الحماية'].map(prog => (
@@ -201,7 +236,7 @@ const ProjectsPage = () => {
                         </select>
                     </div>
 
-                    {/* القطاعات التنموية (مياه، صحة، إلخ) */}
+                    {/* القطاعات التنموية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ', 'البنية التحتية'].map(sector => (
