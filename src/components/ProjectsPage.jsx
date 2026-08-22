@@ -18,7 +18,7 @@ const ProjectsPage = () => {
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع من السيرفر المرتبط بقاعدة البيانات
+    // جلب المشاريع من السيرفر
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -35,24 +35,23 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات (دعم الخيارات العربية والإنجليزية)
+    // استخراج المحافظات/المناطق ديناميكياً
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
         const loc = p.location || p.province || p.hub_center || p.المحافظة || p.المديرية_النطاق_الميداني || '';
         return loc.trim();
     }).filter(Boolean))];
 
-    // دالة تصفية دقيقة وشاملة تدعم جميع مسميات الخصائص في السيرفر وقاعدة البيانات
+    // تصفية المشاريع بمطابقة صارمة ودقيقة لكل حقل على حدة
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
             const title = (proj.title || proj.اسم_المشروع_المعتمد || '').toLowerCase();
             const desc = (proj.description || proj.ملاحظات_وضبط_الجودة || '').toLowerCase();
-            const official = (proj.official_name || proj.الجهة_المانحة_والداعمة || '').toLowerCase();
-            if (!title.includes(query) && !desc.includes(query) && !official.includes(query)) return false;
+            if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
-        // 2. فلتر المركز الإداري / المنطقة / المحافظة
+        // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
             const locValue = (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
@@ -62,34 +61,21 @@ const ProjectsPage = () => {
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
             const projMain = (proj.main_program || proj.البرنامج_الرئيسي || proj.program_id || '').trim();
-            const title = (proj.title || proj.اسم_المشروع_المعتمد || '');
-            
-            const matchesMain = (projMain === targetMain) || title.includes(targetMain);
-            if (!matchesMain) return false;
+            if (projMain !== targetMain) return false;
         }
 
         // 4. فلتر التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
-            const projSeason = (proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || proj.classification || '').trim();
-            const title = (proj.title || proj.اسم_المشروع_المعتمد || '');
-            
-            const matchesSeason = (projSeason === targetSeason) || title.includes(targetSeason);
-            if (!matchesSeason) return false;
+            const projSeason = (proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || '').trim();
+            if (projSeason !== targetSeason) return false;
         }
 
-        // 5. فلتر القطاع التنموي (مفتاح أساسي وحاسم)
+        // 5. فلتر القطاع التنموي (مطابقة تامة وصارمة لمنع تداخل القطاعات مثل التعليم والصحة والغذاء)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projectSector = (proj.sector || proj.القطاع_التنموي || proj.category || '').trim();
-            
-            // مطابقة مرنة تضمن ظهور "الغذاء والمأوى" أو أي قطاع آخر بدقة عند اختياره وإخفائه عند اختيار غيره
-            const matchesSector = 
-                projectSector === targetSector ||
-                projectSector.includes(targetSector) ||
-                targetSector.includes(projectSector);
-
-            if (!matchesSector) return false;
+            const projectSector = (proj.sector || proj.القطاع_التنموي || '').trim();
+            if (projectSector !== targetSector) return false;
         }
 
         return true;
@@ -229,7 +215,7 @@ const ProjectsPage = () => {
                         </select>
                     </div>
 
-                    {/* القطاعات التنموية (مع زر إعادة التعيين أو التبديل المباشر) */}
+                    {/* القطاعات التنموية */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>القطاعات التنموية</h4>
                         {selectedSector !== 'الكل' && (
@@ -237,7 +223,7 @@ const ProjectsPage = () => {
                                 onClick={() => setSelectedSector('الكل')} 
                                 style={{ fontSize: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer' }}
                             >
-                                إلغاء تصفية القطاع
+                                إزالة التصفية
                             </button>
                         )}
                     </div>
