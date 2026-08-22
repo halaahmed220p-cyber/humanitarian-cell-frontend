@@ -15,8 +15,35 @@ const ReportsAndFeedback = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
-  // دالة لجلب الموقع الجغرافي تلقائياً عبر GPS المتصفح
- const handleSubmit = async (e) => {
+  // دالة لجلب الموقع الجغرافي تلقائياً عبر GPS المتصفح (تم إضافتها هنا لحل مشكلة الشاشة البيضاء)
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      alert('متصفحك لا يدعم خاصية تحديد الموقع الجغرافي');
+      return;
+    }
+
+    setFormData(prev => ({ ...prev, locationStatus: 'جاري تحديد الموقع...' }));
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData(prev => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          locationStatus: `تم تحديد الموقع بنجاح (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`
+        }));
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        setFormData(prev => ({ ...prev, locationStatus: 'فشل تحديد الموقع. يرجى السماح بالصلاحية.' }));
+        alert('⚠️ تعذر تحديد موقعك. يرجى التحقق من تفعيل خدمة الـ GPS والسماح للمتصفح بالوصول إليه.');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  // دالة إرسال البلاغ
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.latitude || !formData.longitude) {
       alert('⚠️ عذراً، إرفاق وتحديد الموقع الجغرافي (GPS) إلزامي لإرسال البلاغ أو الملاحظة بنجاح.');
@@ -26,7 +53,6 @@ const ReportsAndFeedback = () => {
     setIsSubmitting(true);
 
     try {
-      // جلب رابط السيرفر الأساسي (نفس الطريقة المستخدمة في بقية المشروع لديك)
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
 
       const response = await fetch(`${baseUrl}/api/field-reports`, {
