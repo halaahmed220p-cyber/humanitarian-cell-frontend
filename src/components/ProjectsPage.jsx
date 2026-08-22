@@ -16,9 +16,8 @@ const ProjectsPage = () => {
 
     const [selectedGovName, setSelectedGovName] = useState(null);
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
-    const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع من السيرفر بشكل صحيح
+    // جلب المشاريع من السيرفر
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -35,46 +34,46 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات/المناطق ديناميكياً
+    // استخراج المحافظات/المناطق ديناميكياً بناءً على الحقول العربية
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
-        const loc = p.location || p.province || p.hub_center || p.المحافظة || p.المديرية_النطاق_الميداني || '';
+        const loc = p.المحافظة || p.المديرية_النطاق_الميداني || p.مركز_التجميع_الإداري_Hub || p.location || '';
         return loc.trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع مع دعم مطابقة القطاعات والبحث
+    // تصفية المشاريع (متوافقة تماماً مع أعمدة قاعدة البيانات العربية)
     const filteredProjects = projectsList.filter(proj => {
-        // 1. فلتر البحث النصي
+        // 1. فلتر البحث النصي (اسم المشروع أو الملاحظات)
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const title = (proj.title || proj.اسم_المشروع_المعتمد || '').toLowerCase();
-            const desc = (proj.description || proj.ملاحظات_وضبط_الجودة || '').toLowerCase();
+            const title = (proj.اسم_المشروع_المعتمد || proj.title || '').toLowerCase();
+            const desc = (proj.ملاحظات_وضبط_الجودة || proj.description || '').toLowerCase();
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني || '').trim();
+            const locValue = (proj.المحافظة || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي
+        // 3. فلتر البرنامج الرئيسي (الاعتماد على الحقل العربي الصحيح)
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
-            const projMain = (proj.main_program || proj.البرنامج_الرئيسي || proj.program_id || '').trim();
+            const projMain = (proj.البرنامج_الرئيسي || proj.main_program || '').trim();
             if (projMain !== targetMain) return false;
         }
 
         // 4. فلتر التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
-            const projSeason = (proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || '').trim();
+            const projSeason = (proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || '').trim();
             if (projSeason !== targetSeason) return false;
         }
 
-        // 5. فلتر القطاع التنموي
+        // 5. فلتر القطاع التنموي (مع الدعم الذكي لـ "الغذاء والمأوى")
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projectSector = (proj.sector || proj.القطاع_التنموي || '').trim();
+            const projectSector = (proj.القطاع_التنموي || proj.sector || '').trim();
 
             if (targetSector === 'الغذاء والمأوى') {
                 const isFoodOrShelter = 
@@ -91,10 +90,10 @@ const ProjectsPage = () => {
         return true;
     });
 
-    // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
+    // تجميع المشاريع حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني) ? (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني).trim() : 'أخرى';
+        const loc = (proj.المحافظة || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -106,28 +105,31 @@ const ProjectsPage = () => {
         }
         governoratesMap[loc].projects.push(proj);
 
-        const statusVal = proj.status || proj.حالة_المشروع || '';
-        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز')) governoratesMap[loc].completedCount++;
-        else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد')) governoratesMap[loc].inProgressCount++;
-        else governoratesMap[loc].plannedCount++;
+        const statusVal = (proj.حالة_المشروع || proj.status || '').trim();
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز')) {
+            governoratesMap[loc].completedCount++;
+        } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد')) {
+            governoratesMap[loc].inProgressCount++;
+        } else {
+            governoratesMap[loc].plannedCount++;
+        }
     });
 
     const handleSelectGovernorate = (govName) => {
         setSelectedGovName(govName);
-        setIsGovModalOpen(true);
     };
-
-    const currentGovData = selectedGovName ? governoratesMap[selectedGovName] : null;
 
     // إحصائيات الرسم البياني الدائري
     const completedTotal = filteredProjects.filter(p => {
-        const s = p.status || p.حالة_المشروع || '';
+        const s = (p.حالة_المشروع || p.status || '');
         return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز');
     }).length;
+    
     const inProgressTotal = filteredProjects.filter(p => {
-        const s = p.status || p.حالة_المشروع || '';
+        const s = (p.حالة_المشروع || p.status || '');
         return s.includes('قيد التنفيذ') || s.includes('جديد');
     }).length;
+
     const plannedTotal = filteredProjects.length - (completedTotal + inProgressTotal);
 
     const chartData = [
@@ -238,7 +240,7 @@ const ProjectsPage = () => {
                         )}
                     </div>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ', 'البنية التحتية'].map(sector => (
+                        {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ والطاقة الخضراء', 'البنية التحتية'].map(sector => (
                             <button 
                                 key={sector} 
                                 className={`filter-btn ${selectedSector === sector ? 'active' : ''}`}
@@ -307,7 +309,7 @@ const ProjectsPage = () => {
                           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', position: 'absolute', bottom: '2px', width: '100%', fontSize: '9px', color: '#94a3b8' }}>
                             <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#10b981', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> منفذة</span>
                             <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#f59e0b', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> قيد التنفيذ</span>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#3b82f6', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> مخططة</span>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: ' #3b82f6', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> مخططة</span>
                           </div>
                         </div>
                     </div>
