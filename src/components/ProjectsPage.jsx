@@ -36,9 +36,9 @@ const ProjectsPage = () => {
     }, []);
 
     // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province || p.المحافظة).filter(Boolean))];
 
-    // تصفية المشاريع بطريقة مستقلة (فلتر مستقل لكل حقل)
+    // تصفية المشاريع بطريقة مستقلة ودقيقة مطابقة لقاعدة البيانات
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
@@ -46,55 +46,46 @@ const ProjectsPage = () => {
             const matchesSearch = 
                 (proj.title && proj.title.toLowerCase().includes(query)) ||
                 (proj.description && proj.description.toLowerCase().includes(query)) ||
-                (proj.official_name && proj.official_name.toLowerCase().includes(query));
+                (proj.official_name && proj.official_name.toLowerCase().includes(query)) ||
+                (proj.اسم_المشروع_المعتمد && proj.اسم_المشروع_المعتمد.toLowerCase().includes(query));
             if (!matchesSearch) return false;
         }
 
-        // 2. فلتر المركز الإداري / المنطقة
+        // 2. فلتر المركز الإداري / المنطقة / المحافظة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = proj.location || proj.province || proj.hub_center;
+            const locValue = proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني;
             if (locValue !== selectedAdministrativeArea) return false;
         }
 
-        // 3. فلتر البرنامج (الرئيسي أو الموسمي) - يعمل بشكل مستقل تماماً
-        const isMainProgActive = selectedMainProgram !== 'الكل';
-        const isSeasonProgActive = selectedSeasonalProgram !== 'الكل';
-
-        if (isMainProgActive || isSeasonProgActive) {
-            let matchesProgram = false;
+        // 3. فلتر البرنامج الرئيسي - يعمل بشكل مستقل تماماً
+        if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram;
-            const targetSeason = selectedSeasonalProgram;
-
-            // التحقق من البرنامج الرئيسي إن وجد
-            if (isMainProgActive) {
-                const matchesMain = 
-                    proj.program_id === targetMain || 
-                    proj.main_program === targetMain ||
-                    (proj.program && (proj.program.name === targetMain || proj.program.title === targetMain)) ||
-                    (proj.program_name && proj.program_name.trim() === targetMain.trim()) ||
-                    (proj.title && proj.title.includes(targetMain));
-                if (matchesMain) matchesProgram = true;
-            }
-
-            // التحقق من البرنامج الموسمي / التصنيف إن وجد
-            if (isSeasonProgActive) {
-                const matchesSeason = 
-                    proj.seasonal_category === targetSeason ||
-                    proj.program_id === targetSeason ||
-                    proj.category === targetSeason ||
-                    proj.classification === targetSeason ||
-                    (proj.program && (proj.program.name === targetSeason || proj.program.title === targetSeason)) ||
-                    (proj.program_name && proj.program_name.trim() === targetSeason.trim()) ||
-                    (proj.title && proj.title.includes(targetSeason));
-                if (matchesSeason) matchesProgram = true;
-            }
-
-            if (!matchesProgram) return false;
+            const projMain = proj.main_program || proj.البرنامج_الرئيسي || proj.program_id;
+            const matchesMain = 
+                projMain === targetMain ||
+                (proj.program && (proj.program.name === targetMain || proj.program.title === targetMain)) ||
+                (proj.title && proj.title.includes(targetMain));
+            
+            if (!matchesMain) return false;
         }
 
-        // 4. فلتر القطاع / التصنيف - يعمل بشكل مستقل تماماً
+        // 4. فلتر التصنيف الموسمي أو العام والتنموي (مطابق لعمود تصنيف_المشروع_الموسمي في قاعدة البيانات)
+        if (selectedSeasonalProgram !== 'الكل') {
+            const targetSeason = selectedSeasonalProgram;
+            const projSeason = proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || proj.classification;
+            
+            const matchesSeason = 
+                projSeason === targetSeason ||
+                (projSeason && projSeason.trim() === targetSeason.trim()) ||
+                proj.program_id === targetSeason ||
+                (proj.title && proj.title.includes(targetSeason));
+
+            if (!matchesSeason) return false;
+        }
+
+        // 5. فلتر القطاع التنموي - يعمل بشكل مستقل تماماً
         if (selectedSector !== 'الكل') {
-            const projectSector = proj.sector || proj.category || proj.classification || '';
+            const projectSector = proj.sector || proj.القطاع_التنموي || proj.category || proj.classification || '';
             const matchesSector = 
                 projectSector.trim() === selectedSector.trim() ||
                 projectSector.toLowerCase().includes(selectedSector.toLowerCase()) ||
@@ -110,7 +101,7 @@ const ProjectsPage = () => {
     // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = (proj.location || proj.province || proj.hub_center) ? (proj.location || proj.province || proj.hub_center).trim() : 'أخرى';
+        const loc = (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني) ? (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني).trim() : 'أخرى';
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -122,8 +113,9 @@ const ProjectsPage = () => {
         }
         governoratesMap[loc].projects.push(proj);
 
-        if (proj.status === 'منفذة' || proj.status === 'مكتمل') governoratesMap[loc].completedCount++;
-        else if (proj.status === 'قيد التنفيذ' || proj.status === 'جديد') governoratesMap[loc].inProgressCount++;
+        const statusVal = proj.status || proj.حالة_المشروع || '';
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز')) governoratesMap[loc].completedCount++;
+        else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد')) governoratesMap[loc].inProgressCount++;
         else governoratesMap[loc].plannedCount++;
     });
 
@@ -135,8 +127,14 @@ const ProjectsPage = () => {
     const currentGovData = selectedGovName ? governoratesMap[selectedGovName] : null;
 
     // إحصائيات الرسم البياني الدائري
-    const completedTotal = filteredProjects.filter(p => p.status === 'منفذة' || p.status === 'مكتمل').length;
-    const inProgressTotal = filteredProjects.filter(p => p.status === 'قيد التنفيذ' || p.status === 'جديد').length;
+    const completedTotal = filteredProjects.filter(p => {
+        const s = p.status || p.حالة_المشروع || '';
+        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز');
+    }).length;
+    const inProgressTotal = filteredProjects.filter(p => {
+        const s = p.status || p.حالة_المشروع || '';
+        return s.includes('قيد التنفيذ') || s.includes('جديد');
+    }).length;
     const plannedTotal = filteredProjects.length - (completedTotal + inProgressTotal);
 
     const chartData = [
@@ -205,10 +203,10 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية والتصنيفات */}
+                    {/* المشاريع الموسمية والتصنيفات العامة والتنموية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر', 'مشاريع عامة وتنموية'].map(season => (
+                        {['الكل', 'مشاريع عامة وتنموية', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
@@ -343,13 +341,13 @@ const ProjectsPage = () => {
 
                         <h4 className="hac-sub-title">جميع المشاريع التابعة للمنطقة:</h4>
                         <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                            {currentGovData.projects.map((proj) => (
-                                <div key={proj.id} className="hac-proj-row-item">
+                            {currentGovData.projects.map((proj, idx) => (
+                                <div key={proj.id || idx} className="hac-proj-row-item">
                                     <div className="hac-proj-info-group">
-                                        <h5>{proj.title}</h5>
-                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description}</p>
+                                        <h5>{proj.title || proj.اسم_المشروع_المعتمد}</h5>
+                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description || proj.القطاع_التنموي}</p>
                                         <span className="hac-status-badge in-progress" style={{ marginTop: '5px', display: 'inline-block' }}>
-                                            {proj.status}
+                                            {proj.status || proj.حالة_المشروع}
                                         </span>
                                     </div>
                                     <button className="hac-detail-open-btn" onClick={() => setSelectedProject(proj)}>
@@ -370,29 +368,29 @@ const ProjectsPage = () => {
                         <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
                         
                         <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
-                            <h2>{selectedProject.title}</h2>
+                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id || selectedProject.رمز_التنفيذ_Implementation_ID})</span>
+                            <h2>{selectedProject.title || selectedProject.اسم_المشروع_المعتمد}</h2>
                         </div>
 
                         <div className="deep-modal-content">
                             <div className="deep-info-block">
-                                <strong style={{ color: '#fff' }}>وصف المشروع:</strong>
-                                <p>{selectedProject.description}</p>
+                                <strong style={{ color: '#fff' }}>وصف المشروع / القطاع:</strong>
+                                <p>{selectedProject.description || selectedProject.القطاع_التنموي}</p>
                             </div>
 
                             <div className="deep-info-block" style={{ marginTop: '10px' }}>
-                                <strong style={{ color: '#fff' }}>التفاصيل الكاملة (full_details):</strong>
-                                <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
+                                <strong style={{ color: '#fff' }}>التفاصيل الكاملة:</strong>
+                                <p>{selectedProject.full_details || selectedProject.ملاحظات_وضبط_الجودة || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
                             </div>
 
                             <div className="deep-info-grid" style={{ marginTop: '15px' }}>
                                 <div className="deep-box">
                                     <span className="deep-label">الحالة:</span>
-                                    <span className="deep-val">{selectedProject.status}</span>
+                                    <span className="deep-val">{selectedProject.status || selectedProject.حالة_المشروع}</span>
                                 </div>
                                 <div className="deep-box">
                                     <span className="deep-label">الموقع:</span>
-                                    <span className="deep-val">{selectedProject.location || selectedProject.province}</span>
+                                    <span className="deep-val">{selectedProject.location || selectedProject.province || selectedProject.المحافظة}</span>
                                 </div>
                             </div>
                         </div>
