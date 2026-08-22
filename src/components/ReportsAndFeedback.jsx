@@ -16,32 +16,7 @@ const ReportsAndFeedback = () => {
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
   // دالة لجلب الموقع الجغرافي تلقائياً عبر GPS المتصفح
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      alert('متصفحك لا يدعم خاصية تحديد الموقع الجغرافي GPS');
-      return;
-    }
-
-    setFormData(prev => ({ ...prev, locationStatus: 'جاري تحديد الموقع بدقة...' }));
-    
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData(prev => ({
-          ...prev,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          locationStatus: `تم تحديد الموقع بنجاح (خط العرض: ${position.coords.latitude.toFixed(4)}, خط الطول: ${position.coords.longitude.toFixed(4)})`
-        }));
-      },
-      (error) => {
-        setFormData(prev => ({ ...prev, locationStatus: 'فشل تحديد الموقع. يرجى السماح للمتصفح بالوصول لموقعك.' }));
-        alert('تعذر جلب الموقع. تأكد من تفعيل الـ GPS والسماح للمتصفح بالوصول للموقع.');
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  };
-
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.latitude || !formData.longitude) {
       alert('⚠️ عذراً، إرفاق وتحديد الموقع الجغرافي (GPS) إلزامي لإرسال البلاغ أو الملاحظة بنجاح.');
@@ -49,11 +24,37 @@ const ReportsAndFeedback = () => {
     }
 
     setIsSubmitting(true);
-    // محاكاة إرسال البيانات للسيرفر
-    setTimeout(() => {
+
+    try {
+      // جلب رابط السيرفر الأساسي (نفس الطريقة المستخدمة في بقية المشروع لديك)
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://humanitarian-cell-frontend.onrender.com';
+
+      const response = await fetch(`${baseUrl}/api/field-reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: formData.type,
+          full_name: formData.fullName,
+          phone: formData.phone,
+          message: formData.message,
+          latitude: formData.latitude,
+          longitude: formData.longitude
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('حدث خطأ أثناء إرسال البلاغ إلى الخادم.');
+      }
+
       setIsSubmitting(false);
       setSubmittedSuccess(true);
-    }, 1500);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert('حدث خطأ في الاتصال بالسيرفر. يرجى المحاولة مرة أخرى لاحقاً.');
+      setIsSubmitting(false);
+    }
   };
 
   return (

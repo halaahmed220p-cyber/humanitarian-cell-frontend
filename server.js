@@ -376,6 +376,48 @@ app.get('/api/partners/:id/reports', async (req, res) => {
   }
 });
 
+// ==========================================
+// 5.1 مسار إضافة بلاغ أو رأي جديد (Field Reports)
+// ==========================================
+app.post('/api/field-reports', async (req, res) => {
+  const { type, full_name, phone, message, latitude, longitude } = req.body;
+
+  // التحقق من أن جميع البيانات المطلوبة موجودة
+  if (!full_name || !phone || !message || latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: 'جميع الحقول وتحديد الموقع الجغرافي إلزامية' });
+  }
+
+  try {
+    const queryText = `
+      INSERT INTO field_reports (type, full_name, phone, message, latitude, longitude) 
+      VALUES ($1, $2, $3, $4, $5, $6) 
+      RETURNING *;
+    `;
+    const values = [type || 'بلاغ طارئ', full_name, phone, message, latitude, longitude];
+    
+    const result = await pool.query(queryText, values);
+    
+    res.status(201).json({
+      message: 'تم استلام بلاغكم بنجاح، شكراً لتعاونكم.',
+      report: result.rows[0]
+    });
+  } catch (err) {
+    console.error("خطأ في حفظ البلاغ في field_reports:", err);
+    res.status(500).json({ error: 'حدث خطأ في الخادم أثناء حفظ البلاغ، يرجى المحاولة لاحقاً.' });
+  }
+});
+
+// مسار لجلب البلاغات (لإدارة لوحة التحكم مستقبلاً)
+app.get('/api/field-reports', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM field_reports ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error("خطأ في جلب البلاغات:", err);
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // مسار تسجيل دخول الشركاء والمانحين
 app.post('/api/partners/login', async (req, res) => {
   const { username, password } = req.body;
