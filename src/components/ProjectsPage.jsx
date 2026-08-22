@@ -38,7 +38,7 @@ const ProjectsPage = () => {
     // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بناءً على الأعمدة الصحيحة في قاعدة البيانات ومنع تضارب الفلاتر
+    // تصفية المشاريع مع مطعمات مرنة للقطاعات والبرامج
     const filteredProjects = projectsList.filter(proj => {
         const matchesSearch = searchTerm === '' || 
             (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -54,14 +54,19 @@ const ProjectsPage = () => {
             proj.program_id === selectedSeasonalProgram ||
             (proj.is_seasonal === true && proj.seasonal_category === selectedSeasonalProgram);
 
-        // مطابقة القطاع (إذا وجد حقل sector)
-        const matchesSector = selectedSector === 'الكل' || proj.sector === selectedSector;
+        // مطابقة القطاع (تدعم عدة احتمالات لأسماء الحقول أو البحث النصي الداخلي لضمان عدم فشل الفلتر)
+        const matchesSector = selectedSector === 'الكل' || 
+            proj.sector === selectedSector ||
+            proj.category === selectedSector ||
+            (proj.sector && proj.sector.toLowerCase().includes(selectedSector.toLowerCase())) ||
+            (proj.description && proj.description.toLowerCase().includes(selectedSector.toLowerCase())) ||
+            (proj.title && proj.title.toLowerCase().includes(selectedSector.toLowerCase()));
 
         // مطابقة المركز الإداري/الموقع (يدعم province, location, hub_center)
         const locValue = proj.location || proj.province || proj.hub_center;
         const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
 
-        // تطبيق الفلترة مع مراعاة اختيار المستخدم (رئيسي أو موسمي)
+        // تطبيق منطق الفلترة المتبادل
         if (selectedSeasonalProgram !== 'الكل') {
             return matchesSearch && matchesSeasonal && matchesSector && matchesAdmin;
         }
@@ -166,7 +171,7 @@ const ProjectsPage = () => {
                                 className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
                                 onClick={() => {
                                     setSelectedMainProgram(prog);
-                                    if (prog !== 'الكل') setSelectedSeasonalProgram('الكل'); // تصفير الموسمي لمنع التعارض
+                                    if (prog !== 'الكل') setSelectedSeasonalProgram('الكل');
                                 }}
                             >
                                 {prog}
@@ -183,7 +188,7 @@ const ProjectsPage = () => {
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
                                 onClick={() => {
                                     setSelectedSeasonalProgram(season);
-                                    if (season !== 'الكل') setSelectedMainProgram('الكل'); // تصفير الرئيسي لمنع التعارض
+                                    if (season !== 'الكل') setSelectedMainProgram('الكل');
                                 }}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
