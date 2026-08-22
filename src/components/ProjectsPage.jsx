@@ -7,11 +7,18 @@ const ProjectsPage = () => {
     const [projectsList, setProjectsList] = useState([]);
     const [loading, setLoading] = useState(true);
     
+    // حالات الفلترة والبحث
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedMainProgram, setSelectedMainProgram] = useState('الكل');
+    const [selectedSeasonalProgram, setSelectedSeasonalProgram] = useState('الكل');
+    const [selectedSector, setSelectedSector] = useState('الكل');
+    const [selectedAdministrativeArea, setSelectedAdministrativeArea] = useState('عرض كلي');
+
     const [selectedGovName, setSelectedGovName] = useState(null);
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع من السيرفر الخاص بك المرتبط بقاعدة البيانات
+    // جلب المشاريع من السيرفر المرتبط بقاعدة البيانات
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -28,9 +35,29 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // تجميع المشاريع حسب عمود location القادم من قاعدة البيانات ديناميكياً
+    // استخراج القوائم ديناميكياً من البيانات القادمة من قاعدة البيانات (بدون قيم ثابتة)
+    const uniqueMainPrograms = ['الكل', ...new Set(projectsList.map(p => p.main_program).filter(Boolean))];
+    const uniqueSeasonalPrograms = ['الكل', ...new Set(projectsList.map(p => p.seasonal_program).filter(Boolean))];
+    const uniqueSectors = ['الكل', ...new Set(projectsList.map(p => p.sector).filter(Boolean))];
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location).filter(Boolean))];
+
+    // تصفية المشاريع بناءً على الفلاتر وحقول البحث
+    const filteredProjects = projectsList.filter(proj => {
+        const matchesSearch = searchTerm === '' || 
+            (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        const matchesMainProgram = selectedMainProgram === 'الكل' || proj.main_program === selectedMainProgram;
+        const matchesSeasonal = selectedSeasonalProgram === 'الكل' || proj.seasonal_program === selectedSeasonalProgram;
+        const matchesSector = selectedSector === 'الكل' || proj.sector === selectedSector;
+        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || proj.location === selectedAdministrativeArea;
+
+        return matchesSearch && matchesMainProgram && matchesSeasonal && matchesSector && matchesAdmin;
+    });
+
+    // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
-    projectsList.forEach(proj => {
+    filteredProjects.forEach(proj => {
         const loc = proj.location ? proj.location.trim() : 'أخرى';
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
@@ -55,10 +82,10 @@ const ProjectsPage = () => {
 
     const currentGovData = selectedGovName ? governoratesMap[selectedGovName] : null;
 
-    // إحصائيات الرسم البياني الدائري العام
-    const completedTotal = projectsList.filter(p => p.status === 'منفذة' || p.status === 'مكتمل').length;
-    const inProgressTotal = projectsList.filter(p => p.status === 'قيد التنفيذ' || p.status === 'جديد').length;
-    const plannedTotal = projectsList.length - (completedTotal + inProgressTotal);
+    // إحصائيات الرسم البياني الدائري
+    const completedTotal = filteredProjects.filter(p => p.status === 'منفذة' || p.status === 'مكتمل').length;
+    const inProgressTotal = filteredProjects.filter(p => p.status === 'قيد التنفيذ' || p.status === 'جديد').length;
+    const plannedTotal = filteredProjects.length - (completedTotal + inProgressTotal);
 
     const chartData = [
         { name: 'منفذة', value: completedTotal > 0 ? completedTotal : 1, color: '#10b981' },
@@ -72,7 +99,7 @@ const ProjectsPage = () => {
             <div className="hac-projects-top-bar">
                 <div className="top-bar-card">
                     <span className="top-num">{Object.keys(governoratesMap).length}</span>
-                    <span className="top-label">المحافظات</span>
+                    <span className="top-label">المناطق / المحافظات</span>
                 </div>
                 <div className="top-bar-card">
                     <span className="top-num">58%</span>
@@ -83,7 +110,7 @@ const ProjectsPage = () => {
                     <span className="top-label">الميزانية (مليون)</span>
                 </div>
                 <div className="top-bar-card">
-                    <span className="top-num">{projectsList.length}</span>
+                    <span className="top-num">{filteredProjects.length}</span>
                     <span className="top-label">إجمالي المشاريع</span>
                 </div>
             </div>
@@ -94,30 +121,89 @@ const ProjectsPage = () => {
                         <MapComponent governorateData={governoratesMap} onSelectGovernorate={handleSelectGovernorate} />
                     </div>
                     <div className="hac-dash-map-footer">
-                        اضغط على أي محافظة لعرض مشاريعها من قاعدة البيانات | تكبير/تصغير باستخدام عجلة الفأرة
+                        اضغط على أي منطقة لعرض مشاريعها من قاعدة البيانات | تكبير/تصغير باستخدام عجلة الفأرة
                     </div>
                 </section>
 
-                <aside className="hac-dash-sidebar">
+                <aside className="hac-dash-sidebar" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                   <div className="hac-dash-panel">
-                    <h3 className="panel-title">المحافظات</h3>
                     
-                    <div className="search-box">
-                        <input type="text" placeholder="البحث عن محافظة..." />
+                    {/* حقل البحث */}
+                    <div className="search-box" style={{ marginBottom: '15px' }}>
+                        <input 
+                            type="text" 
+                            placeholder="بحث باسم المشروع أو الوصف..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        />
                     </div>
 
-                    <div className="filter-buttons">
-                        <button className="filter-btn active">الكل</button>
-                        <button className="filter-btn">منفذة</button>
-                        <button className="filter-btn">قيد التنفيذ</button>
-                        <button className="filter-btn">مخططة</button>
+                    {/* البرامج الرئيسية (تُجلب ديناميكياً من قاعدة البيانات) */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية</h4>
+                    <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
+                        {uniqueMainPrograms.map(prog => (
+                            <button 
+                                key={prog} 
+                                className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
+                                onClick={() => setSelectedMainProgram(prog)}
+                            >
+                                {prog}
+                            </button>
+                        ))}
                     </div>
 
-                    <div className="gov-list-container">
+                    {/* المشاريع الموسمية (تُجلب ديناميكياً من قاعدة البيانات) */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية</h4>
+                    <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
+                        {uniqueSeasonalPrograms.map(season => (
+                            <button 
+                                key={season} 
+                                className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
+                                onClick={() => setSelectedSeasonalProgram(season)}
+                                style={{ fontSize: '11px', padding: '4px 8px' }}
+                            >
+                                {season}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* التصفية حسب المركز الإداري (تُجلب ديناميكياً) */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>التصفية حسب المركز الإداري</h4>
+                    <div style={{ marginBottom: '15px' }}>
+                        <select 
+                            value={selectedAdministrativeArea} 
+                            onChange={(e) => setSelectedAdministrativeArea(e.target.value)}
+                            style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        >
+                            {uniqueLocations.map(loc => (
+                                <option key={loc} value={loc}>{loc === 'عرض كلي' ? 'جميع المناطق والمراكز الإدارية (عرض كلي)' : loc}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* القطاعات التنموية (تُجلب ديناميكياً من قاعدة البيانات) */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
+                    <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
+                        {uniqueSectors.map(sector => (
+                            <button 
+                                key={sector} 
+                                className={`filter-btn ${selectedSector === sector ? 'active' : ''}`}
+                                onClick={() => setSelectedSector(sector)}
+                                style={{ fontSize: '11px', padding: '4px 8px' }}
+                            >
+                                {sector}
+                            </button>
+                        ))}
+                    </div>
+
+                    <h3 className="panel-title" style={{ marginTop: '15px' }}>نتائج المشاريع بحسب المناطق ({filteredProjects.length} مشروع)</h3>
+                    
+                    <div className="gov-list-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         {loading ? (
                             <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل...</p>
                         ) : Object.keys(governoratesMap).length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>لا توجد بيانات متاحة</p>
+                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>لا توجد بيانات مطابقة</p>
                         ) : (
                             Object.keys(governoratesMap).map((locKey) => {
                                 const gov = governoratesMap[locKey];
@@ -140,18 +226,18 @@ const ProjectsPage = () => {
                     </div>
 
                     {/* مؤشر الأداء العام */}
-                    <div className="hac-dash-performance-panel">
+                    <div className="hac-dash-performance-panel" style={{ marginTop: '20px', position: 'relative', height: '140px' }}>
                         <h3 className="performance-title">مؤشر الأداء العام</h3>
                         <div className="title-divider"></div>
 
-                        <div className="big-donut-chart">
+                        <div className="big-donut-chart" style={{ height: '90px' }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Pie
                                 data={chartData}
                                 cx="50%" cy="45%"
-                                innerRadius={40}
-                                outerRadius={65}
+                                innerRadius={35}
+                                outerRadius={55}
                                 paddingAngle={2}
                                 dataKey="value"
                                 activeShape={false} 
@@ -165,26 +251,27 @@ const ProjectsPage = () => {
                             </PieChart>
                           </ResponsiveContainer>
 
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', position: 'absolute', bottom: '10px', width: '100%', fontSize: '9px', color: '#94a3b8' }}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> منفذة</span>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#f59e0b', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> قيد التنفيذ</span>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#3b82f6', width: '8px', height: '8px', borderRadius: '2px', marginLeft: '4px' }}></i> مخططة</span>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', position: 'absolute', bottom: '2px', width: '100%', fontSize: '9px', color: '#94a3b8' }}>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#10b981', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> منفذة</span>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#f59e0b', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> قيد التنفيذ</span>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#3b82f6', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> مخططة</span>
                           </div>
                         </div>
                     </div>
+
                   </div>
                 </aside>
             </main>
 
-            {/* النافذة الأولى: عرض قائمة جميع مشاريع المحافظة المحددة */}
+            {/* نوافذ عرض التفاصيل (Modals) نفس الكود السابق */}
             {isGovModalOpen && currentGovData && (
                 <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
                     <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
                         
                         <div className="hac-modal-header">
-                            <span className="hac-modal-badge">مشاريع محافظة {currentGovData.name}</span>
-                            <h2>لوحة معلومات المحافظة</h2>
+                            <span className="hac-modal-badge">مشاريع منطقة {currentGovData.name}</span>
+                            <h2>لوحة معلومات المنطقة</h2>
                         </div>
 
                         <div className="hac-modal-stats">
@@ -202,7 +289,7 @@ const ProjectsPage = () => {
                             </div>
                         </div>
 
-                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمحافظة:</h4>
+                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمنطقة:</h4>
                         <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
                             {currentGovData.projects.map((proj) => (
                                 <div key={proj.id} className="hac-proj-row-item">
@@ -225,7 +312,6 @@ const ProjectsPage = () => {
                 </div>
             )}
 
-            {/* النافذة التبويبية العميقة لتفاصيل المشروع الفردي */}
             {selectedProject && (
                 <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
                     <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
