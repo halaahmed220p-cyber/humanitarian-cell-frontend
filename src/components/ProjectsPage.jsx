@@ -22,7 +22,7 @@ const ProjectsPage = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
+                const response =- await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const data = await response.json();
                 setProjectsList(data);
                 setLoading(false);
@@ -41,7 +41,7 @@ const ProjectsPage = () => {
         return loc.trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بمطابقة صارمة ودقيقة لكل حقل على حدة
+    // تصفية المشاريع مع دعم مطابقة القطاعات المرنة (خصوصاً الغذاء والمأوى)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
@@ -71,11 +71,23 @@ const ProjectsPage = () => {
             if (projSeason !== targetSeason) return false;
         }
 
-        // 5. فلتر القطاع التنموي (مطابقة تامة وصارمة لمنع تداخل القطاعات مثل التعليم والصحة والغذاء)
+        // 5. فلتر القطاع التنموي (مع معالجة ذكية ومخصصة لقطاع الغذاء والمأوى والقطاعات الأخرى)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projectSector = (proj.sector || proj.القطاع_التنموي || '').trim();
-            if (projectSector !== targetSector) return false;
+
+            if (targetSector === 'الغذاء والمأوى') {
+                // السماح بأي مشروع يحتوي على كلمة غذاء، مأوى، أو الغذاء والمأوى
+                const isFoodOrShelter = 
+                    projectSector.includes('الغذاء') || 
+                    projectSector.includes('المأوى') || 
+                    projectSector.includes('food') || 
+                    projectSector.includes('shelter');
+                if (!isFoodOrShelter) return false;
+            } else {
+                // للبقية مطابقة تامية أو جزئية واضحة
+                if (projectSector !== targetSector && !projectSector.includes(targetSector)) return false;
+            }
         }
 
         return true;
