@@ -15,10 +15,10 @@ import ProgramDetail from './components/ProgramDetail';
 import PartnersPortal from './components/PartnersPortal';
 import { programsData } from './data/programsData';
 import ScrollToTop from './components/ScrollToTop'; 
-import { Bot, Send, Paperclip, X } from 'lucide-react';
+import { Bot, Send, Paperclip, X, Sparkles } from 'lucide-react';
 import './App.css';
 
-// مكون المساعد الذكي العائم (أيقونة روبوت + نافذة منبثقة)
+// مكون المساعد الذكي العائم مع فقاعة ترحيبية نابضة
 function FloatingAIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
@@ -83,13 +83,13 @@ function FloatingAIChat() {
       {isOpen && (
         <div style={{
           position: 'absolute',
-          bottom: '70px',
+          bottom: '75px',
           left: '0',
           width: '360px',
           maxHeight: '520px',
           backgroundColor: '#fff',
           borderRadius: '16px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
           border: '1px solid #e2e8f0',
           display: 'flex',
           flexDirection: 'column',
@@ -164,33 +164,75 @@ function FloatingAIChat() {
         </div>
       )}
 
-      {/* زر الأيقونة العائمة */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          backgroundColor: '#10355c',
-          color: '#c9a84c',
-          border: '2px solid #c9a84c',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.2s ease',
-        }}
-        title="المساعد الذكي"
-      >
-        <Bot size={30} />
-      </button>
+      {/* حاوية الزر العائم مع فقاعة الترحيب النابضة */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        
+        {/* فقاعة النص الترحيبية التفاعلية */}
+        {!isOpen && (
+          <div 
+            onClick={() => setIsOpen(true)}
+            style={{
+              backgroundColor: '#10355c',
+              color: '#fff',
+              padding: '8px 14px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              cursor: 'pointer',
+              border: '1px solid #c9a84c',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              animation: 'bounce 2s infinite'
+            }}
+          >
+            <Sparkles size={15} color="#c9a84c" />
+            <span>اسأل المساعد الذكي 🤖</span>
+          </div>
+        )}
+
+        {/* زر الأيقونة العائمة */}
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: '#10355c',
+            color: '#c9a84c',
+            border: '2px solid #c9a84c',
+            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative'
+          }}
+          title="المساعد الذكي"
+        >
+          <Bot size={30} />
+          {/* نقطة تنبيه لامعة صغيرة */}
+          <span style={{
+            position: 'absolute',
+            top: '4px',
+            right: '4px',
+            width: '12px',
+            height: '12px',
+            backgroundColor: '#10b981',
+            borderRadius: '50%',
+            border: '2px solid #fff'
+          }}></span>
+        </button>
+
+      </div>
 
     </div>
   );
 }
 
-// مكون يجمع أقسام الصفحة الرئيسية (بدون قسم الشات الثابت)
+// مكون يجمع أقسام الصفحة الرئيسية
 function HomePage() {
   return (
     <>
@@ -222,7 +264,6 @@ function App() {
           </div>
         } />
       </Routes>
-      {/* إدراج أيقونة المساعد الذكي العائمة لتظهر في كافة صفحات الموقع تلقائياً */}
       <FloatingAIChat />
     </BrowserRouter>
   );
