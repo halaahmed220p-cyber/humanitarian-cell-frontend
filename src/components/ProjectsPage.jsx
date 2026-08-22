@@ -15,7 +15,6 @@ const ProjectsPage = () => {
     const [selectedAdministrativeArea, setSelectedAdministrativeArea] = useState('عرض كلي');
 
     const [selectedGovName, setSelectedGovName] = useState(null);
-    const [isGovModalOpen, setIsGovModalOpen] = useState(false);
 
     // جلب المشاريع من السيرفر
     useEffect(() => {
@@ -34,43 +33,43 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات/المناطق ديناميكياً بناءً على الحقول العربية
+    // استخراج المحافظات/المناطق ديناميكياً
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
-        const loc = p.المحافظة || p.المديرية_النطاق_الميداني || p.مركز_التجميع_الإداري_Hub || p.location || '';
+        const loc = p.المحافظة || p.governorate || p.المديرية_النطاق_الميداني || p.مركز_التجميع_الإداري_Hub || p.location || '';
         return loc.trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع (متوافقة تماماً مع أعمدة قاعدة البيانات العربية)
+    // تصفية المشاريع (بأمان تام ودعم للمفاتيح العربية والإنجليزية)
     const filteredProjects = projectsList.filter(proj => {
-        // 1. فلتر البحث النصي (اسم المشروع أو الملاحظات)
+        // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const title = (proj.اسم_المشروع_المعتمد || proj.title || '').toLowerCase();
+            const title = (proj.اسم_المشروع_المعتمد || proj.title || proj.name || '').toLowerCase();
             const desc = (proj.ملاحظات_وضبط_الجودة || proj.description || '').toLowerCase();
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = (proj.المحافظة || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || '').trim();
+            const locValue = (proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي (الاعتماد على الحقل العربي الصحيح)
+        // 3. فلتر البرنامج الرئيسي (يدعم العربي والانجليزي)
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
-            const projMain = (proj.البرنامج_الرئيسي || proj.main_program || '').trim();
-            if (projMain !== targetMain) return false;
+            const projMain = (proj.البرنامج_الرئيسي || proj.main_program || proj.program || '').trim();
+            if (projMain !== targetMain && !projMain.includes(targetMain)) return false;
         }
 
         // 4. فلتر التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
-            const projSeason = (proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || '').trim();
-            if (projSeason !== targetSeason) return false;
+            const projSeason = (proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || proj.season || '').trim();
+            if (projSeason !== targetSeason && !projSeason.includes(targetSeason)) return false;
         }
 
-        // 5. فلتر القطاع التنموي (مع الدعم الذكي لـ "الغذاء والمأوى")
+        // 5. فلتر القطاع التنموي (مع مرونة تامة لـ "الغذاء والمأوى")
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projectSector = (proj.القطاع_التنموي || proj.sector || '').trim();
@@ -93,7 +92,7 @@ const ProjectsPage = () => {
     // تجميع المشاريع حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = (proj.المحافظة || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || 'أخرى').trim();
+        const loc = (proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -117,6 +116,16 @@ const ProjectsPage = () => {
 
     const handleSelectGovernorate = (govName) => {
         setSelectedGovName(govName);
+    };
+
+    // إعادة ضبط جميع الفلاتر بضغطة زر
+    const handleResetFilters = () => {
+        setSearchTerm('');
+        setSelectedMainProgram('الكل');
+        setSelectedSeasonalProgram('الكل');
+        setSelectedSector('الكل');
+        setSelectedAdministrativeArea('عرض كلي');
+        setSelectedGovName(null);
     };
 
     // إحصائيات الرسم البياني الدائري
@@ -173,6 +182,17 @@ const ProjectsPage = () => {
                 <aside className="hac-dash-sidebar" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                   <div className="hac-dash-panel">
                     
+                    {/* زر مسح الفلاتر السريع */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>لوحة التحكم والفلترة</h4>
+                        <button 
+                            onClick={handleResetFilters}
+                            style={{ fontSize: '11px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '3px 8px', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                            إزالة كافة الفلاتر (عرض الكل)
+                        </button>
+                    </div>
+
                     {/* حقل البحث */}
                     <div className="search-box" style={{ marginBottom: '15px' }}>
                         <input 
@@ -198,7 +218,7 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية والتصنيفات العامة والتنموية */}
+                    {/* المشاريع الموسمية والتصنيفات */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'مشاريع عامة وتنموية', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
@@ -228,17 +248,7 @@ const ProjectsPage = () => {
                     </div>
 
                     {/* القطاعات التنموية */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>القطاعات التنموية</h4>
-                        {selectedSector !== 'الكل' && (
-                            <button 
-                                onClick={() => setSelectedSector('الكل')} 
-                                style={{ fontSize: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '3px', padding: '2px 6px', cursor: 'pointer' }}
-                            >
-                                إزالة التصفية
-                            </button>
-                        )}
-                    </div>
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ والطاقة الخضراء', 'البنية التحتية'].map(sector => (
                             <button 
@@ -258,7 +268,10 @@ const ProjectsPage = () => {
                         {loading ? (
                             <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل...</p>
                         ) : Object.keys(governoratesMap).length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>لا توجد بيانات مطابقة</p>
+                            <p style={{ textAlign: 'center', color: '#ef4444', padding: '20px', fontWeight: 'bold' }}>
+                                لا توجد بيانات مطابقة لهذه الفلاتر.<br/>
+                                <span style={{ fontSize: '11px', color: '#64748b' }}>اضغط على "إزالة كافة الفلاتر" أعلاه لإظهار كل المشاريع.</span>
+                            </p>
                         ) : (
                             Object.keys(governoratesMap).map((locKey) => {
                                 const gov = governoratesMap[locKey];
@@ -309,7 +322,7 @@ const ProjectsPage = () => {
                           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', position: 'absolute', bottom: '2px', width: '100%', fontSize: '9px', color: '#94a3b8' }}>
                             <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#10b981', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> منفذة</span>
                             <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#f59e0b', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> قيد التنفيذ</span>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: ' #3b82f6', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> مخططة</span>
+                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#3b82f6', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> مخططة</span>
                           </div>
                         </div>
                     </div>
@@ -320,5 +333,6 @@ const ProjectsPage = () => {
         </div>
     );
 };
+
 
 export default ProjectsPage;
