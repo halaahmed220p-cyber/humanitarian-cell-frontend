@@ -18,11 +18,11 @@ const ProjectsPage = () => {
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع من السيرفر
+    // جلب المشاريع من السيرفر بشكل صحيح
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response =- await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
+                const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const data = await response.json();
                 setProjectsList(data);
                 setLoading(false);
@@ -41,7 +41,7 @@ const ProjectsPage = () => {
         return loc.trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع مع دعم مطابقة القطاعات المرنة (خصوصاً الغذاء والمأوى)
+    // تصفية المشاريع مع دعم مطابقة القطاعات والبحث
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
@@ -71,13 +71,12 @@ const ProjectsPage = () => {
             if (projSeason !== targetSeason) return false;
         }
 
-        // 5. فلتر القطاع التنموي (مع معالجة ذكية ومخصصة لقطاع الغذاء والمأوى والقطاعات الأخرى)
+        // 5. فلتر القطاع التنموي
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projectSector = (proj.sector || proj.القطاع_التنموي || '').trim();
 
             if (targetSector === 'الغذاء والمأوى') {
-                // السماح بأي مشروع يحتوي على كلمة غذاء، مأوى، أو الغذاء والمأوى
                 const isFoodOrShelter = 
                     projectSector.includes('الغذاء') || 
                     projectSector.includes('المأوى') || 
@@ -85,7 +84,6 @@ const ProjectsPage = () => {
                     projectSector.includes('shelter');
                 if (!isFoodOrShelter) return false;
             } else {
-                // للبقية مطابقة تامية أو جزئية واضحة
                 if (projectSector !== targetSector && !projectSector.includes(targetSector)) return false;
             }
         }
