@@ -186,127 +186,127 @@ const HomePage = () => {
       </section>
 
       {/* ===== قسم المساعد الذكي (على شكل زر أيقونة روبوت يفتح نافذة شات) ===== */}
-     {/* ===== قسم المساعد الذكي (على شكل زر أيقونة روبوت يفتح نافذة شات) ===== */}
-<section style={{ padding: '40px 20px', background: '#f1f5f9', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
-  <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-    
-    {/* زر أيقونة الروبوت التفاعلي */}
-    <button
-      onClick={() => setIsChatOpen(!isChatOpen)}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '12px',
-        backgroundColor: '#fff',
-        border: '2px solid #c9a84c',
-        padding: '14px 28px',
-        borderRadius: '50px',
-        cursor: 'pointer',
-        boxShadow: '0 4px 15px rgba(201, 168, 76, 0.25)',
-        transition: 'all 0.3s ease'
-      }}
-    >
-      <span style={{
-        backgroundColor: '#c9a84c',
-        color: '#fff',
-        borderRadius: '50%',
-        width: '38px',
-        height: '38px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Bot size={22} />
-      </span>
-      <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#10355c' }}>
-        المساعد الذكي <span style={{ color: '#c9a84c' }}>للتلخيص وإرفاق التقارير</span>
-      </span>
-    </button>
-    <p style={{ color: '#64748b', fontSize: '13px', marginTop: '8px' }}>اضغط على أيقونة الروبوت لفتح نافذة المحادثة وتحليل التقارير فوراً</p>
-
-    {/* نافذة المحادثة المنبثقة (تظهر فقط عند النقر على الزر) */}
-    {isChatOpen && (
-      <div style={{
-        marginTop: '25px',
-        background: '#fff',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-        border: '1px solid #cbd5e1',
-        textAlign: 'right',
-        position: 'relative'
-      }}>
-        
-        {/* رأس النافذة مع زر الإغلاق */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Bot size={20} color="#c9a84c" />
-            <span style={{ fontWeight: 'bold', color: '#10355c', fontSize: '16px' }}>نافذة المحادثة الذكية</span>
-          </div>
-          <button 
-            onClick={() => setIsChatOpen(false)}
-            style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
+      <section style={{ padding: '40px 20px', background: '#f1f5f9', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          
+          {/* زر أيقونة الروبوت التفاعلي */}
+          <button
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            style={{
+              display: 'inline-flex',
+              alignItem: 'center',
+              gap: '12px',
+              backgroundColor: '#fff',
+              border: '2px solid #c9a84c',
+              padding: '14px 28px',
+              borderRadius: '50px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(201, 168, 76, 0.25)',
+              transition: 'all 0.3s ease'
+            }}
           >
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* صندوق الرسائل */}
-        <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '15px', height: '320px', overflowY: 'auto', border: '1px solid #e2e8f0', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {chatMessages.map((msg, index) => (
-            <div key={index} style={{
-              padding: '12px 16px',
-              borderRadius: '10px',
-              maxWidth: '85%',
-              alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              backgroundColor: msg.sender === 'user' ? '#10355c' : '#fff',
-              color: msg.sender === 'user' ? '#fff' : '#1e293b',
-              border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
-              fontSize: '14px',
-              lineHeight: '1.6',
-              whiteSpace: 'pre-wrap'
+            <span style={{
+              backgroundColor: '#c9a84c',
+              color: '#fff',
+              borderRadius: '50%',
+              width: '38px',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
-              {msg.text}
-            </div>
-          ))}
-          {isLoading && (
-            <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-start', backgroundColor: '#fff', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
-              ⏳ جاري قراءة الملف وتحليل محتواه بواسطة جيميناي بدقة...
+              <Bot size={22} />
+            </span>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#10355c' }}>
+              المساعد الذكي <span style={{ color: '#c9a84c' }}>للتلخيص وإرفاق التقارير</span>
+            </span>
+          </button>
+          <p style={{ color: '#64748b', fontSize: '13px', marginTop: '8px' }}>اضغط على أيقونة الروبوت لفتح نافذة المحادثة وتحليل التقارير فوراً</p>
+
+          {/* نافذة المحادثة المنبثقة (تظهر فقط عند النقر على الزر) */}
+          {isChatOpen && (
+            <div style={{
+              marginTop: '25px',
+              background: '#fff',
+              borderRadius: '16px',
+              padding: '20px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+              border: '1px solid #cbd5e1',
+              textAlign: 'right',
+              position: 'relative',
+              animation: 'fadeIn 0.3s ease'
+            }}>
+              
+              {/* رأس النافذة مع زر الإغلاق */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Bot size={20} color="#c9a84c" />
+                  <span style={{ fontWeight: 'bold', color: '#10355c', fontSize: '16px' }}>نافذة المحادثة الذكية</span>
+                </div>
+                <button 
+                  onClick={() => setIsChatOpen(false)}
+                  style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* صندوق الرسائل */}
+              <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '15px', height: '320px', overflowY: 'auto', border: '1px solid #e2e8f0', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {chatMessages.map((msg, index) => (
+                  <div key={index} style={{
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    maxWidth: '85%',
+                    alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                    backgroundColor: msg.sender === 'user' ? '#10355c' : '#fff',
+                    color: msg.sender === 'user' ? '#fff' : '#1e293b',
+                    border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {msg.text}
+                  </div>
+                ))}
+                {isLoading && (
+                  <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-start', backgroundColor: '#fff', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
+                    ⏳ جاري قراءة الملف وتحليل محتواه بواسطة جيميناي بدقة...
+                  </div>
+                )}
+              </div>
+
+              {/* نموذج إرسال الأسئلة وإرفاق الملفات */}
+              <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <label style={{ cursor: 'pointer', background: '#f8fafc', border: '1px solid #cbd5e1', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
+                  <Paperclip size={18} color="#64748b" />
+                  <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".xlsx,.xls,.pdf,.txt,.csv" />
+                </label>
+
+                <input 
+                  type="text" 
+                  value={userInput} 
+                  onChange={(e) => setUserInput(e.target.value)} 
+                  placeholder={selectedFile ? `ملف مرفق: ${selectedFile.name}` : "اكتب سؤالك أو اطلب تلخيص التقارير المرفقة..."} 
+                  style={{ flexGrow: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', background: '#fff' }}
+                />
+                
+                <button type="submit" disabled={isLoading} style={{ padding: '12px 20px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isLoading ? 0.7 : 1 }}>
+                  <Send size={16} /> إرسال
+                </button>
+              </form>
+
+              {selectedFile && (
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#047857', fontWeight: 'bold' }}>
+                  ✓ الملف جاهز للإرسال والتحليل: {selectedFile.name}
+                </div>
+              )}
+
             </div>
           )}
+
         </div>
-
-        {/* نموذج إرسال الأسئلة وإرفاق الملفات */}
-        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <label style={{ cursor: 'pointer', background: '#f8fafc', border: '1px solid #cbd5e1', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
-            <Paperclip size={18} color="#64748b" />
-            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".xlsx,.xls,.pdf,.txt,.csv" />
-          </label>
-
-          <input 
-            type="text" 
-            value={userInput} 
-            onChange={(e) => setUserInput(e.target.value)} 
-            placeholder={selectedFile ? `ملف مرفق: ${selectedFile.name}` : "اكتب سؤالك أو اطلب تلخيص التقارير المرفقة..."} 
-            style={{ flexGrow: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', background: '#fff' }}
-          />
-          
-          <button type="submit" disabled={isLoading} style={{ padding: '12px 20px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isLoading ? 0.7 : 1 }}>
-            <Send size={16} /> إرسال
-          </button>
-        </form>
-
-        {selectedFile && (
-          <div style={{ marginTop: '8px', fontSize: '12px', color: '#047857', fontWeight: 'bold' }}>
-            ✓ الملف جاهز للإرسال والتحليل: {selectedFile.name}
-          </div>
-        )}
-
-      </div>
-    )}
-
-  </div>
-</section>
+      </section>
 
     </div>
   );
