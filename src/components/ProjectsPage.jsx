@@ -36,61 +36,60 @@ const ProjectsPage = () => {
     }, []);
 
     // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province || p.المحافظة).filter(Boolean))];
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => (p.location || p.province || p.المحافظة || '').trim()).filter(Boolean))];
 
-    // تصفية المشاريع بطريقة مستقلة ودقيقة مطابقة لقاعدة البيانات
+    // تصفية المشاريع بطريقة مستقلة ودقيقة مطابقة تماماً لقاعدة البيانات
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const matchesSearch = 
-                (proj.title && proj.title.toLowerCase().includes(query)) ||
-                (proj.description && proj.description.toLowerCase().includes(query)) ||
-                (proj.official_name && proj.official_name.toLowerCase().includes(query)) ||
-                (proj.اسم_المشروع_المعتمد && proj.اسم_المشروع_المعتمد.toLowerCase().includes(query));
-            if (!matchesSearch) return false;
+            const title = (proj.title || proj.اسم_المشروع_المعتمد || '').toLowerCase();
+            const desc = (proj.description || '').toLowerCase();
+            const official = (proj.official_name || '').toLowerCase();
+            if (!title.includes(query) && !desc.includes(query) && !official.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة / المحافظة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني;
-            if (locValue !== selectedAdministrativeArea) return false;
+            const locValue = (proj.location || proj.province || proj.hub_center || proj.المحافظة || proj.المديرية_النطاق_الميداني || '').trim();
+            if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي - يعمل بشكل مستقل تماماً
+        // 3. فلتر البرنامج الرئيسي (يعمل بشكل مستقل)
         if (selectedMainProgram !== 'الكل') {
-            const targetMain = selectedMainProgram;
-            const projMain = proj.main_program || proj.البرنامج_الرئيسي || proj.program_id;
+            const targetMain = selectedMainProgram.trim();
+            const projMain = (proj.main_program || proj.البرنامج_الرئيسي || proj.program_id || '').trim();
+            const title = (proj.title || proj.اسم_المشروع_المعتمد || '');
+            
             const matchesMain = 
                 projMain === targetMain ||
-                (proj.program && (proj.program.name === targetMain || proj.program.title === targetMain)) ||
-                (proj.title && proj.title.includes(targetMain));
+                title.includes(targetMain);
             
             if (!matchesMain) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي أو العام والتنموي (مطابق لعمود تصنيف_المشروع_الموسمي في قاعدة البيانات)
+        // 4. فلتر التصنيف الموسمي أو العام والتنموي (يعمل بشكل مستقل)
         if (selectedSeasonalProgram !== 'الكل') {
-            const targetSeason = selectedSeasonalProgram;
-            const projSeason = proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || proj.classification;
+            const targetSeason = selectedSeasonalProgram.trim();
+            const projSeason = (proj.seasonal_category || proj.تصنيف_المشروع_الموسمي || proj.category || proj.classification || '').trim();
+            const title = (proj.title || proj.اسم_المشروع_المعتمد || '');
             
             const matchesSeason = 
                 projSeason === targetSeason ||
-                (projSeason && projSeason.trim() === targetSeason.trim()) ||
-                proj.program_id === targetSeason ||
-                (proj.title && proj.title.includes(targetSeason));
+                title.includes(targetSeason);
 
             if (!matchesSeason) return false;
         }
 
-        // 5. فلتر القطاع التنموي - يعمل بشكل مستقل تماماً
+        // 5. فلتر القطاع التنموي (معالجة دقيقة للمسافات والمطابقة)
         if (selectedSector !== 'الكل') {
-            const projectSector = proj.sector || proj.القطاع_التنموي || proj.category || proj.classification || '';
+            const targetSector = selectedSector.trim();
+            const projectSector = (proj.sector || proj.القطاع_التنموي || proj.category || proj.classification || '').trim();
+            
             const matchesSector = 
-                projectSector.trim() === selectedSector.trim() ||
-                projectSector.toLowerCase().includes(selectedSector.toLowerCase()) ||
-                (proj.description && proj.description.toLowerCase().includes(selectedSector.toLowerCase())) ||
-                (proj.title && proj.title.toLowerCase().includes(selectedSector.toLowerCase()));
+                projectSector === targetSector ||
+                projectSector.includes(targetSector) ||
+                targetSector.includes(projectSector);
 
             if (!matchesSector) return false;
         }
