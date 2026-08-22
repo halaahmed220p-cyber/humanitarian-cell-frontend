@@ -39,7 +39,7 @@ const ProjectsPage = () => {
         return loc.trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع (بأمان تام ودعم للمفاتيح العربية والإنجليزية)
+    // تصفية المشاريع الذكية (تتجاوز التعارض وتظهر النتائج بدقة)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
@@ -55,21 +55,21 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي (يدعم العربي والانجليزي)
+        // 3. فلتر البرنامج الرئيسي
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
             const projMain = (proj.البرنامج_الرئيسي || proj.main_program || proj.program || '').trim();
-            if (projMain !== targetMain && !projMain.includes(targetMain)) return false;
+            if (!projMain.includes(targetMain)) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي
+        // 4. فلتر التصنيف الموسمي (يعمل بمرونة إذا لم يتعارض مع البرنامج)
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
             const projSeason = (proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || proj.season || '').trim();
-            if (projSeason !== targetSeason && !projSeason.includes(targetSeason)) return false;
+            if (!projSeason.includes(targetSeason)) return false;
         }
 
-        // 5. فلتر القطاع التنموي (مع مرونة تامة لـ "الغذاء والمأوى")
+        // 5. فلتر القطاع التنموي
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projectSector = (proj.القطاع_التنموي || proj.sector || '').trim();
@@ -82,7 +82,7 @@ const ProjectsPage = () => {
                     projectSector.includes('shelter');
                 if (!isFoodOrShelter) return false;
             } else {
-                if (projectSector !== targetSector && !projectSector.includes(targetSector)) return false;
+                if (!projectSector.includes(targetSector)) return false;
             }
         }
 
@@ -187,7 +187,7 @@ const ProjectsPage = () => {
                         <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>لوحة التحكم والفلترة</h4>
                         <button 
                             onClick={handleResetFilters}
-                            style={{ fontSize: '11px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '3px 8px', cursor: 'pointer', fontWeight: 'bold' }}
+                            style={{ fontSize: '11px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontWeight: 'bold' }}
                         >
                             إزالة كافة الفلاتر (عرض الكل)
                         </button>
@@ -211,7 +211,10 @@ const ProjectsPage = () => {
                             <button 
                                 key={prog} 
                                 className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
-                                onClick={() => setSelectedMainProgram(prog)}
+                                onClick={() => {
+                                    setSelectedMainProgram(prog);
+                                    if (prog !== 'الكل') setSelectedSeasonalProgram('الكل'); // منع التعارض
+                                }}
                             >
                                 {prog}
                             </button>
@@ -225,7 +228,10 @@ const ProjectsPage = () => {
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
-                                onClick={() => setSelectedSeasonalProgram(season)}
+                                onClick={() => {
+                                    setSelectedSeasonalProgram(season);
+                                    if (season !== 'الكل') setSelectedMainProgram('الكل'); // منع التعارض
+                                }}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
                                 {season}
@@ -268,10 +274,17 @@ const ProjectsPage = () => {
                         {loading ? (
                             <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل...</p>
                         ) : Object.keys(governoratesMap).length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#ef4444', padding: '20px', fontWeight: 'bold' }}>
-                                لا توجد بيانات مطابقة لهذه الفلاتر.<br/>
-                                <span style={{ fontSize: '11px', color: '#64748b' }}>اضغط على "إزالة كافة الفلاتر" أعلاه لإظهار كل المشاريع.</span>
-                            </p>
+                            <div style={{ textAlign: 'center', padding: '15px' }}>
+                                <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
+                                    لا توجد بيانات مطابقة لتداخل الفلاتر الحالية.
+                                </p>
+                                <button 
+                                    onClick={handleResetFilters}
+                                    style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', padding: '5px 12px', cursor: 'pointer', fontSize: '11px' }}
+                                >
+                                    إعادة ضبط وعرض كافة المشاريع
+                                </button>
+                            </div>
                         ) : (
                             Object.keys(governoratesMap).map((locKey) => {
                                 const gov = governoratesMap[locKey];
@@ -333,6 +346,5 @@ const ProjectsPage = () => {
         </div>
     );
 };
-
 
 export default ProjectsPage;
