@@ -220,6 +220,27 @@
     outline: none;
 }
 
+/* تنسيق القائمة المنسدلة (Select) وخياراتها باللون الأسود */
+.hac-projects-page select {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #334155;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #000000 !important;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+.hac-projects-page select option {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 8px;
+}
+
 /* أزرار الفلترة الأربعة */
 .hac-projects-page .filter-buttons {
     display: flex;
@@ -606,8 +627,6 @@
 }
 
 /* حل نهائي لمشكلة الفراغ الأبيض أسفل الصفحة في الهواتف */
-
-
 @media (max-width: 900px) {
     .hac-projects-page {
         margin-top: 70px;
@@ -622,8 +641,7 @@
         gap: 15px;
     }
 
-    /* إلغاء أي ارتفاع اجباري أو هوامش سفلية تسبب الفراغ */
     .hac-projects-page .hac-dash-map-wrapper {
-        height: 350px; /* تقليص ارتفاع الخريطة قليلاً في الموبايل لتناسب الشاشة */
+        height: 350px;
     }
 }
