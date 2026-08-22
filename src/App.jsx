@@ -18,11 +18,31 @@ import ScrollToTop from './components/ScrollToTop';
 import { Bot, Send, Paperclip, X, Sparkles } from 'lucide-react';
 import './App.css';
 
-// مكون المساعد الذكي العائم مع فقاعة ترحيبية نابضة
+// مكون المساعد الذكي العائم مع وعي كامل بتفاصيل المنصة
 function FloatingAIChat() {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // معلومات وبيانات المنصة ليكون المساعد ملماً بكل شيء داخله
+  const platformContext = `
+معلومات أساسية عن المنصة (خلية الأعمال الإنسانية):
+- هي منظمة إنسانية غير ربحية تعمل في اليمن، تسعى لتعزيز العمل الإغاثي والتنموي بالتنسيق مع الجهات المعنية.
+- الشعار: نعمل من أجل إنسان يستحق الحياة الكريمة.
+- الأقسام والخدمات في الموقع:
+  1. الرئيسية: تعرض نبذة عن المنظمة، الإحصائيات (مثل أكثر من 50,000 مستفيد و120+ مشروع)، والمشاريع والأخبار العاجلة.
+  2. من نحن: التعريف برسالة الرؤية وأهداف المنظمة الإنسانية.
+  3. البرامج: البرامج الإنسانية والتنموية المختلفة التي تقدمها الخلية.
+  4. محفظة المشاريع: استعراض كافة المشاريع الإغاثية والتنموية المنفذة.
+  5. الأخبار والتقارير: آخر مستجدات وأخبار العمل الإنساني والتقارير الدورية.
+  6. تواصل معنا: قنوات الاتصال بالمنظمة.
+  7. بوابة الشركاء: مخصصة للشركاء والجهات الداعمة.
+  8. تبرع الآن: صفحة مخصصة للمساهمة ودعم المشاريع الخيرية والإنسانية.
+`;
+
   const [chatMessages, setChatMessages] = useState([
-    { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، يمكنك كتابة سؤالك أو إرفاق ملف/تقرير لتلخيصه فوراً.' }
+    { 
+      sender: 'bot', 
+      text: 'أهلاً بك! أنا المساعد الذكي لـ "خلية الأعمال الإنسانية". يمكنني إجابتك عن أي شيء يخص المنصة، مشاريعنا، أهدافنا، أو مساعدتك في تلخيص التقارير والمستندات المرفقة فوراً!' 
+    }
   ]);
   const [userInput, setUserInput] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -47,8 +67,16 @@ function FloatingAIChat() {
     setUserInput('');
     setIsLoading(true);
 
+    // دمج سؤال المستخدم مع معلومات المنصة لضمان إجابة دقيقة وشاملة
+    const enhancedMessage = `
+بناءً على معلومات المنصة التالية:
+${platformContext}
+
+سؤال المستخدم أو طلبه هو: "${messageText || 'قم بتحليل وتلخيص الملف المرفق مع مراعاة طبيعة عمل المنصة.'}"
+`;
+
     const formData = new FormData();
-    formData.append('message', messageText || "قم بتلخيص وتحليل هذا المستند أو الملف بدقة واحترافية.");
+    formData.append('message', enhancedMessage);
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
@@ -100,7 +128,7 @@ function FloatingAIChat() {
           <div style={{ backgroundColor: '#10355c', color: '#fff', padding: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Bot size={22} color="#c9a84c" />
-              <span style={{ fontWeight: 'bold', fontSize: '15px' }}>المساعد الذكي للتلخيص</span>
+              <span style={{ fontWeight: 'bold', fontSize: '15px' }}>مساعد خلية الأعمال الإنسانية</span>
             </div>
             <button 
               onClick={() => setIsOpen(false)}
@@ -131,7 +159,7 @@ function FloatingAIChat() {
             ))}
             {isLoading && (
               <div style={{ padding: '10px 14px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-end', backgroundColor: '#fff', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '13px', textAlign: 'right' }}>
-                ⏳ جاري قراءة الملف وتحليل محتواه...
+                ⏳ جاري تحليل الطلب والبحث في بيانات المنصة...
               </div>
             )}
           </div>
@@ -147,7 +175,7 @@ function FloatingAIChat() {
               type="text" 
               value={userInput} 
               onChange={(e) => setUserInput(e.target.value)} 
-              placeholder={selectedFile ? `ملف: ${selectedFile.name}` : "اكتب سؤالك هنا..."} 
+              placeholder={selectedFile ? `ملف: ${selectedFile.name}` : "اسأل عن المنصة أو المشاريع..."} 
               style={{ flexGrow: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', background: '#fff', textAlign: 'right' }}
             />
             
@@ -184,12 +212,11 @@ function FloatingAIChat() {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              whiteSpace: 'nowrap',
-              animation: 'bounce 2s infinite'
+              whiteSpace: 'nowrap'
             }}
           >
             <Sparkles size={15} color="#c9a84c" />
-            <span>اسأل المساعد الذكي 🤖</span>
+            <span>اسأل عن المنصة ومشاريعنا 🤖</span>
           </div>
         )}
 
@@ -210,10 +237,9 @@ function FloatingAIChat() {
             justifyContent: 'center',
             position: 'relative'
           }}
-          title="المساعد الذكي"
+          title="المساعد الذكي للمنصة"
         >
           <Bot size={30} />
-          {/* نقطة تنبيه لامعة صغيرة */}
           <span style={{
             position: 'absolute',
             top: '4px',
