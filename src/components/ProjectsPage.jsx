@@ -38,34 +38,45 @@ const ProjectsPage = () => {
     // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بناءً على الأعمدة الصحيحة في قاعدة البيانات
+    // تصفية المشاريع بناءً على الأعمدة الصحيحة في قاعدة البيانات ومنع تضارب الفلاتر
     const filteredProjects = projectsList.filter(proj => {
         const matchesSearch = searchTerm === '' || 
             (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase()));
+            (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (proj.official_name && proj.official_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
         // مطابقة البرنامج الرئيسي عبر العمود program_id
         const matchesMainProgram = selectedMainProgram === 'الكل' || proj.program_id === selectedMainProgram;
 
-        // مطابقة المشروع الموسمي عبر العمود seasonal_category أو حقل is_seasonal
+        // مطابقة المشروع الموسمي عبر العمود seasonal_category أو program_id أو is_seasonal
         const matchesSeasonal = selectedSeasonalProgram === 'الكل' || 
             proj.seasonal_category === selectedSeasonalProgram ||
-            (selectedSeasonalProgram !== 'الكل' && proj.is_seasonal === true);
+            proj.program_id === selectedSeasonalProgram ||
+            (proj.is_seasonal === true && proj.seasonal_category === selectedSeasonalProgram);
 
-        // مطابقة القطاع (إذا وجد حقل sector أو استخدام الوصف/الاسم)
+        // مطابقة القطاع (إذا وجد حقل sector)
         const matchesSector = selectedSector === 'الكل' || proj.sector === selectedSector;
 
-        // مطابقة المركز الإداري/الموقع
-        const locValue = proj.location || proj.province;
+        // مطابقة المركز الإداري/الموقع (يدعم province, location, hub_center)
+        const locValue = proj.location || proj.province || proj.hub_center;
         const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
 
-        return matchesSearch && matchesMainProgram && matchesSeasonal && matchesSector && matchesAdmin;
+        // تطبيق الفلترة مع مراعاة اختيار المستخدم (رئيسي أو موسمي)
+        if (selectedSeasonalProgram !== 'الكل') {
+            return matchesSearch && matchesSeasonal && matchesSector && matchesAdmin;
+        }
+        
+        if (selectedMainProgram !== 'الكل') {
+            return matchesSearch && matchesMainProgram && matchesSector && matchesAdmin;
+        }
+
+        return matchesSearch && matchesSector && matchesAdmin;
     });
 
     // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = (proj.location || proj.province) ? (proj.location || proj.province).trim() : 'أخرى';
+        const loc = (proj.location || proj.province || proj.hub_center) ? (proj.location || proj.province || proj.hub_center).trim() : 'أخرى';
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -146,28 +157,34 @@ const ProjectsPage = () => {
                         />
                     </div>
 
-                    {/* البرامج الرئيسية الأربعة (معتمدة على حقل program_id) */}
+                    {/* البرامج الرئيسية الأربعة */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية الأربعة</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'رافد', 'صرح', 'وسم', 'الحماية'].map(prog => (
                             <button 
                                 key={prog} 
                                 className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
-                                onClick={() => setSelectedMainProgram(prog)}
+                                onClick={() => {
+                                    setSelectedMainProgram(prog);
+                                    if (prog !== 'الكل') setSelectedSeasonalProgram('الكل'); // تصفير الموسمي لمنع التعارض
+                                }}
                             >
                                 {prog}
                             </button>
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية (معتمدة على حقل seasonal_category) */}
+                    {/* المشاريع الموسمية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         {['الكل', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
-                                onClick={() => setSelectedSeasonalProgram(season)}
+                                onClick={() => {
+                                    setSelectedSeasonalProgram(season);
+                                    if (season !== 'الكل') setSelectedMainProgram('الكل'); // تصفير الرئيسي لمنع التعارض
+                                }}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
                                 {season}
@@ -364,4 +381,4 @@ const ProjectsPage = () => {
     );
 };
 
-export  default ProjectsPage;
+export default ProjectsPage;
