@@ -38,7 +38,7 @@ const ProjectsPage = () => {
     // استخراج المحافظات/المناطق ديناميكياً من قاعدة البيانات
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بطريقة مستقلة (فلتر مستقل لكل حقل لضمان العمل عند اختيار فلترين أو أقل)
+    // تصفية المشاريع بطريقة مستقلة (فلتر مستقل لكل حقل)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
@@ -76,11 +76,13 @@ const ProjectsPage = () => {
                 if (matchesMain) matchesProgram = true;
             }
 
-            // التحقق من البرنامج الموسمي إن وجد
+            // التحقق من البرنامج الموسمي / التصنيف إن وجد
             if (isSeasonProgActive) {
                 const matchesSeason = 
                     proj.seasonal_category === targetSeason ||
                     proj.program_id === targetSeason ||
+                    proj.category === targetSeason ||
+                    proj.classification === targetSeason ||
                     (proj.program && (proj.program.name === targetSeason || proj.program.title === targetSeason)) ||
                     (proj.program_name && proj.program_name.trim() === targetSeason.trim()) ||
                     (proj.title && proj.title.includes(targetSeason));
@@ -203,10 +205,10 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية */}
-                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية</h4>
+                    {/* المشاريع الموسمية والتصنيفات */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
+                        {['الكل', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر', 'مشاريع عامة وتنموية'].map(season => (
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
@@ -407,4 +409,4 @@ const ProjectsPage = () => {
     );
 };
 
-export  default ProjectsPage;
+export default ProjectsPage;
