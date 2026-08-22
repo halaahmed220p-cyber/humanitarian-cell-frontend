@@ -15,11 +15,12 @@ import ProgramDetail from './components/ProgramDetail';
 import PartnersPortal from './components/PartnersPortal';
 import { programsData } from './data/programsData';
 import ScrollToTop from './components/ScrollToTop'; 
-import { Bot, Send, Paperclip } from 'lucide-react';
+import { Bot, Send, Paperclip, X } from 'lucide-react';
 import './App.css';
 
-// مكون الشات والتلخيص المدمج مع دعم إرسال ورفع الملفات
-function AIChatSection() {
+// مكون المساعد الذكي العائم (أيقونة روبوت + نافذة منبثقة)
+function FloatingAIChat() {
+  const [isOpen, setIsOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
     { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، يمكنك كتابة سؤالك أو إرفاق ملف/تقرير لتلخيصه فوراً.' }
   ]);
@@ -71,76 +72,125 @@ function AIChatSection() {
     } catch (err) {
       setSelectedFile(null);
       setIsLoading(false);
-      setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب. تأكدي من عمل سيرفر Render.' }]);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب.' }]);
     }
   };
 
   return (
-    <section style={{ padding: '60px 20px', background: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '24px', color: '#10355c', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-            <Bot className="w-6 h-6 text-[#c9a84c]" />
-            المساعد الذكي <span style={{ color: '#c9a84c' }}>للتلخيص وإرفاق التقارير</span>
-          </h3>
-          <p style={{ color: '#64748b', fontSize: '14px', marginTop: '5px' }}>قم برفع ملفات التقارير أو اكتب استفسارك لتلخيصها فوراً</p>
-        </div>
-
-        <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', height: '320px', overflowY: 'auto', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {chatMessages.map((msg, index) => (
-            <div key={index} style={{
-              padding: '12px 16px',
-              borderRadius: '10px',
-              maxWidth: '80%',
-              alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              backgroundColor: msg.sender === 'user' ? '#10355c' : '#f8fafc',
-              color: msg.sender === 'user' ? '#fff' : '#1e293b',
-              border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
-              fontSize: '14px',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {msg.text}
+    <div style={{ position: 'fixed', bottom: '25px', left: '25px', zIndex: 9999, fontFamily: 'Cairo, sans-serif' }} dir="rtl">
+      
+      {/* نافذة المحادثة المنبثقة */}
+      {isOpen && (
+        <div style={{
+          position: 'absolute',
+          bottom: '70px',
+          left: '0',
+          width: '360px',
+          maxHeight: '520px',
+          backgroundColor: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+          border: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          animation: 'fadeIn 0.3s ease'
+        }}>
+          {/* رأس النافذة */}
+          <div style={{ backgroundColor: '#10355c', color: '#fff', padding: '15px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Bot size={22} color="#c9a84c" />
+              <span style={{ fontWeight: 'bold', fontSize: '15px' }}>المساعد الذكي للتلخيص</span>
             </div>
-          ))}
-          {isLoading && (
-            <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '80%', alignSelf: 'flex-start', backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
-              ⏳ جاري قراءة الملف وتحليل محتواه بواسطة الذكاء الاصطناعي...
+            <button 
+              onClick={() => setIsOpen(false)}
+              style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* صندوق الرسائل */}
+          <div style={{ padding: '12px', height: '320px', overflowY: 'auto', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {chatMessages.map((msg, index) => (
+              <div key={index} style={{
+                padding: '10px 14px',
+                borderRadius: '10px',
+                maxWidth: '85%',
+                alignSelf: msg.sender === 'user' ? 'flex-start' : 'flex-end',
+                backgroundColor: msg.sender === 'user' ? '#10355c' : '#fff',
+                color: msg.sender === 'user' ? '#fff' : '#1e293b',
+                border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
+                fontSize: '13px',
+                lineHeight: '1.5',
+                whiteSpace: 'pre-wrap',
+                textAlign: 'right'
+              }}>
+                {msg.text}
+              </div>
+            ))}
+            {isLoading && (
+              <div style={{ padding: '10px 14px', borderRadius: '10px', maxWidth: '85%', alignSelf: 'flex-end', backgroundColor: '#fff', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '13px', textAlign: 'right' }}>
+                ⏳ جاري قراءة الملف وتحليل محتواه...
+              </div>
+            )}
+          </div>
+
+          {/* نموذج الإرسال */}
+          <form onSubmit={handleSendMessage} style={{ padding: '10px', backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <label style={{ cursor: 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
+              <Paperclip size={16} color="#64748b" />
+              <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" />
+            </label>
+
+            <input 
+              type="text" 
+              value={userInput} 
+              onChange={(e) => setUserInput(e.target.value)} 
+              placeholder={selectedFile ? `ملف: ${selectedFile.name}` : "اكتب سؤالك هنا..."} 
+              style={{ flexGrow: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '13px', background: '#fff', textAlign: 'right' }}
+            />
+            
+            <button type="submit" disabled={isLoading} style={{ padding: '8px 14px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Send size={14} />
+            </button>
+          </form>
+          
+          {selectedFile && (
+            <div style={{ padding: '4px 10px', fontSize: '11px', color: '#047857', backgroundColor: '#ecfdf5', textAlign: 'right', borderTop: '1px solid #d1fae5' }}>
+              ✓ الملف جاهز: {selectedFile.name}
             </div>
           )}
         </div>
+      )}
 
-        {/* نموذج الإرسال مع زر إرفاق الملفات */}
-        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <label style={{ cursor: 'pointer', background: '#fff', border: '1px solid #cbd5e1', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
-            <Paperclip size={18} color="#64748b" />
-            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" />
-          </label>
+      {/* زر الأيقونة العائمة */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          backgroundColor: '#10355c',
+          color: '#c9a84c',
+          border: '2px solid #c9a84c',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'transform 0.2s ease',
+        }}
+        title="المساعد الذكي"
+      >
+        <Bot size={30} />
+      </button>
 
-          <input 
-            type="text" 
-            value={userInput} 
-            onChange={(e) => setUserInput(e.target.value)} 
-            placeholder={selectedFile ? `ملف مرفق: ${selectedFile.name} (اكتب تعليقاً أو اضغط إرسال)` : "اكتب سؤالك أو اطلب تلخيص التقارير المرفقة..."} 
-            style={{ flexGrow: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', background: '#fff' }}
-          />
-          
-          <button type="submit" disabled={isLoading} style={{ padding: '12px 24px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isLoading ? 0.7 : 1 }}>
-            <Send size={16} /> إرسال
-          </button>
-        </form>
-        
-        {selectedFile && (
-          <div style={{ marginTop: '8px', fontSize: '12px', color: '#047857', fontWeight: 'bold' }}>
-            ✓ الملف جاهز للإرسال: {selectedFile.name}
-          </div>
-        )}
-      </div>
-    </section>
+    </div>
   );
 }
 
-// مكون يجمع أقسام الصفحة الرئيسية
+// مكون يجمع أقسام الصفحة الرئيسية (بدون قسم الشات الثابت)
 function HomePage() {
   return (
     <>
@@ -149,7 +199,6 @@ function HomePage() {
       <Stats />
       <Projects />
       <News />
-      <AIChatSection />
     </>
   );
 }
@@ -173,6 +222,8 @@ function App() {
           </div>
         } />
       </Routes>
+      {/* إدراج أيقونة المساعد الذكي العائمة لتظهر في كافة صفحات الموقع تلقائياً */}
+      <FloatingAIChat />
     </BrowserRouter>
   );
 }
