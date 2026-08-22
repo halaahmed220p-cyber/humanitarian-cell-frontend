@@ -12,20 +12,20 @@ import NewsPage from './components/NewsPage';
 import Donation from './components/Donation'; 
 import ProgramsPage from './components/ProgramsPage';
 import ProgramDetail from './components/ProgramDetail';
-import PartnersPortal from './components/PartnersPortal'; // تم استيراد بوابة الشركاء والمانحين
+import PartnersPortal from './components/PartnersPortal';
 import { programsData } from './data/programsData';
 import ScrollToTop from './components/ScrollToTop'; 
-import { Bot, Send } from 'lucide-react';
+import { Bot, Send, Paperclip } from 'lucide-react';
 import './App.css';
 
-// مكون الشات والتلخيص المدمج
 // مكون الشات والتلخيص المدمج مع دعم إرسال ورفع الملفات
 function AIChatSection() {
   const [chatMessages, setChatMessages] = useState([
     { sender: 'bot', text: 'أهلاً بك! أنا مساعد الذكاء الاصطناعي، يمكنك كتابة سؤالك أو إرفاق ملف/تقرير لتلخيصه فوراً.' }
   ]);
   const [userInput, setUserInput] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null); // حالة لحفظ الملف المرفق
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -44,35 +44,35 @@ function AIChatSection() {
       setChatMessages(prev => [...prev, { sender: 'user', text: messageText }]);
     }
     setUserInput('');
+    setIsLoading(true);
 
-    // تجهيز البيانات للإرسال (FormData لدعم الملفات والرسائل النصية معاً)
     const formData = new FormData();
-    formData.append('message', messageText);
+    formData.append('message', messageText || "قم بتلخيص وتحليل هذا المستند أو الملف بدقة واحترافية.");
     if (selectedFile) {
       formData.append('file', selectedFile);
     }
 
     try {
-      // ملاحظة: تأكدي أن مسار الـ API يدعم استقبال الـ FormData والملفات في الباك اند (Backend)
-      // اجعلي الطلب هكذا تماماً:
-const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
-  method: 'POST',
-  mode: 'cors', // ضروري جداً لتجنب مشاكل التصريح
-  body: formData 
-});
+      const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/ai-assistant', {
+        method: 'POST',
+        mode: 'cors',
+        body: formData 
+      });
       
       const data = await response.json();
-      setSelectedFile(null); // إعادة تعيين الملف بعد الإرسال
+      setSelectedFile(null);
+      setIsLoading(false);
 
-  if (data && data.response) {
+      if (data && data.response) {
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
       } else {
         setChatMessages(prev => [...prev, { sender: 'bot', text: data.error || 'عذراً، لم يتم العثور على حقل الرد في البيانات المسترجعة.' }]);
       }
     } catch (err) {
-  setSelectedFile(null);
-  setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب. تأكدي من عمل سيرفر Render.' }]);
-}
+      setSelectedFile(null);
+      setIsLoading(false);
+      setChatMessages(prev => [...prev, { sender: 'bot', text: '⚠️ حدث خطأ في الاتصال بالسيرفر أو أن رابط الـ Backend لا يستجيب. تأكدي من عمل سيرفر Render.' }]);
+    }
   };
 
   return (
@@ -86,31 +86,35 @@ const response = await fetch('https://humanitarian-cell-frontend.onrender.com/ap
           <p style={{ color: '#64748b', fontSize: '14px', marginTop: '5px' }}>قم برفع ملفات التقارير أو اكتب استفسارك لتلخيصها فوراً</p>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', height: '300px', overflowY: 'auto', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', height: '320px', overflowY: 'auto', border: '1px solid #cbd5e1', marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {chatMessages.map((msg, index) => (
             <div key={index} style={{
               padding: '12px 16px',
               borderRadius: '10px',
               maxWidth: '80%',
-              alignSelf: msg.sender === 'user' ? 'flex-start' : 'flex-end',
+              alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
               backgroundColor: msg.sender === 'user' ? '#10355c' : '#f8fafc',
               color: msg.sender === 'user' ? '#fff' : '#1e293b',
               border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
               fontSize: '14px',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              whiteSpace: 'pre-wrap'
             }}>
               {msg.text}
             </div>
           ))}
+          {isLoading && (
+            <div style={{ padding: '12px 16px', borderRadius: '10px', maxWidth: '80%', alignSelf: 'flex-start', backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '14px' }}>
+              ⏳ جاري قراءة الملف وتحليل محتواه بواسطة الذكاء الاصطناعي...
+            </div>
+          )}
         </div>
 
         {/* نموذج الإرسال مع زر إرفاق الملفات */}
         <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          
-          {/* زر إرفاق ملف المخفي الذي يتم تفعيله عبر أيقونة */}
           <label style={{ cursor: 'pointer', background: '#fff', border: '1px solid #cbd5e1', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="إرفاق تقرير أو ملف">
-            <span style={{ fontSize: '18px' }}>📎</span>
-            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.txt" />
+            <Paperclip size={18} color="#64748b" />
+            <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".xlsx,.xls,.pdf,.doc,.docx,.txt" />
           </label>
 
           <input 
@@ -121,10 +125,11 @@ const response = await fetch('https://humanitarian-cell-frontend.onrender.com/ap
             style={{ flexGrow: 1, padding: '12px 16px', borderRadius: '10px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', background: '#fff' }}
           />
           
-          <button type="submit" style={{ padding: '12px 24px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button type="submit" disabled={isLoading} style={{ padding: '12px 24px', backgroundColor: '#c9a84c', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: isLoading ? 0.7 : 1 }}>
             <Send size={16} /> إرسال
           </button>
         </form>
+        
         {selectedFile && (
           <div style={{ marginTop: '8px', fontSize: '12px', color: '#047857', fontWeight: 'bold' }}>
             ✓ الملف جاهز للإرسال: {selectedFile.name}
@@ -134,11 +139,6 @@ const response = await fetch('https://humanitarian-cell-frontend.onrender.com/ap
     </section>
   );
 }
-    
-  
-     
-
-   
 
 // مكون يجمع أقسام الصفحة الرئيسية
 function HomePage() {
@@ -149,7 +149,7 @@ function HomePage() {
       <Stats />
       <Projects />
       <News />
-      <AIChatSection /> {/* تم إضافة الشات هنا ليظهر بالصفحة الرئيسية */}
+      <AIChatSection />
     </>
   );
 }
@@ -162,7 +162,7 @@ function App() {
         <Route path="/" element={<><Header /><HomePage /><Footer /></>} />
         <Route path="/news" element={<><Header /><NewsPage /><Footer /></>} />
         <Route path="/donate" element={<><Header /><Donation /><Footer /></>} />
-<Route path="/partners" element={<><Header /><PartnersPortal /><Footer /></>} /> {/* تم إضافة مسار بوابة الشركاء */}
+        <Route path="/partners" element={<><Header /><PartnersPortal /><Footer /></>} />
         <Route path="/programs" element={<ProgramsPage />} />
         <Route path="/program/:programId" element={<ProgramDetail programs={programsData} />} />
         <Route path="/projects" element={
