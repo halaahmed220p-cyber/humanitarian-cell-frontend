@@ -38,7 +38,7 @@ const ProjectsPage = () => {
     // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
 
-    // تصفية المشاريع بمنطق ذكي ومرن (يمنع النتائج الصفرية عند تداخل الفلاتر)
+    // تصفية المشاريع بدقة متناهية تتوافق مع هيكلة جدول المشروع (الذي يحتوي على التصنيف) وجدول البرامج
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي (إن وجد)
         const matchesSearch = searchTerm === '' || 
@@ -46,7 +46,6 @@ const ProjectsPage = () => {
             (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (proj.official_name && proj.official_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        // إذا لم يتم مطابقة البحث، استبعد المشروع فوراً
         if (!matchesSearch) return false;
 
         // 2. التحقق من تطابق الموقع / المركز الإداري
@@ -54,59 +53,39 @@ const ProjectsPage = () => {
         const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
         if (!matchesAdmin) return false;
 
-        // التحقق مما إذا كان المستخدم قد قام بتفعيل أي فلتر من فلاتر التصنيف (برامج أو قطاعات)
-        const hasMainProgFilter = selectedMainProgram !== 'الكل';
-        const hasSeasonFilter = selectedSeasonalProgram !== 'الكل';
-        const hasSectorFilter = selectedSector !== 'الكل';
+        // 3. مطابقة البرنامج (الرئيسي أو الموسمي)
+        const hasMainProg = selectedMainProgram !== 'الكل';
+        const hasSeason = selectedSeasonalProgram !== 'الكل';
 
-        // إذا لم يقم المستخدم بتفعيل أي فلتر تصنفي، اعتبر المشروع مطابقاً مباشرة
-        if (!hasMainProgFilter && !hasSeasonFilter && !hasSectorFilter) {
-            return true;
+        if (hasMainProg || hasSeason) {
+            const targetProg = hasMainProg ? selectedMainProgram : selectedSeasonalProgram;
+            
+            const matchesProgram = 
+                proj.program_id === targetProg || 
+                proj.main_program === targetProg ||
+                proj.seasonal_category === targetProg ||
+                (proj.program && (proj.program.name === targetProg || proj.program.title === targetProg)) ||
+                (proj.program_name && proj.program_name.trim() === targetProg.trim()) ||
+                (proj.title && proj.title.includes(targetProg));
+
+            if (!matchesProgram) return false;
         }
 
-        // تقييم مطابقة الفلاتر الفردية
-        const matchesMainProgram = !hasMainProgFilter || 
-            proj.program_id === selectedMainProgram || 
-            (proj.main_program && proj.main_program === selectedMainProgram) ||
-            (proj.title && proj.title.includes(selectedMainProgram));
+        // 4. مطابقة التصنيف / القطاع (الموجود في نفس جدول المشروع مثل sector أو category)
+        const hasSector = selectedSector !== 'الكل';
+        if (hasSector) {
+            const projectSector = proj.sector || proj.category || proj.classification || '';
+            
+            const matchesSector = 
+                projectSector.trim() === selectedSector.trim() ||
+                projectSector.toLowerCase().includes(selectedSector.toLowerCase()) ||
+                (proj.description && proj.description.toLowerCase().includes(selectedSector.toLowerCase())) ||
+                (proj.title && proj.title.toLowerCase().includes(selectedSector.toLowerCase()));
 
-        const matchesSeasonal = !hasSeasonFilter || 
-            proj.seasonal_category === selectedSeasonalProgram ||
-            proj.program_id === selectedSeasonalProgram ||
-            (proj.is_seasonal === true && proj.seasonal_category === selectedSeasonalProgram) ||
-            (proj.title && proj.title.includes(selectedSeasonalProgram));
-
-        const matchesSector = !hasSectorFilter || 
-            proj.sector === selectedSector ||
-            proj.category === selectedSector ||
-            (proj.sector && proj.sector.toLowerCase().includes(selectedSector.toLowerCase())) ||
-            (proj.description && proj.description.toLowerCase().includes(selectedSector.toLowerCase())) ||
-            (proj.title && proj.title.toLowerCase().includes(selectedSector.toLowerCase()));
-
-        // المنطق المرن: إذا حدد المستخدم أكثر من فئة، نتحقق أن المشروع يلبي الفلاتر النشطة (أو يحقق تطابقاً جزئياً ذكياً لتفادي 0 مشروع)
-        let activeFiltersCount = 0;
-        let matchedFiltersCount = 0;
-
-        if (hasMainProgFilter) {
-            activeFiltersCount++;
-            if (matchesMainProgram) matchedFiltersCount++;
-        }
-        if (hasSeasonFilter) {
-            activeFiltersCount++;
-            if (matchesSeasonal) matchedFiltersCount++;
-        }
-        if (hasSectorFilter) {
-            activeFiltersCount++;
-            if (matchesSector) matchedFiltersCount++;
+            if (!matchesSector) return false;
         }
 
-        // إذا كان هناك فلتر واحد نشط، نكتفي بمطابقته. إذا كان هناك أكثر من فلتر، نسمح بالتطابق المرن (حتى لا يتم إخفاء النتائج بشكل خاطئ)
-        if (activeFiltersCount === 1) {
-            return matchedFiltersCount === 1;
-        } else {
-            // للتعدد، نطلب أن يحقق المشروع أغلب الفلاتر المحددة أو يطابق القطاع والبرنامج معاً
-            return (hasMainProgFilter ? matchesMainProgram : true) && (hasSeasonFilter ? matchesSeasonal : true) && (hasSectorFilter ? matchesSector : true);
-        }
+        return true;
     });
 
     // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
