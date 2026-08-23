@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// إصلاح مشكلة أيقونات Leaflet الافتراضية
+// إصلاح أيقونات Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const MapComponent = ({ governorateData, onSelectGovernorate }) => {
-    // إحداثيات دقيقة لمحافظات اليمن
+    // إحداثيات المحافظات بدقة
     const governorateCoords = {
         'صنعاء': { lat: 15.3694, lng: 44.1910 },
         'تعز': { lat: 13.5779, lng: 44.0219 },
@@ -35,31 +35,31 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
         'أخرى': { lat: 15.5527, lng: 48.5164 }
     };
 
-    // حدود جغرافية صارمة تحصر حركة الخريطة وتمركزها داخل حدود اليمن فقط
+    // حدود اليمن لضمان التركيز عليها فقط
     const yemenBounds = [
-        [12.0, 41.0], // الزاوية الجنوبية الغربية
-        [19.0, 54.0]  // الزاوية الشمالية الشرقية
+        [12.0, 41.0], 
+        [19.0, 55.0]  
     ];
 
     return (
         <MapContainer 
-            center={[15.5527, 48.5164]} // مركز خريطة اليمن
+            center={[15.5, 47.5]} 
             zoom={6} 
             minZoom={6}
-            maxZoom={12}
+            maxZoom={13}
             maxBounds={yemenBounds}
             maxBoundsViscosity={1.0}
             style={{ width: '100%', height: '100%', borderRadius: '8px', background: '#f8fafc' }}
             scrollWheelZoom={true}
         >
-            {/* استخدام طبقة خريطة تدعم الأسماء العربية بوضوح (Wikimedia أو OpenStreetMap عربي) */}
+            {/* استخدام طبقة خريطة تציד الأسماء بالعربية وتماثل تصميم الصورة الثانية */}
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"
-                maxZoom={19}
+                url="https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
+                maxZoom={18}
             />
 
-            {/* رسم نقاط التجمعات الزرقاء لمشاريع المحافظات */}
+            {/* رسم الدوائر الزرقاء للمشاريع على الخريطة */}
             {Object.keys(governorateData).map((key) => {
                 const gov = governorateData[key];
                 const coords = governorateCoords[gov.name.trim()] || { lat: 15.5, lng: 44.5 };
@@ -110,7 +110,7 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
                                         border: 'none',
                                         padding: '4px 8px',
                                         borderRadius: '4px',
-                                        cursor: 'pointer',
+                                           cursor: 'pointer',
                                         fontSize: '11px'
                                     }}
                                 >
