@@ -22,6 +22,7 @@ const ProjectsPage = () => {
             try {
                 const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const data = await response.json();
+                console.log('عينة بيانات المشاريع من السيرفر:', data[0]); // للمراقبة في المتصفح
                 setProjectsList(data);
                 setLoading(false);
             } catch (err) {
@@ -36,43 +37,43 @@ const ProjectsPage = () => {
     // استخراج المحافظات/المناطق ديناميكياً
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
         const loc = p.المحافظة || p.governorate || p.المديرية_النطاق_الميداني || p.مركز_التجميع_الإداري_Hub || p.location || '';
-        return loc.trim();
+        return String(loc).trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع (فلترة مرنة وتراكمية تدعم الفردي والمجتمع)
+    // تصفية المشاريع (تدعم البحث الفردي والمشترك لواحد أو اثنين أو ثلاثة معاً بدقة)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const title = (proj.اسم_المشروع_المعتمد || proj.title || proj.name || '').toLowerCase();
-            const desc = (proj.ملاحظات_وضبط_الجودة || proj.description || '').toLowerCase();
+            const title = String(proj.اسم_المشروع_المعتمد || proj.title || proj.name || '').toLowerCase();
+            const desc = String(proj.ملاحظات_وضبط_الجودة || proj.description || '').toLowerCase();
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = (proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || '').trim();
+            const locValue = String(proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي (إذا لم يكن 'الكل')
+        // 3. فلتر البرنامج الرئيسي
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
-            const projMain = (proj.البرنامج_الرئيسي || proj.main_program || proj.program || '').trim();
-            if (projMain !== targetMain && !projMain.includes(targetMain)) return false;
+            const projMain = String(proj.البرنامج_الرئيسي || proj.main_program || proj.program || proj.mainProgram || '').trim();
+            if (!projMain.includes(targetMain)) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي (إذا لم يكن 'الكل')
+        // 4. فلتر التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.trim();
-            const projSeason = (proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || proj.season || '').trim();
-            if (projSeason !== targetSeason && !projSeason.includes(targetSeason)) return false;
+            const projSeason = String(proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || proj.season || proj.seasonalCategory || '').trim();
+            if (!projSeason.includes(targetSeason)) return false;
         }
 
-        // 5. فلتر القطاع التنموي (إذا لم يكن 'الكل' - يدعم قطاع أو أكثر أو الغذاء والمأوى)
+        // 5. فلتر القطاع التنموي
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projectSector = (proj.القطاع_التنموي || proj.sector || '').trim();
+            const projectSector = String(proj.القطاع_التنموي || proj.sector || proj.development_sector || '').trim();
 
             if (targetSector === 'الغذاء والمأوى') {
                 const isFoodOrShelter = 
@@ -82,7 +83,7 @@ const ProjectsPage = () => {
                     projectSector.includes('shelter');
                 if (!isFoodOrShelter) return false;
             } else {
-                if (projectSector !== targetSector && !projectSector.includes(targetSector)) return false;
+                if (!projectSector.includes(targetSector)) return false;
             }
         }
 
@@ -92,7 +93,7 @@ const ProjectsPage = () => {
     // تجميع المشاريع حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = (proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || 'أخرى').trim();
+        const loc = String(proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -104,7 +105,7 @@ const ProjectsPage = () => {
         }
         governoratesMap[loc].projects.push(proj);
 
-        const statusVal = (proj.حالة_المشروع || proj.status || '').trim();
+        const statusVal = String(proj.حالة_المشروع || proj.status || '').trim();
         if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز')) {
             governoratesMap[loc].completedCount++;
         } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد')) {
@@ -130,12 +131,12 @@ const ProjectsPage = () => {
 
     // إحصائيات الرسم البياني الدائري
     const completedTotal = filteredProjects.filter(p => {
-        const s = (p.حالة_المشروع || p.status || '');
+        const s = String(p.حالة_المشروع || p.status || '');
         return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز');
     }).length;
     
     const inProgressTotal = filteredProjects.filter(p => {
-        const s = (p.حالة_المشروع || p.status || '');
+        const s = String(p.حالة_المشروع || p.status || '');
         return s.includes('قيد التنفيذ') || s.includes('جديد');
     }).length;
 
@@ -270,7 +271,7 @@ const ProjectsPage = () => {
                         ) : Object.keys(governoratesMap).length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '15px' }}>
                                 <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
-                                    لا توجد بيانات مطابقة لهذه الفلاتر المشتركة.
+                                    لا توجد بيانات مطابقة لخيارات الفلترة الحالية.
                                 </p>
                                 <button 
                                     onClick={handleResetFilters}
@@ -340,5 +341,7 @@ const ProjectsPage = () => {
         </div>
     );
 };
+
+
 
 export default ProjectsPage;
