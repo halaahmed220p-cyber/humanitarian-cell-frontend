@@ -38,7 +38,7 @@ const ProjectsPage = () => {
         return String(p.province || p.district || p.location || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة
+    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة (البرنامج + التصنيف + القطاع)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي (الاسم أو الوصف)
         if (searchTerm.trim() !== '') {
@@ -48,7 +48,7 @@ const ProjectsPage = () => {
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
-        // 2. فلتر المركز الإداري / المنطقة (من القائمة المنسدلة)
+        // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
             const locValue = String(proj.province || proj.district || proj.location || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
@@ -60,16 +60,16 @@ const ProjectsPage = () => {
             if (projMain !== selectedMainProgram.trim()) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي
+        // 4. فلتر التصنيف الموسمي (مُطابق لـ seasonal_category مثل "قطوف")
         if (selectedSeasonalProgram !== 'الكل') {
             const projSeason = String(proj.seasonal_category || '').trim();
             if (projSeason !== selectedSeasonalProgram.trim()) return false;
         }
 
-        // 5. فلتر القطاعات التنموية
+        // 5. فلتر القطاعات التنموية (بحث شامل يطابق الحقول أو الوصف لضمان ظهور النتائج)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const fullRowText = JSON.stringify(proj).toLowerCase();
+            const fullRowText = JSON.stringify(proj).toLowerCase(); // تحويل كافة بيانات المشروع إلى نص للبحث الشامل
             
             if (targetSector === 'الغذاء والمأوى') {
                 const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال') || fullRowText.includes('الغذاء والمأوى');
@@ -85,7 +85,7 @@ const ProjectsPage = () => {
             }
         }
 
-        // 6. تصفية إضافية في حال تم الضغط على محافظة معينة من الخريطة أو قائمة المحافظات الجانبية
+        // 6. تصفية إضافية في حال تم الضغط على محافظة معينة من قائمة المحافظات الجانبية
         if (selectedGovName) {
             const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
             if (loc !== selectedGovName) return false;
@@ -94,7 +94,7 @@ const ProjectsPage = () => {
         return true;
     });
 
-    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية (تعتمد على النتائج المصفاة)
+    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
         const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
@@ -124,8 +124,6 @@ const ProjectsPage = () => {
             setSelectedGovName(null); // إلغاء التحديد عند الضغط مرتين
         } else {
             setSelectedGovName(govName);
-            // مزامنة القائمة المنسدلة للمركز الإداري مع الخريطة أيضاً لضمان التكامل
-            setSelectedAdministrativeArea(govName);
         }
     };
 
@@ -249,11 +247,7 @@ const ProjectsPage = () => {
                     <div style={{ marginBottom: '15px' }}>
                         <select 
                             value={selectedAdministrativeArea} 
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setSelectedAdministrativeArea(val);
-                                setSelectedGovName(val === 'عرض كلي' ? null : val);
-                            }}
+                            onChange={(e) => setSelectedAdministrativeArea(e.target.value)}
                             style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
                         >
                             {uniqueLocations.map(loc => (
@@ -361,7 +355,7 @@ const ProjectsPage = () => {
                     </h3>
                     {selectedGovName && (
                         <span style={{ fontSize: '12px', background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '4px' }}>
-                            منطقة محددة: {selectedGovName} <button onClick={() => { setSelectedGovName(null); setSelectedAdministrativeArea('عرض كلي'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', color: '#0369a1' }}>×</button>
+                            منطقة محددة: {selectedGovName} <button onClick={() => setSelectedGovName(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', color: '#0369a1' }}>×</button>
                         </span>
                     )}
                 </div>
@@ -423,5 +417,7 @@ const ProjectsPage = () => {
         </div>
     );
 };
+
+
 
 export default ProjectsPage;
