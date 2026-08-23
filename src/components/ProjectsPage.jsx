@@ -1,24 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MapComponent from './MapComponent';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import './ProjectsPage.css';
 
-// قاعدة بيانات المشاريع الفعلية لضمان عمل الفلاتر فوراً ودون أخطاء سيرفر
-const initialProjectsData = [
-    { id: 1, name: 'مشروع مياه الشرب والترميم', main_program: 'رافد', seasonal_category: 'مشاريع عامة وتنموية', sector: 'المياه', governorate: 'تعز', status: 'منفذة', description: 'توفير المياه النقية' },
-    { id: 2, name: 'توزيع الحقيبة المدرسية', main_program: 'صرح', seasonal_category: 'اقرأ', sector: 'التعليم', governorate: 'عدن', status: 'قيد التنفيذ', description: 'دعم الطلاب' },
-    { id: 3, name: 'بناء مركز صحي', main_program: 'رافد', seasonal_category: 'مشاريع عامة وتنموية', sector: 'الصحة', governorate: 'الحديدة', status: 'منفذة', description: 'رعاية صحية أولية' },
-    { id: 4, name: 'إفطار صائم وتوزيع السلال', main_program: 'وسم', seasonal_category: 'موائد الخير', sector: 'الغذاء والمأوى', governorate: 'تعز', status: 'منفذة', description: 'مساعدات غذائية موسمية' },
-    { id: 5, name: 'كفالة الأيتام والتعلم', main_program: 'الحماية', seasonal_category: 'قطوف', sector: 'الحماية', governorate: 'مأرب', status: 'مخططة', description: 'دعم وحماية الطفولة' },
-    { id: 6, name: 'توزيع الأضاحي', main_program: 'وسم', seasonal_category: 'عيدكم عيدنا', sector: 'الغذاء والمأوى', governorate: 'إب', status: 'منفذة', description: 'أضاحي العيد' },
-    { id: 7, name: 'مشاريع الطاقة الشمسية للمدارس', main_program: 'صرح', seasonal_category: 'مشاريع عامة وتنموية', sector: 'المناخ والطاقة الخضراء', governorate: 'تعز', status: 'قيد التنفيذ', description: 'طاقة نظيفة' },
-    { id: 8, name: 'حفر وتأهيل الآبار الجوفية', main_program: 'رافد', seasonal_category: 'مشاريع عامة وتنموية', sector: 'المياه', governorate: 'لحج', status: 'منفذة', description: 'حفر آبار مياه' },
-    { id: 9, name: 'توزيع كسوة العيد', main_program: 'وسم', seasonal_category: 'يسر', sector: 'الغذاء والمأوى', governorate: 'تعز', status: 'منفذة', description: 'كسوة الأسر المحتاجة' },
-    { id: 10, name: 'دورات تأهيل المعلمين', main_program: 'صرح', seasonal_category: 'مشاريع عامة وتنموية', sector: 'التعليم', governorate: 'حضرموت', status: 'مخططة', description: 'تطوير كادر تعليمي' }
-];
-
 const ProjectsPage = () => {
-    const [projectsList] = useState(initialProjectsData);
+    const [projectsList, setProjectsList] = useState([]);
+    const [loading, setLoading] = useState(true);
     
     // حالات الفلترة والبحث
     const [searchTerm, setSearchTerm] = useState('');
@@ -29,54 +16,76 @@ const ProjectsPage = () => {
 
     const [selectedGovName, setSelectedGovName] = useState(null);
 
-    // استخراج المحافظات/المناطق ديناميكياً
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.governorate).filter(Boolean))];
+    // جلب المشاريع الحقيقية من السيرفر/قاعدة البيانات
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
+                const data = await response.json();
+                setProjectsList(data);
+                setLoading(false);
+            } catch (err) {
+                console.error('خطأ في جلب المشاريع من قاعدة البيانات:', err);
+                setLoading(false);
+            }
+        };
 
-    // تصفية المشاريع (تدعم البحث الفردي والمشترك بدقة تامة)
+        fetchProjects();
+    }, []);
+
+    // استخراج المحافظات والمناطق ديناميكياً من قاعدة البيانات
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
+        return String(p.province || p.district || p.location || '').trim();
+    }).filter(Boolean))];
+
+    // تصفية المشاريع بالمطابقة الدقيقة للأعمدة الحقيقية (program_id & seasonal_category)
     const filteredProjects = projectsList.filter(proj => {
-        // 1. فلتر البحث النصي
+        // 1. فلتر البحث النصي (الاسم أو الوصف)
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const title = String(proj.name || '').toLowerCase();
-            const desc = String(proj.description || '').toLowerCase();
+            const title = String(proj.official_name || proj.title || '').toLowerCase();
+            const desc = String(proj.description || proj.full_details || '').toLowerCase();
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            if (String(proj.governorate).trim() !== selectedAdministrativeArea.trim()) return false;
+            const locValue = String(proj.province || proj.district || proj.location || '').trim();
+            if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي
+        // 3. فلتر البرنامج الرئيسي (مُطابق لـ program_id)
         if (selectedMainProgram !== 'الكل') {
-            if (String(proj.main_program).trim() !== selectedMainProgram.trim()) return false;
+            const projMain = String(proj.program_id || '').trim();
+            if (projMain !== selectedMainProgram.trim()) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي
+        // 4. فلتر التصنيف الموسمي (مُطابق لـ seasonal_category مثل "قطوف")
         if (selectedSeasonalProgram !== 'الكل') {
-            if (String(proj.seasonal_category).trim() !== selectedSeasonalProgram.trim()) return false;
+            const projSeason = String(proj.seasonal_category || '').trim();
+            if (projSeason !== selectedSeasonalProgram.trim()) return false;
         }
 
-        // 5. فلتر القطاع التنموي
+        // 5. فلتر القطاعات التنموية
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projectSector = String(proj.sector).trim();
-
+            const projSector = String(proj.sector || proj.description || proj.full_details || '').trim();
+            
             if (targetSector === 'الغذاء والمأوى') {
-                const isFoodOrShelter = projectSector.includes('الغذاء') || projectSector.includes('المأوى');
+                const isFoodOrShelter = projSector.includes('الغذاء') || projSector.includes('المأوى') || projSector.includes('تمر') || projSector.includes('سلال');
                 if (!isFoodOrShelter) return false;
             } else {
-                if (projectSector !== targetSector) return false;
+                if (!projSector.includes(targetSector)) return false;
             }
         }
 
         return true;
     });
 
-    // تجميع المشاريع حسب الموقع للخريطة والقائمة
+    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = String(proj.governorate || 'أخرى').trim();
+        const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -89,9 +98,9 @@ const ProjectsPage = () => {
         governoratesMap[loc].projects.push(proj);
 
         const statusVal = String(proj.status || '').trim();
-        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل')) {
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز') || statusVal.includes('completed')) {
             governoratesMap[loc].completedCount++;
-        } else if (statusVal.includes('قيد التنفيذ')) {
+        } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد') || statusVal.includes('in_progress')) {
             governoratesMap[loc].inProgressCount++;
         } else {
             governoratesMap[loc].plannedCount++;
@@ -102,7 +111,7 @@ const ProjectsPage = () => {
         setSelectedGovName(govName);
     };
 
-    // إعادة ضبط جميع الفلاتر بضغطة زر
+    // إعادة ضبط جميع الفلاتر وعرض كافة البيانات
     const handleResetFilters = () => {
         setSearchTerm('');
         setSelectedMainProgram('الكل');
@@ -112,9 +121,17 @@ const ProjectsPage = () => {
         setSelectedGovName(null);
     };
 
-    // إحصائيات الرسم البياني الدائري
-    const completedTotal = filteredProjects.filter(p => p.status === 'منفذة').length;
-    const inProgressTotal = filteredProjects.filter(p => p.status === 'قيد التنفيذ').length;
+    // حسابات مؤشر الأداء العام للرسم البياني الدائري
+    const completedTotal = filteredProjects.filter(p => {
+        const s = String(p.status || '');
+        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز') || s.includes('completed');
+    }).length;
+    
+    const inProgressTotal = filteredProjects.filter(p => {
+        const s = String(p.status || '');
+        return s.includes('قيد التنفيذ') || s.includes('جديد') || s.includes('in_progress');
+    }).length;
+
     const plannedTotal = filteredProjects.length - (completedTotal + inProgressTotal);
 
     const chartData = [
@@ -241,10 +258,12 @@ const ProjectsPage = () => {
                     <h3 className="panel-title" style={{ marginTop: '15px' }}>نتائج المشاريع بحسب المناطق ({filteredProjects.length} مشروع)</h3>
                     
                     <div className="gov-list-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {filteredProjects.length === 0 ? (
+                        {loading ? (
+                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل من قاعدة البيانات...</p>
+                        ) : filteredProjects.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '15px' }}>
                                 <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
-                                    لا توجد بيانات مطابقة لخيارات الفلترة الحالية.
+                                    لا توجد مشاريع في قاعدة البيانات تتطابق مع هذه الفلاتر المختارة.
                                 </p>
                                 <button 
                                     onClick={handleResetFilters}
