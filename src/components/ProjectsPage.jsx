@@ -418,4 +418,6 @@ const ProjectsPage = () => {
     );
 };
 
-ProjectsPage;
+
+
+export default ProjectsPage;
