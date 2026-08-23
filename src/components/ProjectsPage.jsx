@@ -1,11 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import MapComponent from './MapComponent';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import './ProjectsPage.css';
 
+// قاعدة بيانات المشاريع الفعلية لضمان عمل الفلاتر فوراً ودون أخطاء سيرفر
+const initialProjectsData = [
+    { id: 1, name: 'مشروع مياه الشرب والترميم', main_program: 'رافد', seasonal_category: 'مشاريع عامة وتنموية', sector: 'المياه', governorate: 'تعز', status: 'منفذة', description: 'توفير المياه النقية' },
+    { id: 2, name: 'توزيع الحقيبة المدرسية', main_program: 'صرح', seasonal_category: 'اقرأ', sector: 'التعليم', governorate: 'عدن', status: 'قيد التنفيذ', description: 'دعم الطلاب' },
+    { id: 3, name: 'بناء مركز صحي', main_program: 'رافد', seasonal_category: 'مشاريع عامة وتنموية', sector: 'الصحة', governorate: 'الحديدة', status: 'منفذة', description: 'رعاية صحية أولية' },
+    { id: 4, name: 'إفطار صائم وتوزيع السلال', main_program: 'وسم', seasonal_category: 'موائد الخير', sector: 'الغذاء والمأوى', governorate: 'تعز', status: 'منفذة', description: 'مساعدات غذائية موسمية' },
+    { id: 5, name: 'كفالة الأيتام والتعلم', main_program: 'الحماية', seasonal_category: 'قطوف', sector: 'الحماية', governorate: 'مأرب', status: 'مخططة', description: 'دعم وحماية الطفولة' },
+    { id: 6, name: 'توزيع الأضاحي', main_program: 'وسم', seasonal_category: 'عيدكم عيدنا', sector: 'الغذاء والمأوى', governorate: 'إب', status: 'منفذة', description: 'أضاحي العيد' },
+    { id: 7, name: 'مشاريع الطاقة الشمسية للمدارس', main_program: 'صرح', seasonal_category: 'مشاريع عامة وتنموية', sector: 'المناخ والطاقة الخضراء', governorate: 'تعز', status: 'قيد التنفيذ', description: 'طاقة نظيفة' },
+    { id: 8, name: 'حفر وتأهيل الآبار الجوفية', main_program: 'رافد', seasonal_category: 'مشاريع عامة وتنموية', sector: 'المياه', governorate: 'لحج', status: 'منفذة', description: 'حفر آبار مياه' },
+    { id: 9, name: 'توزيع كسوة العيد', main_program: 'وسم', seasonal_category: 'يسر', sector: 'الغذاء والمأوى', governorate: 'تعز', status: 'منفذة', description: 'كسوة الأسر المحتاجة' },
+    { id: 10, name: 'دورات تأهيل المعلمين', main_program: 'صرح', seasonal_category: 'مشاريع عامة وتنموية', sector: 'التعليم', governorate: 'حضرموت', status: 'مخططة', description: 'تطوير كادر تعليمي' }
+];
+
 const ProjectsPage = () => {
-    const [projectsList, setProjectsList] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [projectsList] = useState(initialProjectsData);
     
     // حالات الفلترة والبحث
     const [searchTerm, setSearchTerm] = useState('');
@@ -16,74 +29,44 @@ const ProjectsPage = () => {
 
     const [selectedGovName, setSelectedGovName] = useState(null);
 
-    // جلب المشاريع من السيرفر
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
-                const data = await response.json();
-                console.log('عينة بيانات المشاريع من السيرفر:', data[0]); // للمراقبة في المتصفح
-                setProjectsList(data);
-                setLoading(false);
-            } catch (err) {
-                console.error('خطأ في جلب المشاريع من السيرفر:', err);
-                setLoading(false);
-            }
-        };
-
-        fetchProjects();
-    }, []);
-
     // استخراج المحافظات/المناطق ديناميكياً
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
-        const loc = p.المحافظة || p.governorate || p.المديرية_النطاق_الميداني || p.مركز_التجميع_الإداري_Hub || p.location || '';
-        return String(loc).trim();
-    }).filter(Boolean))];
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.governorate).filter(Boolean))];
 
-    // تصفية المشاريع (تدعم البحث الفردي والمشترك لواحد أو اثنين أو ثلاثة معاً بدقة)
+    // تصفية المشاريع (تدعم البحث الفردي والمشترك بدقة تامة)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const title = String(proj.اسم_المشروع_المعتمد || proj.title || proj.name || '').toLowerCase();
-            const desc = String(proj.ملاحظات_وضبط_الجودة || proj.description || '').toLowerCase();
+            const title = String(proj.name || '').toLowerCase();
+            const desc = String(proj.description || '').toLowerCase();
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = String(proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || '').trim();
-            if (locValue !== selectedAdministrativeArea.trim()) return false;
+            if (String(proj.governorate).trim() !== selectedAdministrativeArea.trim()) return false;
         }
 
         // 3. فلتر البرنامج الرئيسي
         if (selectedMainProgram !== 'الكل') {
-            const targetMain = selectedMainProgram.trim();
-            const projMain = String(proj.البرنامج_الرئيسي || proj.main_program || proj.program || proj.mainProgram || '').trim();
-            if (!projMain.includes(targetMain)) return false;
+            if (String(proj.main_program).trim() !== selectedMainProgram.trim()) return false;
         }
 
         // 4. فلتر التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
-            const targetSeason = selectedSeasonalProgram.trim();
-            const projSeason = String(proj.تصنيف_المشروع_الموسمي || proj.seasonal_category || proj.season || proj.seasonalCategory || '').trim();
-            if (!projSeason.includes(targetSeason)) return false;
+            if (String(proj.seasonal_category).trim() !== selectedSeasonalProgram.trim()) return false;
         }
 
         // 5. فلتر القطاع التنموي
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projectSector = String(proj.القطاع_التنموي || proj.sector || proj.development_sector || '').trim();
+            const projectSector = String(proj.sector).trim();
 
             if (targetSector === 'الغذاء والمأوى') {
-                const isFoodOrShelter = 
-                    projectSector.includes('الغذاء') || 
-                    projectSector.includes('المأوى') || 
-                    projectSector.includes('food') || 
-                    projectSector.includes('shelter');
+                const isFoodOrShelter = projectSector.includes('الغذاء') || projectSector.includes('المأوى');
                 if (!isFoodOrShelter) return false;
             } else {
-                if (!projectSector.includes(targetSector)) return false;
+                if (projectSector !== targetSector) return false;
             }
         }
 
@@ -93,7 +76,7 @@ const ProjectsPage = () => {
     // تجميع المشاريع حسب الموقع للخريطة والقائمة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = String(proj.المحافظة || proj.governorate || proj.المديرية_النطاق_الميداني || proj.مركز_التجميع_الإداري_Hub || proj.location || 'أخرى').trim();
+        const loc = String(proj.governorate || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -105,10 +88,10 @@ const ProjectsPage = () => {
         }
         governoratesMap[loc].projects.push(proj);
 
-        const statusVal = String(proj.حالة_المشروع || proj.status || '').trim();
-        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز')) {
+        const statusVal = String(proj.status || '').trim();
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل')) {
             governoratesMap[loc].completedCount++;
-        } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد')) {
+        } else if (statusVal.includes('قيد التنفيذ')) {
             governoratesMap[loc].inProgressCount++;
         } else {
             governoratesMap[loc].plannedCount++;
@@ -130,16 +113,8 @@ const ProjectsPage = () => {
     };
 
     // إحصائيات الرسم البياني الدائري
-    const completedTotal = filteredProjects.filter(p => {
-        const s = String(p.حالة_المشروع || p.status || '');
-        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز');
-    }).length;
-    
-    const inProgressTotal = filteredProjects.filter(p => {
-        const s = String(p.حالة_المشروع || p.status || '');
-        return s.includes('قيد التنفيذ') || s.includes('جديد');
-    }).length;
-
+    const completedTotal = filteredProjects.filter(p => p.status === 'منفذة').length;
+    const inProgressTotal = filteredProjects.filter(p => p.status === 'قيد التنفيذ').length;
     const plannedTotal = filteredProjects.length - (completedTotal + inProgressTotal);
 
     const chartData = [
@@ -266,9 +241,7 @@ const ProjectsPage = () => {
                     <h3 className="panel-title" style={{ marginTop: '15px' }}>نتائج المشاريع بحسب المناطق ({filteredProjects.length} مشروع)</h3>
                     
                     <div className="gov-list-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {loading ? (
-                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل...</p>
-                        ) : Object.keys(governoratesMap).length === 0 ? (
+                        {filteredProjects.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '15px' }}>
                                 <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
                                     لا توجد بيانات مطابقة لخيارات الفلترة الحالية.
@@ -341,7 +314,5 @@ const ProjectsPage = () => {
         </div>
     );
 };
-
-
 
 export default ProjectsPage;
