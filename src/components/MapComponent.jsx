@@ -42,86 +42,88 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
     ];
 
     return (
-        <MapContainer 
-            center={[15.5, 47.5]} 
-            zoom={6} 
-            minZoom={6}
-            maxZoom={13}
-            maxBounds={yemenBounds}
-            maxBoundsViscosity={1.0}
-            style={{ width: '100%', height: '100%', borderRadius: '8px', background: '#f8fafc' }}
-            scrollWheelZoom={true}
-        >
-            {/* استخدام طبقة خريطة تציד الأسماء بالعربية وتماثل تصميم الصورة الثانية */}
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
-                maxZoom={18}
-            />
+        <div style={{ width: '100%', height: '100%', flex: 1, position: 'relative' }}>
+            <MapContainer 
+                center={[15.5, 47.5]} 
+                zoom={6} 
+                minZoom={6}
+                maxZoom={13}
+                maxBounds={yemenBounds}
+                maxBoundsViscosity={1.0}
+                style={{ width: '100%', height: '100%', borderRadius: '0px', background: '#f8fafc', zIndex: 1 }}
+                scrollWheelZoom={true}
+            >
+                {/* طبقة الخريطة */}
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
+                    maxZoom={18}
+                />
 
-            {/* رسم الدوائر الزرقاء للمشاريع على الخريطة */}
-            {Object.keys(governorateData).map((key) => {
-                const gov = governorateData[key];
-                const coords = governorateCoords[gov.name.trim()] || { lat: 15.5, lng: 44.5 };
-                const count = gov.projects.length;
+                {/* رسم الدوائر الزرقاء للمشاريع على الخريطة */}
+                {governorateData && Object.keys(governorateData).map((key) => {
+                    const gov = governorateData[key];
+                    const coords = governorateCoords[gov.name.trim()] || { lat: 15.5, lng: 44.5 };
+                    const count = gov.projects ? gov.projects.length : 0;
 
-                const customIcon = L.divIcon({
-                    className: 'custom-map-marker',
-                    html: `<div style="
-                        background-color: #1e40af; 
-                        color: white; 
-                        width: 32px; 
-                        height: 32px; 
-                        border-radius: 50%; 
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center; 
-                        font-weight: bold; 
-                        font-size: 13px;
-                        border: 2px solid white;
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-                    ">${count}</div>`,
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16]
-                });
+                    const customIcon = L.divIcon({
+                        className: 'custom-map-marker',
+                        html: `<div style="
+                            background-color: #1e40af; 
+                            color: white; 
+                            width: 34px; 
+                            height: 34px; 
+                            border-radius: 50%; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            font-weight: bold; 
+                            font-size: 13px;
+                            border: 2px solid white;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                        ">${count}</div>`,
+                        iconSize: [34, 34],
+                        iconAnchor: [17, 17]
+                    });
 
-                return (
-                    <Marker 
-                        key={key} 
-                        position={[coords.lat, coords.lng]} 
-                        icon={customIcon}
-                        eventHandlers={{
-                            click: () => {
-                                if (onSelectGovernorate) {
-                                    onSelectGovernorate(gov.name);
+                    return (
+                        <Marker 
+                            key={key} 
+                            position={[coords.lat, coords.lng]} 
+                            icon={customIcon}
+                            eventHandlers={{
+                                click: () => {
+                                    if (onSelectGovernorate) {
+                                        onSelectGovernorate(gov.name);
+                                    }
                                 }
-                            }
-                        }}
-                    >
-                        <Popup>
-                            <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
-                                <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{gov.name}</strong>
-                                <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {count}</p>
-                                <button 
-                                    onClick={() => onSelectGovernorate && onSelectGovernorate(gov.name)}
-                                    style={{
-                                        background: '#2563eb',
-                                        color: '#fff',
-                                        border: 'none',
-                                        padding: '4px 8px',
-                                        borderRadius: '4px',
-                                           cursor: 'pointer',
-                                        fontSize: '11px'
-                                    }}
-                                >
-                                    عرض المشاريع
-                                </button>
-                            </div>
-                        </Popup>
-                    </Marker>
-                );
-            })}
-        </MapContainer>
+                            }}
+                        >
+                            <Popup>
+                                <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
+                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{gov.name}</strong>
+                                    <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {count}</p>
+                                    <button 
+                                        onClick={() => onSelectGovernorate && onSelectGovernorate(gov.name)}
+                                        style={{
+                                            background: '#2563eb',
+                                            color: '#fff',
+                                            border: 'none',
+                                            padding: '4px 8px',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            fontSize: '11px'
+                                        }}
+                                    >
+                                        عرض المشاريع
+                                    </button>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    );
+                })}
+            </MapContainer>
+        </div>
     );
 };
 
