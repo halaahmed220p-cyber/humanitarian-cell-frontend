@@ -16,6 +16,11 @@ const ProjectsPage = () => {
 
     const [selectedGovName, setSelectedGovName] = useState(null);
 
+    // 🟢 الحالات الناقصة التي كانت تسبب ظهور الصفحة البيضاء:
+    const [isGovModalOpen, setIsGovModalOpen] = useState(false);
+    const [currentGovData, setCurrentGovData] = useState(null);
+    const [selectedProject, setSelectedProject] = useState(null);
+
     // جلب المشاريع الحقيقية من السيرفر/قاعدة البيانات
     useEffect(() => {
         const fetchProjects = async () => {
@@ -69,7 +74,7 @@ const ProjectsPage = () => {
         // 5. فلتر القطاعات التنموية (بحث شامل يطابق الحقول أو الوصف لضمان ظهور النتائج)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const fullRowText = JSON.stringify(proj).toLowerCase(); // تحويل كافة بيانات المشروع إلى نص للبحث الشامل
+            const fullRowText = JSON.stringify(proj).toLowerCase(); 
             
             if (targetSector === 'الغذاء والمأوى') {
                 const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال') || fullRowText.includes('الغذاء والمأوى');
@@ -121,9 +126,14 @@ const ProjectsPage = () => {
 
     const handleSelectGovernorate = (govName) => {
         if (selectedGovName === govName) {
-            setSelectedGovName(null); // إلغاء التحديد عند الضغط مرتين
+            setSelectedGovName(null); 
         } else {
             setSelectedGovName(govName);
+            // 🟢 ربط النقر بالمنطقة مع البيانات الخاصة بالـ Modal إذا لزم الأمر:
+            if (governoratesMap[govName]) {
+                setCurrentGovData(governoratesMap[govName]);
+                setIsGovModalOpen(true);
+            }
         }
     };
 
@@ -189,7 +199,7 @@ const ProjectsPage = () => {
                 </section>
 
                 <aside className="hac-dash-sidebar" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
-                  <div className="hac-dash-panel">
+                 <div className="hac-dash-panel">
                     
                     {/* زر مسح الفلاتر السريع */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -347,100 +357,98 @@ const ProjectsPage = () => {
                 </aside>
             </main>
 
-               {/* نوافذ عرض التفاصيل (Modals) عند الضغط على الخريطة */}
-            {isGovModalOpen && currentGovData && (
-                <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
-                    <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
-                        <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
-                        
-                        <div className="hac-modal-header">
-                            <span className="hac-modal-badge">مشاريع منطقة {currentGovData.name}</span>
-                            <h2>لوحة معلومات المنطقة</h2>
-                        </div>
+            {/* نوافذ عرض التفاصيل (Modals) عند الضغط على الخريطة */}
+            {isGovModalOpen && currentGovData && (
+                <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
+                    <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
+                        <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
+                        
+                        <div className="hac-modal-header">
+                            <span className="hac-modal-badge">مشاريع منطقة {currentGovData.name}</span>
+                            <h2>لوحة معلومات المنطقة</h2>
+                        </div>
 
-                        <div className="hac-modal-stats">
-                            <div className="hac-m-box">
-                                <span className="m-val">{currentGovData.projects.length}</span>
-                                <span className="m-lbl">إجمالي المشاريع</span>
-                            </div>
-                            <div className="hac-m-box">
-                                <span className="m-val">{currentGovData.completedCount}</span>
-                                <span className="m-lbl">مشاريع منفذة</span>
-                            </div>
-                            <div className="hac-m-box">
-                                <span className="m-val">{currentGovData.inProgressCount}</span>
-                                <span className="m-lbl">قيد التنفيذ / جديد</span>
-                            </div>
-                        </div>
+                        <div className="hac-modal-stats">
+                            <div className="hac-m-box">
+                                <span className="m-val">{currentGovData.projects.length}</span>
+                                <span className="m-lbl">إجمالي المشاريع</span>
+                            </div>
+                            <div className="hac-m-box">
+                                <span className="m-val">{currentGovData.completedCount}</span>
+                                <span className="m-lbl">مشاريع منفذة</span>
+                            </div>
+                            <div className="hac-m-box">
+                                <span className="m-val">{currentGovData.inProgressCount}</span>
+                                <span className="m-lbl">قيد التنفيذ / جديد</span>
+                            </div>
+                        </div>
 
-                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمنطقة:</h4>
-                        <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                            {currentGovData.projects.map((proj) => (
-                                <div key={proj.id} className="hac-proj-row-item">
-                                    <div className="hac-proj-info-group">
-                                        <h5>{proj.title}</h5>
-                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description}</p>
-                                        <span className="hac-status-badge in-progress" style={{ marginTop: '5px', display: 'inline-block' }}>
-                                            {proj.status}
-                                        </span>
-                                    </div>
-                                    <button className="hac-detail-open-btn" onClick={() => setSelectedProject(proj)}>
-                                        عرض التفاصيل الكاملة
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمنطقة:</h4>
+                        <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                            {currentGovData.projects.map((proj) => (
+                                <div key={proj.id} className="hac-proj-row-item">
+                                    <div className="hac-proj-info-group">
+                                        <h5>{proj.title}</h5>
+                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description}</p>
+                                        <span className="hac-status-badge in-progress" style={{ marginTop: '5px', display: 'inline-block' }}>
+                                            {proj.status}
+                                        </span>
+                                    </div>
+                                    <button className="hac-detail-open-btn" onClick={() => setSelectedProject(proj)}>
+                                        عرض التفاصيل الكاملة
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
 
-                        <button className="hac-action-btn" onClick={() => setIsGovModalOpen(false)} style={{ marginTop: '20px' }}>إغلاق القائمة</button>
-                    </div>
-                </div>
-            )}
+                        <button className="hac-action-btn" onClick={() => setIsGovModalOpen(false)} style={{ marginTop: '20px' }}>إغلاق القائمة</button>
+                    </div>
+                </div>
+            )}
 
-            {selectedProject && (
-                <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
-                    <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
-                        <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
-                        
-                        <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
-                            <h2>{selectedProject.title}</h2>
-                        </div>
+            {selectedProject && (
+                <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
+                    <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
+                        <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
+                        
+                        <div className="hac-modal-header">
+                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
+                            <h2>{selectedProject.title}</h2>
+                        </div>
 
-                        <div className="deep-modal-content">
-                            <div className="deep-info-block">
-                                <strong>وصف المشروع:</strong>
-                                <p>{selectedProject.description}</p>
-                            </div>
+                        <div className="deep-modal-content">
+                            <div className="deep-info-block">
+                                <strong>وصف المشروع:</strong>
+                                <p>{selectedProject.description}</p>
+                            </div>
 
-                            <div className="deep-info-block" style={{ marginTop: '10px' }}>
-                                <strong>التفاصيل الكاملة (full_details):</strong>
-                                <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
-                            </div>
+                            <div className="deep-info-block" style={{ marginTop: '10px' }}>
+                                <strong>التفاصيل الكاملة (full_details):</strong>
+                                <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
+                            </div>
 
-                            <div className="deep-info-grid" style={{ marginTop: '15px' }}>
-                                <div className="deep-box">
-                                    <span className="deep-label">الحالة:</span>
-                                    <span className="deep-val">{selectedProject.status}</span>
-                                </div>
-                                <div className="deep-box">
-                                    <span className="deep-label">الموقع:</span>
-                                    <span className="deep-val">{selectedProject.location || selectedProject.province}</span>
-                                </div>
-                            </div>
-                        </div>
+                            <div className="deep-info-grid" style={{ marginTop: '15px' }}>
+                                <div className="deep-box">
+                                    <span className="deep-label">الحالة:</span>
+                                    <span className="deep-val">{selectedProject.status}</span>
+                                </div>
+                                <div className="deep-box">
+                                    <span className="deep-label">الموقع:</span>
+                                    <span className="deep-val">{selectedProject.location || selectedProject.province}</span>
+                                </div>
+                            </div>
+                        </div>
 
-                        <div className="deep-actions">
-                            <button className="hac-action-btn pdf-action" onClick={() => alert('جاري تحميل التقرير...')} style={{ width: '100%' }}>
-                                تحميل تقرير المشروع (PDF)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                        <div className="deep-actions">
+                            <button className="hac-action-btn pdf-action" onClick={() => alert('جاري تحميل التقرير...')} style={{ width: '100%' }}>
+                                تحميل تقرير المشروع (PDF)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
-
-
 
 export default ProjectsPage;
