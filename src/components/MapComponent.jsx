@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const MapComponent = ({ governorateData, onSelectGovernorate }) => {
-    // إحداثيات المحافظات بدقة
+    // إحداثيات المحافظات الأساسية
     const governorateCoords = {
         'صنعاء': { lat: 15.3694, lng: 44.1910 },
         'تعز': { lat: 13.5779, lng: 44.0219 },
@@ -35,7 +35,20 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
         'أخرى': { lat: 15.5527, lng: 48.5164 }
     };
 
-    // حدود اليمن لضمان التركيز عليها فقط
+    // دالة ذكية للبحث عن الإحداثيات بغض النظر عن الزوائد مثل "محافظة" أو المسافات
+    const getCoordsForGov = (name) => {
+        if (!name) return { lat: 15.5, lng: 44.5 };
+        const cleanName = name.replace('محافظة', '').trim();
+        
+        // البحث المباشر أو الجزئي
+        for (const key of Object.keys(governorateCoords)) {
+            if (cleanName.includes(key) || key.includes(cleanName)) {
+                return governorateCoords[key];
+            }
+        }
+        return { lat: 15.5, lng: 44.5 }; // إحداثيات افتراضية في وسط اليمن إذا لم يتم العثور عليها
+    };
+
     const yemenBounds = [
         [12.0, 41.0], 
         [19.0, 55.0]  
@@ -53,18 +66,19 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
                 style={{ width: '100%', height: '100%', borderRadius: '0px', background: '#f8fafc', zIndex: 1 }}
                 scrollWheelZoom={true}
             >
-                {/* طبقة الخريطة */}
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
                     maxZoom={18}
                 />
 
-                {/* رسم الدوائر الزرقاء للمشاريع على الخريطة */}
                 {governorateData && Object.keys(governorateData).map((key) => {
                     const gov = governorateData[key];
-                    const coords = governorateCoords[gov.name.trim()] || { lat: 15.5, lng: 44.5 };
+                    const govName = gov.name ? gov.name.trim() : key;
+                    const coords = getCoordsForGov(govName);
                     const count = gov.projects ? gov.projects.length : 0;
+
+                    if (count === 0) return null; // عدم إظهار أي نقاط فارغة
 
                     const customIcon = L.divIcon({
                         className: 'custom-map-marker',
@@ -94,17 +108,17 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
                             eventHandlers={{
                                 click: () => {
                                     if (onSelectGovernorate) {
-                                        onSelectGovernorate(gov.name);
+                                        onSelectGovernorate(govName);
                                     }
                                 }
                             }}
                         >
                             <Popup>
                                 <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
-                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{gov.name}</strong>
+                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{govName}</strong>
                                     <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {count}</p>
                                     <button 
-                                        onClick={() => onSelectGovernorate && onSelectGovernorate(gov.name)}
+                                        onClick={() => onSelectGovernorate && onSelectGovernorate(govName)}
                                         style={{
                                             background: '#2563eb',
                                             color: '#fff',
