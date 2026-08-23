@@ -38,8 +38,7 @@ const ProjectsPage = () => {
         return String(p.province || p.district || p.location || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بالمطابقة الدقيقة للأعمدة الحقيقية (program_id & seasonal_category)
-    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة (البرنامج + التصنيف + القطاع)
+    // تصفية المشاريع بالمطابقة الدقيقة للأعمدة وحسب المنطقة المختارة من الخريطة
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي (الاسم أو الوصف)
         if (searchTerm.trim() !== '') {
@@ -49,28 +48,34 @@ const ProjectsPage = () => {
             if (!title.includes(query) && !desc.includes(query)) return false;
         }
 
-        // 2. فلتر المركز الإداري / المنطقة
+        // 2. فلتر المركز الإداري / المنطقة (من القائمة المنسدلة)
         if (selectedAdministrativeArea !== 'عرض كلي') {
             const locValue = String(proj.province || proj.district || proj.location || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي (مُطابق لـ program_id)
+        // 3. فلتر النقر على الخريطة أو بطاقة المنطقة الجانبية
+        if (selectedGovName) {
+            const locValue = String(proj.province || proj.district || proj.location || '').trim();
+            if (locValue !== selectedGovName.trim()) return false;
+        }
+
+        // 4. فلتر البرنامج الرئيسي (مُطابق لـ program_id)
         if (selectedMainProgram !== 'الكل') {
             const projMain = String(proj.program_id || '').trim();
             if (projMain !== selectedMainProgram.trim()) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي (مُطابق لـ seasonal_category مثل "قطوف")
+        // 5. فلتر التصنيف الموسمي (مُطابق لـ seasonal_category مثل "قطوف")
         if (selectedSeasonalProgram !== 'الكل') {
             const projSeason = String(proj.seasonal_category || '').trim();
             if (projSeason !== selectedSeasonalProgram.trim()) return false;
         }
 
-        // 5. فلتر القطاعات التنموية (بحث شامل يطابق الحقول أو الوصف لضمان ظهور النتائج)
+        // 6. فلتر القطاعات التنموية (بحث شامل ذكي)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const fullRowText = JSON.stringify(proj).toLowerCase(); // تحويل كافة بيانات المشروع إلى نص للبحث الشامل
+            const fullRowText = JSON.stringify(proj).toLowerCase();
             
             if (targetSector === 'الغذاء والمأوى') {
                 const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال') || fullRowText.includes('الغذاء والمأوى');
@@ -88,9 +93,30 @@ const ProjectsPage = () => {
 
         return true;
     });
-    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية
+
+    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية (بناءً على الفلاتر العامة ما عدا النقر الشخصي)
     const governoratesMap = {};
-    filteredProjects.forEach(proj => {
+    projectsList.filter(proj => {
+        if (searchTerm.trim() !== '') {
+            const query = searchTerm.toLowerCase();
+            const title = String(proj.official_name || proj.title || '').toLowerCase();
+            const desc = String(proj.description || proj.full_details || '').toLowerCase();
+            if (!title.includes(query) && !desc.includes(query)) return false;
+        }
+        if (selectedAdministrativeArea !== 'عرض كلي') {
+            const locValue = String(proj.province || proj.district || proj.location || '').trim();
+            if (locValue !== selectedAdministrativeArea.trim()) return false;
+        }
+        if (selectedMainProgram !== 'الكل') {
+            const projMain = String(proj.program_id || '').trim();
+            if (projMain !== selectedMainProgram.trim()) return false;
+        }
+        if (selectedSeasonalProgram !== 'الكل') {
+            const projSeason = String(proj.seasonal_category || '').trim();
+            if (projSeason !== selectedSeasonalProgram.trim()) return false;
+        }
+        return true;
+    }).forEach(proj => {
         const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
@@ -114,7 +140,12 @@ const ProjectsPage = () => {
     });
 
     const handleSelectGovernorate = (govName) => {
-        setSelectedGovName(govName);
+        // إذا تم النقر على نفس المنطقة مجدداً، نقوم بإلغاء التحديد لإظهار الكل
+        if (selectedGovName === govName) {
+            setSelectedGovName(null);
+        } else {
+            setSelectedGovName(govName);
+        }
     };
 
     // إعادة ضبط جميع الفلاتر وعرض كافة البيانات
@@ -174,7 +205,7 @@ const ProjectsPage = () => {
                         <MapComponent governorateData={governoratesMap} onSelectGovernorate={handleSelectGovernorate} />
                     </div>
                     <div className="hac-dash-map-footer">
-                        اضغط على أي منطقة لعرض مشاريعها من قاعدة البيانات | تكبير/تصغير باستخدام عجلة الفأرة
+                        {selectedGovName ? `تم اختيار منطقة: ${selectedGovName} (اضغط مرة أخرى لإلغاء التحديد)` : 'اضغط على أي منطقة لعرض مشاريعها من قاعدة البيانات | تكبير/تصغير باستخدام عجلة الفأرة'}
                     </div>
                 </section>
 
@@ -266,7 +297,7 @@ const ProjectsPage = () => {
                     <div className="gov-list-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         {loading ? (
                             <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل من قاعدة البيانات...</p>
-                        ) : filteredProjects.length === 0 ? (
+                        ) : Object.keys(governoratesMap).length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '15px' }}>
                                 <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
                                     لا توجد مشاريع في قاعدة البيانات تتطابق مع هذه الفلاتر المختارة.
@@ -287,6 +318,7 @@ const ProjectsPage = () => {
                                         key={locKey} 
                                         className={`gov-card-item ${selectedGovName === locKey ? 'active' : ''}`}
                                         onClick={() => handleSelectGovernorate(locKey)}
+                                        style={{ cursor: 'pointer', border: selectedGovName === locKey ? '2px solid #3b82f6' : '1px solid transparent' }}
                                     >
                                         <div className="gov-number-badge">{gov.projects.length}</div>
                                         <div className="gov-info">
