@@ -15,10 +15,8 @@ const ProjectsPage = () => {
     const [selectedAdministrativeArea, setSelectedAdministrativeArea] = useState('عرض كلي');
 
     const [selectedGovName, setSelectedGovName] = useState(null);
-    const [isGovModalOpen, setIsGovModalOpen] = useState(false);
-    const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع من السيرفر المرتبط بقاعدة البيانات
+    // جلب المشاريع الحقيقية من السيرفر/قاعدة البيانات
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -27,7 +25,7 @@ const ProjectsPage = () => {
                 setProjectsList(data);
                 setLoading(false);
             } catch (err) {
-                console.error('خطأ في جلب المشاريع من السيرفر:', err);
+                console.error('خطأ في جلب المشاريع من قاعدة البيانات:', err);
                 setLoading(false);
             }
         };
@@ -35,37 +33,71 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات/المناطق ديناميكياً من حقل location أو province في قاعدة البيانات
-    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => p.location || p.province).filter(Boolean))];
+    // استخراج المحافظات والمناطق ديناميكياً من قاعدة البيانات
+    const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
+        return String(p.province || p.district || p.location || '').trim();
+    }).filter(Boolean))];
 
-    // تصفية المشاريع بناءً على الأعمدة الصحيحة في قاعدة البيانات
+    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة
     const filteredProjects = projectsList.filter(proj => {
-        const matchesSearch = searchTerm === '' || 
-            (proj.title && proj.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (proj.description && proj.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        // 1. فلتر البحث النصي (الاسم أو الوصف)
+        if (searchTerm.trim() !== '') {
+            const query = searchTerm.toLowerCase();
+            const title = String(proj.official_name || proj.title || '').toLowerCase();
+            const desc = String(proj.description || proj.full_details || '').toLowerCase();
+            if (!title.includes(query) && !desc.includes(query)) return false;
+        }
 
-        // مطابقة البرنامج الرئيسي عبر العمود program_id
-        const matchesMainProgram = selectedMainProgram === 'الكل' || proj.program_id === selectedMainProgram;
+        // 2. فلتر المركز الإداري / المنطقة (من القائمة المنسدلة)
+        if (selectedAdministrativeArea !== 'عرض كلي') {
+            const locValue = String(proj.province || proj.district || proj.location || '').trim();
+            if (locValue !== selectedAdministrativeArea.trim()) return false;
+        }
 
-        // مطابقة المشروع الموسمي عبر العمود seasonal_category أو حقل is_seasonal
-        const matchesSeasonal = selectedSeasonalProgram === 'الكل' || 
-            proj.seasonal_category === selectedSeasonalProgram ||
-            (selectedSeasonalProgram !== 'الكل' && proj.is_seasonal === true);
+        // 3. فلتر البرنامج الرئيسي (مُطابق لـ program_id)
+        if (selectedMainProgram !== 'الكل') {
+            const projMain = String(proj.program_id || '').trim();
+            if (projMain !== selectedMainProgram.trim()) return false;
+        }
 
-        // مطابقة القطاع
-        const matchesSector = selectedSector === 'الكل' || proj.sector === selectedSector;
+        // 4. فلتر التصنيف الموسمي
+        if (selectedSeasonalProgram !== 'الكل') {
+            const projSeason = String(proj.seasonal_category || '').trim();
+            if (projSeason !== selectedSeasonalProgram.trim()) return false;
+        }
 
-        // مطابقة المركز الإداري/الموقع
-        const locValue = proj.location || proj.province;
-        const matchesAdmin = selectedAdministrativeArea === 'عرض كلي' || locValue === selectedAdministrativeArea;
+        // 5. فلتر القطاعات التنموية
+        if (selectedSector !== 'الكل') {
+            const targetSector = selectedSector.trim();
+            const fullRowText = JSON.stringify(proj).toLowerCase();
+            
+            if (targetSector === 'الغذاء والمأوى') {
+                const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال') || fullRowText.includes('الغذاء والمأوى');
+                if (!hasFood) return false;
+            } else if (targetSector === 'التعليم') {
+                if (!fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة') && !fullRowText.includes('اقرأ')) return false;
+            } else if (targetSector === 'الصحة') {
+                if (!fullRowText.includes('صحة') && !fullRowText.includes('طبي') && !fullRowText.includes('علاج')) return false;
+            } else if (targetSector === 'المياه') {
+                if (!fullRowText.includes('مياه') && !fullRowText.includes('إصحاح') && !fullRowText.includes('بئر')) return false;
+            } else {
+                if (!fullRowText.includes(targetSector.toLowerCase())) return false;
+            }
+        }
 
-        return matchesSearch && matchesMainProgram && matchesSeasonal && matchesSector && matchesAdmin;
+        // 6. تصفية إضافية في حال تم الضغط على محافظة معينة من الخريطة أو قائمة المحافظات الجانبية
+        if (selectedGovName) {
+            const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
+            if (loc !== selectedGovName) return false;
+        }
+
+        return true;
     });
 
-    // تجميع المشاريع المصفاة حسب الموقع للخريطة والقائمة
+    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية (تعتمد على النتائج المصفاة)
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = (proj.location || proj.province) ? (proj.location || proj.province).trim() : 'أخرى';
+        const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -77,21 +109,47 @@ const ProjectsPage = () => {
         }
         governoratesMap[loc].projects.push(proj);
 
-        if (proj.status === 'منفذة' || proj.status === 'مكتمل') governoratesMap[loc].completedCount++;
-        else if (proj.status === 'قيد التنفيذ' || proj.status === 'جديد') governoratesMap[loc].inProgressCount++;
-        else governoratesMap[loc].plannedCount++;
+        const statusVal = String(proj.status || '').trim();
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز') || statusVal.includes('completed')) {
+            governoratesMap[loc].completedCount++;
+        } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد') || statusVal.includes('in_progress')) {
+            governoratesMap[loc].inProgressCount++;
+        } else {
+            governoratesMap[loc].plannedCount++;
+        }
     });
 
     const handleSelectGovernorate = (govName) => {
-        setSelectedGovName(govName);
-        setIsGovModalOpen(true);
+        if (selectedGovName === govName) {
+            setSelectedGovName(null); // إلغاء التحديد عند الضغط مرتين
+        } else {
+            setSelectedGovName(govName);
+            // مزامنة القائمة المنسدلة للمركز الإداري مع الخريطة أيضاً لضمان التكامل
+            setSelectedAdministrativeArea(govName);
+        }
     };
 
-    const currentGovData = selectedGovName ? governoratesMap[selectedGovName] : null;
+    // إعادة ضبط جميع الفلاتر وعرض كافة البيانات
+    const handleResetFilters = () => {
+        setSearchTerm('');
+        setSelectedMainProgram('الكل');
+        setSelectedSeasonalProgram('الكل');
+        setSelectedSector('الكل');
+        setSelectedAdministrativeArea('عرض كلي');
+        setSelectedGovName(null);
+    };
 
-    // إحصائيات الرسم البياني الدائري
-    const completedTotal = filteredProjects.filter(p => p.status === 'منفذة' || p.status === 'مكتمل').length;
-    const inProgressTotal = filteredProjects.filter(p => p.status === 'قيد التنفيذ' || p.status === 'جديد').length;
+    // حسابات مؤشر الأداء العام للرسم البياني الدائري
+    const completedTotal = filteredProjects.filter(p => {
+        const s = String(p.status || '');
+        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز') || s.includes('completed');
+    }).length;
+    
+    const inProgressTotal = filteredProjects.filter(p => {
+        const s = String(p.status || '');
+        return s.includes('قيد التنفيذ') || s.includes('جديد') || s.includes('in_progress');
+    }).length;
+
     const plannedTotal = filteredProjects.length - (completedTotal + inProgressTotal);
 
     const chartData = [
@@ -135,6 +193,17 @@ const ProjectsPage = () => {
                 <aside className="hac-dash-sidebar" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                   <div className="hac-dash-panel">
                     
+                    {/* زر مسح الفلاتر السريع */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>لوحة التحكم والفلترة</h4>
+                        <button 
+                            onClick={handleResetFilters}
+                            style={{ fontSize: '11px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                            إزالة كافة الفلاتر (عرض الكل)
+                        </button>
+                    </div>
+
                     {/* حقل البحث */}
                     <div className="search-box" style={{ marginBottom: '15px' }}>
                         <input 
@@ -160,10 +229,10 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية */}
-                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية</h4>
+                    {/* المشاريع الموسمية والتصنيفات */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
+                        {['الكل', 'مشاريع عامة وتنموية', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
                             <button 
                                 key={season} 
                                 className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
@@ -180,7 +249,11 @@ const ProjectsPage = () => {
                     <div style={{ marginBottom: '15px' }}>
                         <select 
                             value={selectedAdministrativeArea} 
-                            onChange={(e) => setSelectedAdministrativeArea(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedAdministrativeArea(val);
+                                setSelectedGovName(val === 'عرض كلي' ? null : val);
+                            }}
                             style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
                         >
                             {uniqueLocations.map(loc => (
@@ -192,7 +265,7 @@ const ProjectsPage = () => {
                     {/* القطاعات التنموية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ', 'البنية التحتية'].map(sector => (
+                        {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ والطاقة الخضراء', 'البنية التحتية'].map(sector => (
                             <button 
                                 key={sector} 
                                 className={`filter-btn ${selectedSector === sector ? 'active' : ''}`}
@@ -208,9 +281,19 @@ const ProjectsPage = () => {
                     
                     <div className="gov-list-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         {loading ? (
-                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل...</p>
-                        ) : Object.keys(governoratesMap).length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>لا توجد بيانات مطابقة</p>
+                            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل من قاعدة البيانات...</p>
+                        ) : filteredProjects.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '15px' }}>
+                                <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
+                                    لا توجد مشاريع في قاعدة البيانات تتطابق مع هذه الفلاتر المختارة.
+                                </p>
+                                <button 
+                                    onClick={handleResetFilters}
+                                    style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', padding: '5px 12px', cursor: 'pointer', fontSize: '11px' }}
+                                >
+                                    إعادة ضبط وعرض كافة المشاريع
+                                </button>
+                            </div>
                         ) : (
                             Object.keys(governoratesMap).map((locKey) => {
                                 const gov = governoratesMap[locKey];
@@ -270,96 +353,73 @@ const ProjectsPage = () => {
                 </aside>
             </main>
 
-            {/* نوافذ عرض التفاصيل (Modals) عند الضغط على الخريطة */}
-            {isGovModalOpen && currentGovData && (
-                <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
-                    <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
-                        <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
-                        
-                        <div className="hac-modal-header">
-                            <span className="hac-modal-badge">مشاريع منطقة {currentGovData.name}</span>
-                            <h2>لوحة معلومات المنطقة</h2>
-                        </div>
+            {/* قسم عرض شبكة بطاقات المشاريع (Projects Cards Grid) */}
+            <section className="hac-projects-grid-section" style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <h3 style={{ fontSize: '16px', color: '#1e293b', margin: 0 }}>
+                        قائمة بطاقات المشاريع ({filteredProjects.length} مشروع)
+                    </h3>
+                    {selectedGovName && (
+                        <span style={{ fontSize: '12px', background: '#e0f2fe', color: '#0369a1', padding: '4px 10px', borderRadius: '4px' }}>
+                            منطقة محددة: {selectedGovName} <button onClick={() => { setSelectedGovName(null); setSelectedAdministrativeArea('عرض كلي'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold', color: '#0369a1' }}>×</button>
+                        </span>
+                    )}
+                </div>
 
-                        <div className="hac-modal-stats">
-                            <div className="hac-m-box">
-                                <span className="m-val">{currentGovData.projects.length}</span>
-                                <span className="m-lbl">إجمالي المشاريع</span>
-                            </div>
-                            <div className="hac-m-box">
-                                <span className="m-val">{currentGovData.completedCount}</span>
-                                <span className="m-lbl">مشاريع منفذة</span>
-                            </div>
-                            <div className="hac-m-box">
-                                <span className="m-val">{currentGovData.inProgressCount}</span>
-                                <span className="m-lbl">قيد التنفيذ / جديد</span>
-                            </div>
-                        </div>
-
-                        <h4 className="hac-sub-title">جميع المشاريع التابعة للمنطقة:</h4>
-                        <div className="hac-projects-table-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                            {currentGovData.projects.map((proj) => (
-                                <div key={proj.id} className="hac-proj-row-item">
-                                    <div className="hac-proj-info-group">
-                                        <h5>{proj.title}</h5>
-                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description}</p>
-                                        <span className="hac-status-badge in-progress" style={{ marginTop: '5px', display: 'inline-block' }}>
-                                            {proj.status}
+                {loading ? (
+                    <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>جاري تحميل البطاقات...</p>
+                ) : filteredProjects.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '30px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '10px' }}>لا توجد بطايق مشاريع مطابقة للفلاتر الحالية.</p>
+                        <button onClick={handleResetFilters} style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', padding: '6px 14px', cursor: 'pointer', fontSize: '12px' }}>
+                            إعادة ضبط الفلاتر
+                        </button>
+                    </div>
+                ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px' }}>
+                        {filteredProjects.map((project, idx) => (
+                            <div 
+                                key={project.id || idx} 
+                                style={{ 
+                                    background: '#ffffff', 
+                                    border: '1px solid #e2e8f0', 
+                                    borderRadius: '8px', 
+                                    padding: '15px', 
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                                }}
+                            >
+                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                                        <span style={{ fontSize: '10px', background: '#f1f5f9', color: '#475569', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                                            {project.program_id || project.seasonal_category || 'عام'}
+                                        </span>
+                                        <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', background: String(project.status || '').includes('منفذة') ? '#dcfce7' : '#fef3c7', color: String(project.status || '').includes('منفذة') ? '#166534' : '#92400e' }}>
+                                            {project.status || 'قيد التنفيذ'}
                                         </span>
                                     </div>
-                                    <button className="hac-detail-open-btn" onClick={() => setSelectedProject(proj)}>
-                                        عرض التفاصيل الكاملة
-                                    </button>
+                                    
+                                    <h4 style={{ fontSize: '14px', color: '#0f172a', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                                        {project.official_name || project.title || 'مشروع بدون عنوان'}
+                                    </h4>
+                                    
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                        {project.description || project.full_details || 'لا يوجد وصف تفصيلي متاح لهذا المشروع حالياً.'}
+                                    </p>
                                 </div>
-                            ))}
-                        </div>
 
-                        <button className="hac-action-btn" onClick={() => setIsGovModalOpen(false)} style={{ marginTop: '20px' }}>إغلاق القائمة</button>
+                                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b' }}>
+                                    <span>📍 {project.province || project.district || project.location || 'غير محدد'}</span>
+                                    {project.budget && <span style={{ fontWeight: 'bold', color: '#0f172a' }}>{project.budget}</span>}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
-            )}
-
-            {selectedProject && (
-                <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
-                    <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
-                        <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
-                        
-                        <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
-                            <h2>{selectedProject.title}</h2>
-                        </div>
-
-                        <div className="deep-modal-content">
-                            <div className="deep-info-block">
-                                <strong>وصف المشروع:</strong>
-                                <p>{selectedProject.description}</p>
-                            </div>
-
-                            <div className="deep-info-block" style={{ marginTop: '10px' }}>
-                                <strong>التفاصيل الكاملة (full_details):</strong>
-                                <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
-                            </div>
-
-                            <div className="deep-info-grid" style={{ marginTop: '15px' }}>
-                                <div className="deep-box">
-                                    <span className="deep-label">الحالة:</span>
-                                    <span className="deep-val">{selectedProject.status}</span>
-                                </div>
-                                <div className="deep-box">
-                                    <span className="deep-label">الموقع:</span>
-                                    <span className="deep-val">{selectedProject.location || selectedProject.province}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="deep-actions">
-                            <button className="hac-action-btn pdf-action" onClick={() => alert('جاري تحميل التقرير...')} style={{ width: '100%' }}>
-                                تحميل تقرير المشروع (PDF)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                )}
+            </section>
         </div>
     );
 };
