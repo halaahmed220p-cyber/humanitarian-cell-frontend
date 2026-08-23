@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// إصلاح أيقونات Leaflet
+// إصلاح أيقونات Leaflet الافتراضية
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -11,43 +11,9 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapComponent = ({ governorateData, onSelectGovernorate }) => {
-    // إحداثيات المحافظات الأساسية
-    const governorateCoords = {
-        'صنعاء': { lat: 15.3694, lng: 44.1910 },
-        'تعز': { lat: 13.5779, lng: 44.0219 },
-        'الحديدة': { lat: 14.7979, lng: 42.9545 },
-        'إب': { lat: 13.9667, lng: 44.1833 },
-        'عدن': { lat: 12.7855, lng: 45.0187 },
-        'حضرموت': { lat: 15.9250, lng: 48.7900 },
-        'المحويت': { lat: 15.4700, lng: 43.5400 },
-        'حجة': { lat: 15.7042, lng: 43.6042 },
-        'ذمار': { lat: 14.5423, lng: 44.4050 },
-        'عمران': { lat: 16.6561, lng: 43.9454 },
-        'صعدة': { lat: 16.9404, lng: 43.7639 },
-        'أبين': { lat: 13.3500, lng: 45.6667 },
-        'لحج': { lat: 13.0592, lng: 44.8828 },
-        'الضالع': { lat: 13.6925, lng: 44.7303 },
-        'شبوه': { lat: 15.0000, lng: 46.8333 },
-        'المهرة': { lat: 16.2078, lng: 51.1578 },
-        'مارب': { lat: 15.4286, lng: 45.3286 },
-        'الجوف': { lat: 16.5000, lng: 45.5000 },
-        'أخرى': { lat: 15.5527, lng: 48.5164 }
-    };
-
-    // دالة ذكية للبحث عن الإحداثيات بغض النظر عن الزوائد مثل "محافظة" أو المسافات
-    const getCoordsForGov = (name) => {
-        if (!name) return { lat: 15.5, lng: 44.5 };
-        const cleanName = name.replace('محافظة', '').trim();
-        
-        // البحث المباشر أو الجزئي
-        for (const key of Object.keys(governorateCoords)) {
-            if (cleanName.includes(key) || key.includes(cleanName)) {
-                return governorateCoords[key];
-            }
-        }
-        return { lat: 15.5, lng: 44.5 }; // إحداثيات افتراضية في وسط اليمن إذا لم يتم العثور عليها
-    };
+const MapComponent = ({ projectsData, onSelectProject }) => {
+    // إحداثيات مركز اليمن الافتراضية
+    const yemenCenter = [15.5, 47.5];
 
     const yemenBounds = [
         [12.0, 41.0], 
@@ -57,13 +23,13 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
     return (
         <div style={{ width: '100%', height: '100%', flex: 1, position: 'relative' }}>
             <MapContainer 
-                center={[15.5, 47.5]} 
+                center={yemenCenter} 
                 zoom={6} 
                 minZoom={6}
-                maxZoom={13}
+                maxZoom={15}
                 maxBounds={yemenBounds}
                 maxBoundsViscosity={1.0}
-                style={{ width: '100%', height: '100%', borderRadius: '0px', background: '#f8fafc', zIndex: 1 }}
+                style={{ width: '100%', height: '100%', background: '#f8fafc', zIndex: 1 }}
                 scrollWheelZoom={true}
             >
                 <TileLayer
@@ -72,65 +38,54 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
                     maxZoom={18}
                 />
 
-                {governorateData && Object.keys(governorateData).map((key) => {
-                    const gov = governorateData[key];
-                    const govName = gov.name ? gov.name.trim() : key;
-                    const coords = getCoordsForGov(govName);
-                    const count = gov.projects ? gov.projects.length : 0;
+                {/* المرور على كل المشاريع ورسم علامة لكل مشروع بناءً على إحداثياته الدقيقة */}
+                {projectsData && Array.isArray(projectsData) && projectsData.map((project, index) => {
+                    const lat = parseFloat(project.خط_العرض_Latitude || project.latitude);
+                    const lng = parseFloat(project.خط_الطول_Longitude || project.longitude);
 
-                    if (count === 0) return null; // عدم إظهار أي نقاط فارغة
+                    // تخطي المشاريع التي لا تحتوي على إحداثيات صحيحة
+                    if (isNaN(lat) || isNaN(lng)) return null;
 
                     const customIcon = L.divIcon({
                         className: 'custom-map-marker',
                         html: `<div style="
                             background-color: #1e40af; 
                             color: white; 
-                            width: 34px; 
-                            height: 34px; 
+                            width: 24px; 
+                            height: 24px; 
                             border-radius: 50%; 
                             display: flex; 
                             align-items: center; 
                             justify-content: center; 
                             font-weight: bold; 
-                            font-size: 13px;
+                            font-size: 11px;
                             border: 2px solid white;
-                            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-                        ">${count}</div>`,
-                        iconSize: [34, 34],
-                        iconAnchor: [17, 17]
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        ">•</div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
                     });
 
                     return (
                         <Marker 
-                            key={key} 
-                            position={[coords.lat, coords.lng]} 
+                            key={project.الرقم_التسلسلي || index} 
+                            position={[lat, lng]} 
                             icon={customIcon}
-                            eventHandlers={{
-                                click: () => {
-                                    if (onSelectGovernorate) {
-                                        onSelectGovernorate(govName);
-                                    }
-                                }
-                            }}
                         >
                             <Popup>
-                                <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
-                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{govName}</strong>
-                                    <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {count}</p>
-                                    <button 
-                                        onClick={() => onSelectGovernorate && onSelectGovernorate(govName)}
-                                        style={{
-                                            background: '#2563eb',
-                                            color: '#fff',
-                                            border: 'none',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontSize: '11px'
-                                        }}
-                                    >
-                                        عرض المشاريع
-                                    </button>
+                                <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl', minWidth: '180px' }}>
+                                    <strong style={{ color: '#1e3a8a', fontSize: '13px' }}>
+                                        {project.اسم_المشروع_المعتمد || 'مشروع بدون عنوان'}
+                                    </strong>
+                                    <p style={{ margin: '4px 0', fontSize: '11px', color: '#4b5563' }}>
+                                        <strong>المحافظة:</strong> {project.المحافظة}
+                                    </p>
+                                    <p style={{ margin: '4px 0', fontSize: '11px', color: '#4b5563' }}>
+                                        <strong>القطاع:</strong> {project.القطاع_التنموي}
+                                    </p>
+                                    <p style={{ margin: '4px 0', fontSize: '11px', color: '#4b5563' }}>
+                                        <strong>المستفيدين:</strong> {project.عدد_المستفيدين}
+                                    </p>
                                 </div>
                             </Popup>
                         </Marker>
