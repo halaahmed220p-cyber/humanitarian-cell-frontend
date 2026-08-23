@@ -39,6 +39,7 @@ const ProjectsPage = () => {
     }).filter(Boolean))];
 
     // تصفية المشاريع بالمطابقة الدقيقة للأعمدة الحقيقية (program_id & seasonal_category)
+    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة (البرنامج + التصنيف + القطاع)
     const filteredProjects = projectsList.filter(proj => {
         // 1. فلتر البحث النصي (الاسم أو الوصف)
         if (searchTerm.trim() !== '') {
@@ -66,22 +67,27 @@ const ProjectsPage = () => {
             if (projSeason !== selectedSeasonalProgram.trim()) return false;
         }
 
-        // 5. فلتر القطاعات التنموية
+        // 5. فلتر القطاعات التنموية (بحث شامل يطابق الحقول أو الوصف لضمان ظهور النتائج)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
-            const projSector = String(proj.sector || proj.description || proj.full_details || '').trim();
+            const fullRowText = JSON.stringify(proj).toLowerCase(); // تحويل كافة بيانات المشروع إلى نص للبحث الشامل
             
             if (targetSector === 'الغذاء والمأوى') {
-                const isFoodOrShelter = projSector.includes('الغذاء') || projSector.includes('المأوى') || projSector.includes('تمر') || projSector.includes('سلال');
-                if (!isFoodOrShelter) return false;
+                const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال') || fullRowText.includes('الغذاء والمأوى');
+                if (!hasFood) return false;
+            } else if (targetSector === 'التعليم') {
+                if (!fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة') && !fullRowText.includes('اقرأ')) return false;
+            } else if (targetSector === 'الصحة') {
+                if (!fullRowText.includes('صحة') && !fullRowText.includes('طبي') && !fullRowText.includes('علاج')) return false;
+            } else if (targetSector === 'المياه') {
+                if (!fullRowText.includes('مياه') && !fullRowText.includes('إصحاح') && !fullRowText.includes('بئر')) return false;
             } else {
-                if (!projSector.includes(targetSector)) return false;
+                if (!fullRowText.includes(targetSector.toLowerCase())) return false;
             }
         }
 
         return true;
     });
-
     // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
