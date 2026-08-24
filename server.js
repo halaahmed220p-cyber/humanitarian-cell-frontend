@@ -418,6 +418,17 @@ app.get('/api/field-reports', async (req, res) => {
   }
 });
 
+// مسار جلب البرامج من قاعدة البيانات
+app.get('/api/programs', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT id, name FROM programs ORDER BY id ASC');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error fetching programs:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // مسار تسجيل دخول الشركاء والمانحين
 app.post('/api/partners/login', async (req, res) => {
   const { username, password } = req.body;
