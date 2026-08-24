@@ -24,10 +24,12 @@ const ProjectsPage = () => {
             try {
                 const projRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const projData = await projRes.json();
+                console.log("📦 عينة من بيانات المشاريع المستلمة:", projData[0]); // لفحص الحقول في المتصفح F12
                 setProjectsList(projData);
 
                 const progRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/programs');
                 const progData = await progRes.json();
+                console.log("📂 قائمة البرامج:", progData);
                 setProgramsList(progData);
 
                 setLoading(false);
@@ -40,13 +42,16 @@ const ProjectsPage = () => {
         fetchData();
     }, []);
 
-    const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => String(p.project_category || p.program_name || '').trim()).filter(Boolean))];
+    // استخراج التصنيفات بأمان
+    const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => {
+        return String(p.project_category || p.category || p.program_name || '').trim();
+    }).filter(Boolean))];
 
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
         return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بمنطق مرن يمنع تصفير النتائج بالخطأ
+    // منطق تصفية فائق المرونة (لا يهم نوع أو اسم الحقل، يبحث داخل كامل كائن المشروع)
     const filteredProjects = projectsList.filter(proj => {
         const fullRowText = JSON.stringify(proj).toLowerCase();
 
@@ -62,43 +67,34 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلترة البرنامج الرئيسي (إذا لم يكن "الكل")
+        // 3. فلترة البرنامج الرئيسي
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.toLowerCase();
-            // البحث داخل الحقول النصية أو الرقمية أو محتوى الصف بالكامل
+            // مطابقة ذكية مع اسم البرنامج، أو الـ ID، أو النص العام للصف
             const matchesMain = 
-                String(proj.program_id || '').toLowerCase().includes(targetMain) ||
-                String(proj.program_name || '').toLowerCase().includes(targetMain) ||
-                fullRowText.includes(targetMain);
+                fullRowText.includes(targetMain) || 
+                String(proj.program_id || '').toLowerCase() === targetMain;
             if (!matchesMain) return false;
         }
 
-        // 4. فلترة التصنيف الموسمي (إذا لم يكن "الكل")
+        // 4. فلترة التصنيف الموسمي
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.toLowerCase();
             const matchesSeason = 
-                String(proj.project_category || '').toLowerCase().includes(targetSeason) ||
-                fullRowText.includes(targetSeason);
+                fullRowText.includes(targetSeason) ||
+                String(proj.project_category || '').toLowerCase() === targetSeason;
             if (!matchesSeason) return false;
         }
 
-        // 5. فلترة القطاعات التنموية (إذا لم يكن "الكل")
+        // 5. القطاعات التنموية
         if (selectedSector !== 'الكل') {
-            const targetSector = selectedSector.trim();
-            const projSector = String(proj.sector_id || '').trim();
-
-            if (projSector !== targetSector && projSector !== '') {
-                if (targetSector === 'الغذاء والمأوى') {
-                    if (!fullRowText.includes('غذاء') && !fullRowText.includes('مأوى') && !fullRowText.includes('تمر') && !fullRowText.includes('سلال')) return false;
-                } else if (targetSector === 'التعليم' && !fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة')) {
-                    return false;
-                } else if (targetSector === 'الصحة' && !fullRowText.includes('صحة') && !fullRowText.includes('طبي')) {
-                    return false;
-                } else if (targetSector === 'المياه' && !fullRowText.includes('مياه') && !fullRowText.includes('بئر')) {
-                    return false;
-                } else if (!fullRowText.includes(targetSector.toLowerCase())) {
-                    return false;
-                }
+            const targetSector = selectedSector.trim().toLowerCase();
+            if (!fullRowText.includes(targetSector)) {
+                // مرونة إضافية للقطاعات الشائعة
+                if (targetSector === 'الغذاء والمأوى' && !fullRowText.includes('غذاء') && !fullRowText.includes('مأوى') && !fullRowText.includes('تمر') && !fullRowText.includes('سلال')) return false;
+                if (targetSector === 'التعليم' && !fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة')) return false;
+                if (targetSector === 'الصحة' && !fullRowText.includes('صحة') && !fullRowText.includes('طبي')) return false;
+                if (targetSector === 'المياه' && !fullRowText.includes('مياه') && !fullRowText.includes('بئر')) return false;
             }
         }
 
@@ -125,7 +121,7 @@ const ProjectsPage = () => {
         governoratesMap[loc].projects.push(proj);
 
         const statusVal = String(proj.project_status || '').trim();
-        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('completed')) {
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('completed') || statusVal.includes('منجز')) {
             governoratesMap[loc].completedCount++;
         } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد') || statusVal.includes('in_progress')) {
             governoratesMap[loc].inProgressCount++;
@@ -157,7 +153,7 @@ const ProjectsPage = () => {
 
     const completedTotal = filteredProjects.filter(p => {
         const s = String(p.project_status || '');
-        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('completed');
+        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('completed') || s.includes('منجز');
     }).length;
 
     const inProgressTotal = filteredProjects.filter(p => {
