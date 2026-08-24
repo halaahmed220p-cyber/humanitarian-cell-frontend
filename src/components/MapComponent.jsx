@@ -12,7 +12,6 @@ L.Icon.Default.mergeOptions({
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
     
-    // إحداثيات شاملة لكافة المحافظات الـ 11 في اليمن
     const allProvincesCoords = {
         'تعز': { lat: 13.5779, lng: 44.0219, count: 45 },
         'عدن': { lat: 12.7855, lng: 45.0187, count: 30 },
@@ -29,7 +28,6 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
 
     const dynamicGroups = {};
 
-    // إذا توفرت مشاريع حقيقية يتم توزيعها، وإلا يتم استخدام توزع المحافظات الـ 11 الكامل
     if (projects && projects.length > 0) {
         projects.forEach(proj => {
             let provName = proj.province_name || proj.governorate || 'تعز';
@@ -54,13 +52,19 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
             dynamicGroups[matchedKey].projects.push(proj);
         });
     } else {
-        // تعبئة كافة المحافظات الـ 11 افتراضياً لضمان ظهور النقاط وتوافقها مع العداد العلوي
         Object.keys(allProvincesCoords).forEach(key => {
+            // بيانات تجريبية مطابقة للتصميم في حال لم تتوفر المشاريع مباشرة في الـ prop
+            const sampleProjects = [
+                { project_name: `مشروع حفر آبار مياه الشرب ب${key}`, program_name: 'صرح', sector_name: 'المياه', execution_year: '2024' },
+                { project_name: `بناء وتجهيز مدارس ب${key}`, program_name: 'وسم', sector_name: 'التعليم', execution_year: '2023' },
+                { project_name: `ترميم وتجهيز المستشفى العام ب${key}`, program_name: 'صرح', sector_name: 'الصحة', execution_year: '2024' }
+            ];
+
             dynamicGroups[key] = {
                 name: key,
                 count: allProvincesCoords[key].count,
                 coords: allProvincesCoords[key],
-                projects: []
+                projects: sampleProjects
             };
         });
     }
@@ -125,24 +129,66 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                 }
                             }}
                         >
-                            <Popup>
-                                <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
-                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{item.name}</strong>
-                                    <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {item.count}</p>
-                                    <button 
-                                        onClick={() => onSelectGovernorate && onSelectGovernorate(item.name)}
-                                        style={{
-                                            background: '#2563eb',
-                                            color: '#fff',
-                                            border: 'none',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontSize: '11px'
-                                        }}
-                                    >
-                                        عرض المشاريع
-                                    </button>
+                            <Popup maxWidth={340} maxHeight={400}>
+                                <div style={{ 
+                                    textAlign: 'right', 
+                                    fontFamily: 'Cairo, sans-serif', 
+                                    direction: 'rtl',
+                                    width: '300px',
+                                    padding: '5px'
+                                }}>
+                                    {/* رأس النافذة */}
+                                    <div style={{ 
+                                        borderBottom: '2px solid #e2e8f0', 
+                                        paddingBottom: '8px', 
+                                        marginBottom: '10px' 
+                                    }}>
+                                        <h3 style={{ margin: '0 0 5px 0', color: '#1e3a8a', fontSize: '16px', fontWeight: 'bold' }}>
+                                            محافظة {item.name}
+                                        </h3>
+                                        <span style={{ color: '#64748b', fontSize: '12px' }}>
+                                            المحافظة: {item.name} | إجمالي المشاريع: {item.count}
+                                        </span>
+                                    </div>
+
+                                    {/* قائمة بطاقات المشاريع داخل النافذة */}
+                                    <div style={{ maxHeight: '250px', overflowY: 'auto', paddingRight: '2px' }}>
+                                        {item.projects && item.projects.length > 0 ? (
+                                            item.projects.slice(0, 5).map((proj, idx) => (
+                                                <div key={idx} style={{ 
+                                                    background: '#f8fafc', 
+                                                    border: '1px solid #e2e8f0', 
+                                                    borderRadius: '6px', 
+                                                    padding: '8px', 
+                                                    marginBottom: '8px',
+                                                    position: 'relative',
+                                                    borderRight: '4px solid #0284c7'
+                                                }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                        <span style={{ 
+                                                            fontSize: '11px', 
+                                                            background: '#e0f2fe', 
+                                                            color: '#0369a1', 
+                                                            padding: '2px 6px', 
+                                                            borderRadius: '4px',
+                                                            fontWeight: 'bold'
+                                                        }}>
+                                                            {proj.program_name || 'صرح'}
+                                                        </span>
+                                                    </div>
+                                                    <p style={{ margin: '6px 0 4px 0', fontSize: '13px', fontWeight: 'bold', color: '#1e293b' }}>
+                                                        {proj.project_name || proj.name}
+                                                    </p>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
+                                                        <span>{proj.sector_name || proj.sector || 'تنمية'}</span>
+                                                        <span>{proj.execution_year || '2024'}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p style={{ fontSize: '12px', color: '#64748b', textAlign: 'center' }}>لا توجد مشاريع مفصلة</p>
+                                        )}
+                                    </div>
                                 </div>
                             </Popup>
                         </Marker>
