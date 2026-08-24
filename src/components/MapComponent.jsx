@@ -12,15 +12,15 @@ L.Icon.Default.mergeOptions({
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
     
-    // قاموس الإحداثيات الشامل للمحافظات والمديريات (مثل صبر)
+    // خريطة دقيقة للإحداثيات تشمل المديريات والمناطق الفرعية
     const locationsCoords = {
-        'تعز': { lat: 13.5779, lng: 44.0219 },
         'صبر': { lat: 13.5200, lng: 44.0500 },
         'صالة': { lat: 13.5800, lng: 44.0400 },
-        'الحديدة': { lat: 14.7979, lng: 42.9545 },
-        'عدن': { lat: 12.7855, lng: 45.0187 },
-        'مأرب': { lat: 15.4286, lng: 45.3286 },
+        'تعز': { lat: 13.5779, lng: 44.0219 },
         'إب': { lat: 13.9667, lng: 44.1833 },
+        'عدن': { lat: 12.7855, lng: 45.0187 },
+        'الحديدة': { lat: 14.7979, lng: 42.9545 },
+        'مأرب': { lat: 15.4286, lng: 45.3286 },
         'لحج': { lat: 13.0592, lng: 44.8828 },
         'الضالع': { lat: 13.6925, lng: 44.7303 },
         'أبين': { lat: 13.3500, lng: 45.6600 },
@@ -31,16 +31,26 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
 
     const dynamicGroups = {};
 
-    // تجميع المشاريع الحقيقية القادمة من الفلتر
     if (projects && projects.length > 0) {
         projects.forEach(proj => {
-            let placeName = proj.region || proj.district || proj.province_name || proj.province || proj.governorate || 'تعز';
+            // فحص كافة الحقول المحتملة التي قد تحتوي على اسم المنطقة أو المديرية أو المحافظة
+            let placeName = proj.district || proj.region || proj.area || proj.location || proj.province_name || proj.province || proj.governorate || 'تعز';
             
-            let matchedKey = 'تعز';
+            let matchedKey = '';
+            
+            // البحث عن مطابقة دقيقة داخل النص (مثل البحث عن كلمة صبر أو إب أو تعز)
             for (let key of Object.keys(locationsCoords)) {
                 if (placeName.includes(key)) {
                     matchedKey = key;
                     break;
+                }
+            }
+
+            // إذا لم يتم العثور على مطابقة، نستخدم المحافظة أو القيمة الموجودة كاسم للموقع ونعطيه إحداثيات تعز الافتراضية
+            if (!matchedKey) {
+                matchedKey = placeName;
+                if (!locationsCoords[matchedKey]) {
+                    locationsCoords[matchedKey] = { lat: 13.5779 + (Math.random() * 0.1), lng: 44.0219 + (Math.random() * 0.1) };
                 }
             }
 
@@ -49,7 +59,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     name: matchedKey,
                     count: 0,
                     projects: [],
-                    coords: locationsCoords[matchedKey] || { lat: 13.5779, lng: 44.0219 }
+                    coords: locationsCoords[matchedKey]
                 };
             }
 
