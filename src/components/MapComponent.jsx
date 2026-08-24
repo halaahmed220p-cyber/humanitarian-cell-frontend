@@ -11,8 +11,8 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapComponent = ({ governorateData, onSelectGovernorate }) => {
-    // قاموس إحداثيات المحافظات الشامل لجميع المناطق الواردة في قاعدة البيانات
+const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
+    // 1. قاموس الإحداثيات الجغرافية الثابت (لربط اسم المحافظة من جدول provinces بخطوط الطول والعرض)
     const governorateCoords = {
         'تعز': { lat: 13.5779, lng: 44.0219 },
         'الحديدة': { lat: 14.7979, lng: 42.9545 },
@@ -23,36 +23,55 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
         'البيضاء': { lat: 14.3300, lng: 45.5700 },
         'عدن': { lat: 12.7855, lng: 45.0187 },
         'الجوف': { lat: 16.5000, lng: 45.5000 },
-        'حضرموت': { lat: 15.9250, lng: 48.7900 },
-        'تعز، الحديدة': { lat: 13.5500, lng: 43.3000 }
+        'حضرموت': { lat: 15.9250, lng: 48.7900 }
     };
 
-    // دالة ذكية للبحث عن الإحداثيات والتعرف على المديريات التابعة لتعز (مثل صبر، المواسط، المعافر، إلخ)
     const getCoordsForGov = (name) => {
         if (!name) return { lat: 15.5, lng: 44.5 };
-        const cleanName = name.replace('محافظة', '').trim();
+        const cleanName = String(name).replace('محافظة', '').trim();
         
-        // قائمة مديريات تعز لضمان مطابقتها وتوجيهها لإحداثيات تعز
-        const taizzDistricts = [
-            'صبر', 'المواسط', 'المسراخ', 'جبل حبشي', 'المعافر', 'الشمايتين', 
-            'مشرعة', 'حدنان', 'المخا', 'موزع', 'ذوباب', 'الوازعية', 'القاهرة', 
-            'صالة', 'المظفر', 'خدير', 'مقبنة', 'التربة', 'يختل', 'الزهاري'
-        ];
-
-        if (cleanName.includes('تعز') || taizzDistricts.some(district => cleanName.includes(district))) {
-            return governorateCoords['تعز'];
-        }
-
         for (const key of Object.keys(governorateCoords)) {
             if (cleanName === key || cleanName.includes(key) || key.includes(cleanName)) {
                 return governorateCoords[key];
             }
         }
-        
         return { lat: 15.5, lng: 44.5 };
     };
 
-    // حدود اليمن لتقييد حركة الخريطة ضمن النطاق الجغرافي المطلوب
+    // 2. تجميع المشاريع بناءً على المحافظات الواردة من قاعدة البيانات (provincesList + projects)
+    const groupedData = {};
+
+    // تهيئة القاموس بجميع المحافظات الموجودة في قاعدة البيانات مسبقاً (حتى لو كان عدد مشاريعها صفر أو حسب الفلتر)
+    provincesList.forEach(prov => {
+        groupedData[prov.id] = {
+            id: prov.id,
+            name: prov.name,
+            count: 0,
+            projects: []
+        };
+    });
+
+    // توزيع المشاريع المفلترة على المحافظات المطابقة لـ province_id
+    projects.forEach(proj => {
+        const provId = proj.province_id;
+        if (provId && groupedData[provId]) {
+            groupedData[provId].count += 1;
+            groupedData[provId].projects.push(proj);
+        } else {
+            // في حال كان المشروع يتبع اسم محافظة نصي وليس ID مباشر
+            const provName = proj.province_name || proj.province || 'أخرى';
+            let foundKey = Object.keys(groupedData).find(k => groupedData[k].name === provName);
+            if (!foundKey) {
+                foundKey = 'other';
+                if (!groupedData['other']) {
+                    groupedData['other'] = { id: 'other', name: provName, count: 0, projects: [] };
+                }
+            }
+            groupedData[foundKey].count += 1;
+            groupedData[foundKey].projects.push(proj);
+        }
+    });
+
     const yemenBounds = [
         [12.0, 41.0], 
         [19.0, 55.0]  
@@ -70,21 +89,20 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
                 style={{ width: '100%', height: '100%', background: '#f8fafc', zIndex: 1 }}
                 scrollWheelZoom={true}
             >
-                {/* طبقة الخريطة الأساسية */}
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
                     maxZoom={18}
                 />
 
-                {/* رسم الدوائر الزرقاء التجميعية لكل محافظة/منطقة مع عدد المشاريع */}
-                {governorateData && Object.keys(governorateData).map((key) => {
-                    const gov = governorateData[key];
-                    const govName = gov.name ? gov.name.trim() : key;
-                    const coords = getCoordsForGov(govName);
-                    const count = gov.projects ? gov.projects.length : (gov.count || 0);
+                {/* رسم الدوائر الزرقاء للمحافظات التي تحتوي على مشاريع مفلترة */}
+                {Object.keys(groupedData).map((key) => {
+                    const gov = groupedData[key];
+                    const count = gov.count;
 
-                    if (count === 0) return null;
+                    if (count === 0) return null; // لا نعرض دائرة للمحافظة إذا لم تكن تحتوي على مشاريع ضمن الفلتر الحالي
+
+                    const coords = getCoordsForGov(gov.name);
 
                     const customIcon = L.divIcon({
                         className: 'custom-map-marker',
@@ -114,17 +132,17 @@ const MapComponent = ({ governorateData, onSelectGovernorate }) => {
                             eventHandlers={{
                                 click: () => {
                                     if (onSelectGovernorate) {
-                                        onSelectGovernorate(govName);
+                                        onSelectGovernorate(gov.name);
                                     }
                                 }
                             }}
                         >
                             <Popup>
                                 <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
-                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{govName}</strong>
+                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{gov.name}</strong>
                                     <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {count}</p>
                                     <button 
-                                        onClick={() => onSelectGovernorate && onSelectGovernorate(govName)}
+                                        onClick={() => onSelectGovernorate && onSelectGovernorate(gov.name)}
                                         style={{
                                             background: '#2563eb',
                                             color: '#fff',
