@@ -6,7 +6,7 @@ import './ProjectsPage.css';
 const ProjectsPage = () => {
     const [projectsList, setProjectsList] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+
     // حالات الفلترة والبحث
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMainProgram, setSelectedMainProgram] = useState('الكل');
@@ -16,7 +16,7 @@ const ProjectsPage = () => {
 
     const [selectedGovName, setSelectedGovName] = useState(null);
 
-    // 🟢 الحالات الناقصة التي كانت تسبب ظهور الصفحة البيضاء:
+    // الحالات الناقصة
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [currentGovData, setCurrentGovData] = useState(null);
     const [selectedProject, setSelectedProject] = useState(null);
@@ -38,71 +38,75 @@ const ProjectsPage = () => {
         fetchProjects();
     }, []);
 
-    // استخراج المحافظات والمناطق ديناميكياً من قاعدة البيانات
+    // استخراج المحافظات والمناطق ديناميكياً بناءً على الحقول الجديدة (province_id أو district_id أو landmark_type)
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
-        return String(p.province || p.district || p.location || '').trim();
+        return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة (البرنامج + التصنيف + القطاع)
+    // تصفية المشاريع بدقة لضمان عمل الفلاتر المشتركة مع حقول قاعدة البيانات الجديدة
     const filteredProjects = projectsList.filter(proj => {
-        // 1. فلتر البحث النصي (الاسم أو الوصف)
+        // 1. فلتر البحث النصي (اسم المشروع، الفئة، أو ملاحظات الجودة)
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const title = String(proj.official_name || proj.title || '').toLowerCase();
-            const desc = String(proj.description || proj.full_details || '').toLowerCase();
-            if (!title.includes(query) && !desc.includes(query)) return false;
+            const name = String(proj.project_name || '').toLowerCase();
+            const category = String(proj.project_category || '').toLowerCase();
+            const notes = String(proj.quality_notes || '').toLowerCase();
+            if (!name.includes(query) && !category.includes(query) && !notes.includes(query)) return false;
         }
 
         // 2. فلتر المركز الإداري / المنطقة
         if (selectedAdministrativeArea !== 'عرض كلي') {
-            const locValue = String(proj.province || proj.district || proj.location || '').trim();
+            const locValue = String(proj.province_id || proj.district_id || proj.landmark_type || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلتر البرنامج الرئيسي (مُطابق لـ program_id)
+        // 3. فلتر البرنامج الرئيسي (مطابق لـ program_id)
         if (selectedMainProgram !== 'الكل') {
             const projMain = String(proj.program_id || '').trim();
             if (projMain !== selectedMainProgram.trim()) return false;
         }
 
-        // 4. فلتر التصنيف الموسمي (مُطابق لـ seasonal_category مثل "قطوف")
+        // 4. فلتر التصنيف الموسمي (مطابق لـ is_seasonal أو project_category)
         if (selectedSeasonalProgram !== 'الكل') {
-            const projSeason = String(proj.seasonal_category || '').trim();
+            const projSeason = String(proj.is_seasonal || proj.project_category || '').trim();
             if (projSeason !== selectedSeasonalProgram.trim()) return false;
         }
 
-        // 5. فلتر القطاعات التنموية (بحث شامل يطابق الحقول أو الوصف لضمان ظهور النتائج)
+        // 5. فلتر القطاعات التنموية (مطابق لـ sector_id أو البحث الشامل)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
+            const projSector = String(proj.sector_id || '').trim();
             const fullRowText = JSON.stringify(proj).toLowerCase(); 
-            
-            if (targetSector === 'الغذاء والمأوى') {
-                const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال') || fullRowText.includes('الغذاء والمأوى');
-                if (!hasFood) return false;
-            } else if (targetSector === 'التعليم') {
-                if (!fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة') && !fullRowText.includes('اقرأ')) return false;
-            } else if (targetSector === 'الصحة') {
-                if (!fullRowText.includes('صحة') && !fullRowText.includes('طبي') && !fullRowText.includes('علاج')) return false;
-            } else if (targetSector === 'المياه') {
-                if (!fullRowText.includes('مياه') && !fullRowText.includes('إصحاح') && !fullRowText.includes('بئر')) return false;
-            } else {
-                if (!fullRowText.includes(targetSector.toLowerCase())) return false;
+
+            if (projSector !== targetSector && projSector !== '') {
+                if (targetSector === 'الغذاء والمأوى') {
+                    const hasFood = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال');
+                    if (!hasFood) return false;
+                } else if (targetSector === 'التعليم') {
+                    if (!fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة')) return false;
+                } else if (targetSector === 'الصحة') {
+                    if (!fullRowText.includes('صحة') && !fullRowText.includes('طبي')) return false;
+                } else if (targetSector === 'المياه') {
+                    if (!fullRowText.includes('مياه') && !fullRowText.includes('بئر')) return false;
+                } else {
+                    if (!fullRowText.includes(targetSector.toLowerCase())) return false;
+                }
             }
         }
 
-        // 6. تصفية إضافية في حال تم الضغط على محافظة معينة من قائمة المحافظات الجانبية
+        // 6. تصفية إضافية عند النقر على منطقة جانبية
         if (selectedGovName) {
-            const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
+            const loc = String(proj.province_id || proj.district_id || proj.landmark_type || 'أخرى').trim();
             if (loc !== selectedGovName) return false;
         }
 
         return true;
     });
 
-    // تجميع المشاريع حسب المحافظة/المنطقة للخريطة والقائمة الجانبية
+    // تجميع المشاريع حسب المنطقة للخريطة والقائمة الجانبية
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
-        const loc = String(proj.province || proj.district || proj.location || 'أخرى').trim();
+        const loc = String(proj.province_id || proj.district_id || proj.landmark_type || 'أخرى').trim();
         if (!governoratesMap[loc]) {
             governoratesMap[loc] = { 
                 name: loc, 
@@ -114,8 +118,8 @@ const ProjectsPage = () => {
         }
         governoratesMap[loc].projects.push(proj);
 
-        const statusVal = String(proj.status || '').trim();
-        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('منجز') || statusVal.includes('completed')) {
+        const statusVal = String(proj.project_status || '').trim();
+        if (statusVal.includes('منفذة') || statusVal.includes('مكتمل') || statusVal.includes('completed')) {
             governoratesMap[loc].completedCount++;
         } else if (statusVal.includes('قيد التنفيذ') || statusVal.includes('جديد') || statusVal.includes('in_progress')) {
             governoratesMap[loc].inProgressCount++;
@@ -129,7 +133,6 @@ const ProjectsPage = () => {
             setSelectedGovName(null); 
         } else {
             setSelectedGovName(govName);
-            // 🟢 ربط النقر بالمنطقة مع البيانات الخاصة بالـ Modal إذا لزم الأمر:
             if (governoratesMap[govName]) {
                 setCurrentGovData(governoratesMap[govName]);
                 setIsGovModalOpen(true);
@@ -137,7 +140,6 @@ const ProjectsPage = () => {
         }
     };
 
-    // إعادة ضبط جميع الفلاتر وعرض كافة البيانات
     const handleResetFilters = () => {
         setSearchTerm('');
         setSelectedMainProgram('الكل');
@@ -147,14 +149,14 @@ const ProjectsPage = () => {
         setSelectedGovName(null);
     };
 
-    // حسابات مؤشر الأداء العام للرسم البياني الدائري
+    // حسابات مؤشر الأداء العام
     const completedTotal = filteredProjects.filter(p => {
-        const s = String(p.status || '');
-        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('منجز') || s.includes('completed');
+        const s = String(p.project_status || '');
+        return s.includes('منفذة') || s.includes('مكتمل') || s.includes('completed');
     }).length;
-    
+
     const inProgressTotal = filteredProjects.filter(p => {
-        const s = String(p.status || '');
+        const s = String(p.project_status || '');
         return s.includes('قيد التنفيذ') || s.includes('جديد') || s.includes('in_progress');
     }).length;
 
@@ -200,7 +202,7 @@ const ProjectsPage = () => {
 
                 <aside className="hac-dash-sidebar" style={{ maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                  <div className="hac-dash-panel">
-                    
+
                     {/* زر مسح الفلاتر السريع */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <h4 style={{ fontSize: '13px', margin: 0, color: '#1e293b' }}>لوحة التحكم والفلترة</h4>
@@ -216,23 +218,23 @@ const ProjectsPage = () => {
                     <div className="search-box" style={{ marginBottom: '15px' }}>
                         <input 
                             type="text" 
-                            placeholder="بحث باسم المشروع أو الوصف..." 
+                            placeholder="بحث باسم المشروع أو الفئة..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
                         />
                     </div>
 
-                    {/* البرامج الرئيسية الأربعة */}
-                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية الأربعة</h4>
+                    {/* البرامج الرئيسية */}
+                    <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'رافد', 'صرح', 'وسم', 'الحماية'].map(prog => (
+                        {['الكل', '1', '2', '3', '4'].map(prog => (
                             <button 
                                 key={prog} 
                                 className={`filter-btn ${selectedMainProgram === prog ? 'active' : ''}`}
                                 onClick={() => setSelectedMainProgram(prog)}
                             >
-                                {prog}
+                                {prog === 'الكل' ? 'الكل' : `برنامج ${prog}`}
                             </button>
                         ))}
                     </div>
@@ -282,7 +284,7 @@ const ProjectsPage = () => {
                     </div>
 
                     <h3 className="panel-title" style={{ marginTop: '15px' }}>نتائج المشاريع بحسب المناطق ({filteredProjects.length} مشروع)</h3>
-                    
+
                     <div className="gov-list-container" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         {loading ? (
                             <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل من قاعدة البيانات...</p>
@@ -357,12 +359,12 @@ const ProjectsPage = () => {
                 </aside>
             </main>
 
-            {/* نوافذ عرض التفاصيل (Modals) عند الضغط على الخريطة */}
+            {/* نافذة تفاصيل المنطقة */}
             {isGovModalOpen && currentGovData && (
                 <div className="hac-modal-overlay active" onClick={() => setIsGovModalOpen(false)}>
                     <div className="hac-modal-container" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setIsGovModalOpen(false)}>&times;</button>
-                        
+
                         <div className="hac-modal-header">
                             <span className="hac-modal-badge">مشاريع منطقة {currentGovData.name}</span>
                             <h2>لوحة معلومات المنطقة</h2>
@@ -388,10 +390,10 @@ const ProjectsPage = () => {
                             {currentGovData.projects.map((proj) => (
                                 <div key={proj.id} className="hac-proj-row-item">
                                     <div className="hac-proj-info-group">
-                                        <h5>{proj.title}</h5>
-                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.description}</p>
+                                        <h5>{proj.project_name}</h5>
+                                        <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{proj.project_category || 'بدون تصنيف'}</p>
                                         <span className="hac-status-badge in-progress" style={{ marginTop: '5px', display: 'inline-block' }}>
-                                            {proj.status}
+                                            {proj.project_status}
                                         </span>
                                     </div>
                                     <button className="hac-detail-open-btn" onClick={() => setSelectedProject(proj)}>
@@ -406,40 +408,60 @@ const ProjectsPage = () => {
                 </div>
             )}
 
+            {/* نافذة تفاصيل المشروع العميق */}
             {selectedProject && (
                 <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
                     <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
                         <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
-                        
+
                         <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع العميق (ID: {selectedProject.id})</span>
-                            <h2>{selectedProject.title}</h2>
+                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع (ID: {selectedProject.id})</span>
+                            <h2>{selectedProject.project_name}</h2>
                         </div>
 
                         <div className="deep-modal-content">
                             <div className="deep-info-block">
-                                <strong>وصف المشروع:</strong>
-                                <p>{selectedProject.description}</p>
+                                <strong>الجهة المانحة (Donor):</strong>
+                                <p>{selectedProject.donor || 'غير مسجل'}</p>
                             </div>
 
                             <div className="deep-info-block" style={{ marginTop: '10px' }}>
-                                <strong>التفاصيل الكاملة (full_details):</strong>
-                                <p>{selectedProject.full_details || 'لا توجد تفاصيل إضافية مسجلة.'}</p>
+                                <strong>ملاحظات الجودة (Quality Notes):</strong>
+                                <p>{selectedProject.quality_notes || 'لا توجد ملاحظات جودة مسجلة.'}</p>
                             </div>
 
                             <div className="deep-info-grid" style={{ marginTop: '15px' }}>
                                 <div className="deep-box">
                                     <span className="deep-label">الحالة:</span>
-                                    <span className="deep-val">{selectedProject.status}</span>
+                                    <span className="deep-val">{selectedProject.project_status}</span>
                                 </div>
                                 <div className="deep-box">
-                                    <span className="deep-label">الموقع:</span>
-                                    <span className="deep-val">{selectedProject.location || selectedProject.province}</span>
+                                    <span className="deep-label">عدد المستفيدين:</span>
+                                    <span className="deep-val">{selectedProject.beneficiaries_count || 0}</span>
+                                </div>
+                                <div className="deep-box">
+                                    <span className="deep-label">سنة التنفيذ:</span>
+                                    <span className="deep-val">{selectedProject.execution_year || 'غير محدد'}</span>
+                                </div>
+                                <div className="deep-box">
+                                    <span className="deep-label">رقم التنفيذ (Implementation ID):</span>
+                                    <span className="deep-val">{selectedProject.implementation_id}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="deep-actions">
+                            {selectedProject.google_maps_link && (
+                                <a 
+                                    href={selectedProject.google_maps_link} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="hac-action-btn" 
+                                    style={{ display: 'block', textAlign: 'center', marginBottom: '8px', textDecoration: 'none', background: '#10b981', color: '#fff' }}
+                                >
+                                    فتح الموقع على خريطة جوجل (Google Maps)
+                                </a>
+                            )}
                             <button className="hac-action-btn pdf-action" onClick={() => alert('جاري تحميل التقرير...')} style={{ width: '100%' }}>
                                 تحميل تقرير المشروع (PDF)
                             </button>
