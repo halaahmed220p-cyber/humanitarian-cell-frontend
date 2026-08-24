@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// إصلاح أيقونات Leaflet الافتراضية
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -12,7 +11,8 @@ L.Icon.Default.mergeOptions({
 });
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
-    // 1. قاموس الإحداثيات الجغرافية الثابت (لربط اسم المحافظة من جدول provinces بخطوط الطول والعرض)
+    
+    // قاموس الإحداثيات الشامل مع معالجة مرنة للاسم
     const governorateCoords = {
         'تعز': { lat: 13.5779, lng: 44.0219 },
         'الحديدة': { lat: 14.7979, lng: 42.9545 },
@@ -23,52 +23,74 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
         'البيضاء': { lat: 14.3300, lng: 45.5700 },
         'عدن': { lat: 12.7855, lng: 45.0187 },
         'الجوف': { lat: 16.5000, lng: 45.5000 },
-        'حضرموت': { lat: 15.9250, lng: 48.7900 }
+        'حضرموت': { lat: 15.9250, lng: 48.7900 },
+        'أبين': { lat: 13.3500, lng: 45.6600 },
+        'صنعاء': { lat: 15.3694, lng: 44.1910 },
+        'إب': { lat: 13.9667, lng: 44.1833 }
     };
 
     const getCoordsForGov = (name) => {
         if (!name) return { lat: 15.5, lng: 44.5 };
-        const cleanName = String(name).replace('محافظة', '').trim();
+        // تنظيف النص تماماً من كلمة محافظة والمسافات والهمزات لتتم المطابقة بنجاح
+        const cleanName = String(name)
+            .replace(/محافظة/g, '')
+            .replace(/[أإآا]/g, 'ا')
+            .trim();
         
         for (const key of Object.keys(governorateCoords)) {
-            if (cleanName === key || cleanName.includes(key) || key.includes(cleanName)) {
+            const cleanKey = key.replace(/[أإآا]/g, 'ا');
+            if (cleanName.includes(cleanKey) || cleanKey.includes(cleanName)) {
                 return governorateCoords[key];
             }
         }
-        return { lat: 15.5, lng: 44.5 };
+        return { lat: 15.5, lng: 44.5 }; // مركز افتراضي في وسط اليمن إذا لم تطابق
     };
 
-    // 2. تجميع المشاريع بناءً على المحافظات الواردة من قاعدة البيانات (provincesList + projects)
+    // تجميع مرن جداً يضمن عدم ضياع أي مشروع مفلتر
     const groupedData = {};
 
-    // تهيئة القاموس بجميع المحافظات الموجودة في قاعدة البيانات مسبقاً (حتى لو كان عدد مشاريعها صفر أو حسب الفلتر)
-    provincesList.forEach(prov => {
-        groupedData[prov.id] = {
-            id: prov.id,
-            name: prov.name,
-            count: 0,
-            projects: []
-        };
-    });
+    // 1. التهيئة الأولية بناءً على قاعدة البيانات (provincesList)
+    if (provincesList && provincesList.length > 0) {
+        provincesList.forEach(prov => {
+            groupedData[prov.id] = {
+                id: prov.id,
+                name: prov.name,
+                count: 0,
+                projects: []
+            };
+        });
+    }
 
-    // توزيع المشاريع المفلترة على المحافظات المطابقة لـ province_id
+    // 2. توزيع المشاريع المفلترة
     projects.forEach(proj => {
-        const provId = proj.province_id;
-        if (provId && groupedData[provId]) {
-            groupedData[provId].count += 1;
-            groupedData[provId].projects.push(proj);
+        // محاولة مطابقة الـ ID أو الاسم النصي للمحافظة من المشروع
+        let targetKey = null;
+        
+        if (proj.province_id && groupedData[proj.province_id]) {
+            targetKey = proj.province_id;
         } else {
-            // في حال كان المشروع يتبع اسم محافظة نصي وليس ID مباشر
-            const provName = proj.province_name || proj.province || 'أخرى';
-            let foundKey = Object.keys(groupedData).find(k => groupedData[k].name === provName);
-            if (!foundKey) {
-                foundKey = 'other';
-                if (!groupedData['other']) {
-                    groupedData['other'] = { id: 'other', name: provName, count: 0, projects: [] };
+            // البحث بالاسم إذا لم يتوفر ID مباشر
+            const pName = proj.province_name || proj.province || proj.region;
+            if (pName) {
+                const found = Object.keys(groupedData).find(k => 
+                    groupedData[k].name && pName.includes(groupedData[k].name)
+                );
+                if (found) {
+                    targetKey = found;
+                } else {
+                    // إذا لم توجد في القائمة الأساسية، نضيفها كمنطقة جديدة مباشرة
+                    const customKey = `custom_${pName}`;
+                    if (!groupedData[customKey]) {
+                        groupedData[customKey] = { id: customKey, name: pName, count: 0, projects: [] };
+                    }
+                    targetKey = customKey;
                 }
             }
-            groupedData[foundKey].count += 1;
-            groupedData[foundKey].projects.push(proj);
+        }
+
+        if (targetKey && groupedData[targetKey]) {
+            groupedData[targetKey].count += 1;
+            groupedData[targetKey].projects.push(proj);
         }
     });
 
@@ -95,12 +117,11 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     maxZoom={18}
                 />
 
-                {/* رسم الدوائر الزرقاء للمحافظات التي تحتوي على مشاريع مفلترة */}
                 {Object.keys(groupedData).map((key) => {
                     const gov = groupedData[key];
                     const count = gov.count;
 
-                    if (count === 0) return null; // لا نعرض دائرة للمحافظة إذا لم تكن تحتوي على مشاريع ضمن الفلتر الحالي
+                    if (count === 0) return null; // تخطي المناطق التي ليس لها مشاريع مفلترة
 
                     const coords = getCoordsForGov(gov.name);
 
