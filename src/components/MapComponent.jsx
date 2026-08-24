@@ -12,45 +12,52 @@ L.Icon.Default.mergeOptions({
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
     
-    // إحداثيات ثابتة ومؤكدة لمحافظات اليمن لضمان ظهور النقاط في مكانها فورا
-    const coordsMap = {
-        'تعز': { lat: 13.5779, lng: 44.0219, count: 0, projects: [] },
-        'الحديدة': { lat: 14.7979, lng: 42.9545, count: 0, projects: [] },
-        'عدن': { lat: 12.7855, lng: 45.0187, count: 0, projects: [] },
-        'مأرب': { lat: 15.4286, lng: 45.3286, count: 0, projects: [] },
-        'لحج': { lat: 13.0592, lng: 44.8828, count: 0, projects: [] },
-        'الضالع': { lat: 13.6925, lng: 44.7303, count: 0, projects: [] },
-        'أبين': { lat: 13.3500, lng: 45.6600, count: 0, projects: [] },
-        'حضرموت': { lat: 15.9250, lng: 48.7900, count: 0, projects: [] },
-        'الجوف': { lat: 16.5000, lng: 45.5000, count: 0, projects: [] },
-        'البيضاء': { lat: 14.3300, lng: 45.5700, count: 0, projects: [] },
-        'الساحل الغربي': { lat: 13.5500, lng: 43.3000, count: 0, projects: [] }
+    // إحداثيات مركزية للمناطق والمحافظات (تشمل المحافظات والمديريات الهامة مثل صبر)
+    const locationsCoords = {
+        'تعز': { lat: 13.5779, lng: 44.0219 },
+        'صبر': { lat: 13.5200, lng: 44.0500 },
+        'صالة': { lat: 13.5800, lng: 44.0400 },
+        'الحديدة': { lat: 14.7979, lng: 42.9545 },
+        'عدن': { lat: 12.7855, lng: 45.0187 },
+        'مأرب': { lat: 15.4286, lng: 45.3286 },
+        'إب': { lat: 13.9667, lng: 44.1833 },
+        'لحج': { lat: 13.0592, lng: 44.8828 },
+        'الضالع': { lat: 13.6925, lng: 44.7303 },
+        'أبين': { lat: 13.3500, lng: 45.6600 },
+        'حضرموت': { lat: 15.9250, lng: 48.7900 },
+        'الجوف': { lat: 16.5000, lng: 45.5000 },
+        'البيضاء': { lat: 14.3300, lng: 45.5700 }
     };
 
-    // توزيع المشاريع المفلترة على الخريطة
+    // تجميع المشاريع الحقيقية القادمة من قاعدة البيانات ديناميكياً
+    const dynamicGroups = {};
+
     if (projects && projects.length > 0) {
         projects.forEach(proj => {
-            // محاولة معرفة اسم المحافظة بأي طريقة ممكنة من بيانات المشروع
-            let govName = proj.province_name || proj.province || proj.region || proj.governorate || 'تعز';
+            // استخراج اسم المنطقة أو المحافظة أو المديرية من حقول المشروع
+            let placeName = proj.region || proj.district || proj.province_name || proj.province || proj.governorate || 'تعز';
             
-            // تنظيف الاسم
-            for (let key of Object.keys(coordsMap)) {
-                if (govName.includes(key)) {
-                    coordsMap[key].count += 1;
-                    coordsMap[key].projects.push(proj);
-                    return;
+            // البحث عن أقرب مطابقة في القاموس الجغرافي
+            let matchedKey = 'تعز'; // افتراضي
+            for (let key of Object.keys(locationsCoords)) {
+                if (placeName.includes(key)) {
+                    matchedKey = key;
+                    break;
                 }
             }
-            // إذا لم يتم مطابقتها، نضعها في تعز افتراضياً لكي تظهر على الخريطة ولا تختفي
-            coordsMap['تعز'].count += 1;
-            coordsMap['تعز'].projects.push(proj);
+
+            if (!dynamicGroups[matchedKey]) {
+                dynamicGroups[matchedKey] = {
+                    name: matchedKey,
+                    count: 0,
+                    projects: [],
+                    coords: locationsCoords[matchedKey] || { lat: 13.5779, lng: 44.0219 }
+                };
+            }
+
+            dynamicGroups[matchedKey].count += 1;
+            dynamicGroups[matchedKey].projects.push(proj);
         });
-    } else {
-        // إذا لم تصل مشاريع، نضع أرقام تجريبية لكي تتأكدي أن الخريطة تعمل وترسم الدوائر بشكل سليم
-        coordsMap['تعز'].count = 50;
-        coordsMap['عدن'].count = 30;
-        coordsMap['الحديدة'].count = 45;
-        coordsMap['مأرب'].count = 25;
     }
 
     const yemenBounds = [
@@ -76,8 +83,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     maxZoom={18}
                 />
 
-                {Object.keys(coordsMap).map((key) => {
-                    const item = coordsMap[key];
+                {Object.keys(dynamicGroups).map((key) => {
+                    const item = dynamicGroups[key];
                     if (item.count === 0) return null;
 
                     const customIcon = L.divIcon({
@@ -103,22 +110,22 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     return (
                         <Marker 
                             key={key} 
-                            position={[item.lat, item.lng]} 
+                            position={[item.coords.lat, item.coords.lng]} 
                             icon={customIcon}
                             eventHandlers={{
                                 click: () => {
                                     if (onSelectGovernorate) {
-                                        onSelectGovernorate(key);
+                                        onSelectGovernorate(item.name);
                                     }
                                 }
                             }}
                         >
                             <Popup>
                                 <div style={{ textAlign: 'right', fontFamily: 'Cairo, sans-serif', direction: 'rtl' }}>
-                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{key}</strong>
+                                    <strong style={{ color: '#1e3a8a', fontSize: '14px' }}>{item.name}</strong>
                                     <p style={{ margin: '5px 0', fontSize: '12px' }}>عدد المشاريع: {item.count}</p>
                                     <button 
-                                        onClick={() => onSelectGovernorate && onSelectGovernorate(key)}
+                                        onClick={() => onSelectGovernorate && onSelectGovernorate(item.name)}
                                         style={{
                                             background: '#2563eb',
                                             color: '#fff',
