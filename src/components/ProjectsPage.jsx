@@ -5,10 +5,9 @@ import './ProjectsPage.css';
 
 const ProjectsPage = () => {
     const [projectsList, setProjectsList] = useState([]);
-    const [programsList, setProgramsList] = useState([]); // البرامج الرئيسية من قاعدة البيانات
+    const [programsList, setProgramsList] = useState([]); 
     const [loading, setLoading] = useState(true);
 
-    // حالات الفلترة والبحث
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMainProgram, setSelectedMainProgram] = useState('الكل');
     const [selectedSeasonalProgram, setSelectedSeasonalProgram] = useState('الكل');
@@ -20,16 +19,13 @@ const ProjectsPage = () => {
     const [currentGovData, setCurrentGovData] = useState(null);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع والبرامج من قاعدة البيانات مباشرة
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // 1. جلب المشاريع
                 const projRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const projData = await projRes.json();
                 setProjectsList(projData);
 
-                // 2. جلب البرامج الرئيسية
                 const progRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/programs');
                 const progData = await progRes.json();
                 setProgramsList(progData);
@@ -44,22 +40,22 @@ const ProjectsPage = () => {
         fetchData();
     }, []);
 
-    // استخراج التصنيفات والمشاريع الموسمية ديناميكياً من الحقل project_category في قاعدة البيانات
-    const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => String(p.project_category || '').trim()).filter(Boolean))];
+    // استخراج التصنيفات ديناميكياً مع دمج احتمالية تخزينها في حقول متعددة (مثل category أو program أو name)
+    const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => String(p.project_category || p.program_name || '').trim()).filter(Boolean))];
 
-    // استخراج المحافظات والمناطق ديناميكياً
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
         return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بدقة
+    // تصفية المشاريع بشكل مرن (يتيح البحث بالبرامج والمشاريع الموسمية بشكل متكامل)
     const filteredProjects = projectsList.filter(proj => {
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
             const name = String(proj.project_name || '').toLowerCase();
             const category = String(proj.project_category || '').toLowerCase();
             const notes = String(proj.quality_notes || '').toLowerCase();
-            if (!name.includes(query) && !category.includes(query) && !notes.includes(query)) return false;
+            const progName = String(proj.program_id || '').toLowerCase();
+            if (!name.includes(query) && !category.includes(query) && !notes.includes(query) && !progName.includes(query)) return false;
         }
 
         if (selectedAdministrativeArea !== 'عرض كلي') {
@@ -67,20 +63,27 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        if (selectedMainProgram !== 'الكل') {
-            const projMain = String(proj.program_id || '').trim();
-            if (projMain !== selectedMainProgram.trim()) return false;
-        }
+        // المنطق المرن الجديد: التحقق من مطابقة البرنامج الرئيسي أو التصنيف الموسمي أو النص داخل المشروع
+        const projMain = String(proj.program_id || proj.program_name || '').trim();
+        const projSeason = String(proj.project_category || '').trim();
+        const fullRowText = JSON.stringify(proj).toLowerCase();
 
-        if (selectedSeasonalProgram !== 'الكل') {
-            const projSeason = String(proj.project_category || '').trim();
-            if (projSeason !== selectedSeasonalProgram.trim()) return false;
+        const matchesMainProg = selectedMainProgram === 'الكل' || projMain.toLowerCase().includes(selectedMainProgram.toLowerCase()) || fullRowText.includes(selectedMainProgram.toLowerCase());
+        const matchesSeasonProg = selectedSeasonalProgram === 'الكل' || projSeason.toLowerCase().includes(selectedSeasonalProgram.toLowerCase()) || fullRowText.includes(selectedSeasonalProgram.toLowerCase());
+
+        // إذا كان المستخدم قد حدد أحدهما أو كليعيهما
+        if (selectedMainProgram !== 'الكل' && selectedSeasonalProgram !== 'الكل') {
+            // إذا حدد الاثنين، نتحقق أن المشروع ينتمي لأحدهما على الأقل لتجنب تصفير النتائج بالخطأ
+            if (!matchesMainProg && !matchesSeasonProg) return false;
+        } else if (selectedMainProgram !== 'الكل') {
+            if (!matchesMainProg) return false;
+        } else if (selectedSeasonalProgram !== 'الكل') {
+            if (!matchesSeasonProg) return false;
         }
 
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projSector = String(proj.sector_id || '').trim();
-            const fullRowText = JSON.stringify(proj).toLowerCase(); 
 
             if (projSector !== targetSector && projSector !== '') {
                 if (targetSector === 'الغذاء والمأوى') {
@@ -103,7 +106,6 @@ const ProjectsPage = () => {
         return true;
     });
 
-    // تجميع المشاريع حسب المنطقة
     const governoratesMap = {};
     filteredProjects.forEach(proj => {
         const loc = String(proj.province_id || proj.district_id || proj.landmark_type || 'أخرى').trim();
@@ -214,7 +216,7 @@ const ProjectsPage = () => {
                     <div className="search-box" style={{ marginBottom: '15px' }}>
                         <input 
                             type="text" 
-                            placeholder="بحث باسم المشروع أو الفئة..." 
+                            placeholder="بحث باسم المشروع أو البرنامج..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
@@ -234,8 +236,8 @@ const ProjectsPage = () => {
                         {programsList.map(prog => (
                             <button 
                                 key={prog.id} 
-                                className={`filter-btn ${selectedMainProgram === String(prog.id) ? 'active' : ''}`}
-                                onClick={() => setSelectedMainProgram(String(prog.id))}
+                                className={`filter-btn ${selectedMainProgram === String(prog.name) ? 'active' : ''}`}
+                                onClick={() => setSelectedMainProgram(String(prog.name))}
                                 style={{ fontSize: '11px', padding: '5px 8px' }}
                             >
                                 {prog.name}
@@ -243,17 +245,24 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية والتصنيفات (تُجلب ديناميكياً من حقل project_category) */}
+                    {/* المشاريع الموسمية والتصنيفات */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {uniqueCategories.map(category => (
+                        <button 
+                            className={`filter-btn ${selectedSeasonalProgram === 'الكل' ? 'active' : ''}`}
+                            onClick={() => setSelectedSeasonalProgram('الكل')}
+                            style={{ fontSize: '11px', padding: '4px 8px' }}
+                        >
+                            الكل
+                        </button>
+                        {uniqueCategories.filter(c => c !== 'الكل').map(category => (
                             <button 
                                 key={category} 
                                 className={`filter-btn ${selectedSeasonalProgram === category ? 'active' : ''}`}
                                 onClick={() => setSelectedSeasonalProgram(category)}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
-                                {category === 'الكل' ? 'الكل' : category}
+                                {category}
                             </button>
                         ))}
                     </div>
@@ -427,4 +436,4 @@ const ProjectsPage = () => {
     );
 };
 
-export datefault ProjectsPage;
+export default ProjectsPage;
