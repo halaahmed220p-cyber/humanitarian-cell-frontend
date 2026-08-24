@@ -377,36 +377,42 @@ const ProjectsPage = () => {
                         )}
                     </div>
 
-                    <div className="hac-dash-performance-panel" style={{ marginTop: '20px', position: 'relative', height: '140px' }}>
-                        <h3 className="performance-title">مؤشر الأداء العام</h3>
-                        <div className="title-divider"></div>
+                   <div className="hac-dash-performance-panel" style={{ marginTop: '20px', padding: '10px', background: '#0f172a', borderRadius: '8px', border: '1px solid #1e293b' }}>
+                        <h3 className="performance-title" style={{ color: '#fff', fontSize: '13px', marginBottom: '5px' }}>مؤشر الأداء العام</h3>
+                        <div className="title-divider" style={{ height: '2px', background: '#3b82f6', marginBottom: '10px' }}></div>
 
-                        <div className="big-donut-chart" style={{ height: '90px' }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={chartData}
-                                cx="50%" cy="45%"
-                                innerRadius={35}
-                                outerRadius={55}
-                                paddingAngle={2}
-                                dataKey="value"
-                                activeShape={false} 
-                                isAnimationActive={false}
-                              >
-                                {chartData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.color} style={{ outline: 'none' }} />
-                                ))}
-                              </Pie>
-                              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '4px', fontSize: '10px', padding: '5px' }} />
-                            </PieChart>
-                          </ResponsiveContainer>
+                        <div style={{ width: '100%', height: '130px', position: 'relative' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={chartData}
+                                        cx="50%" cy="50%"
+                                        innerRadius={32}
+                                        outerRadius={50}
+                                        paddingAngle={2}
+                                        dataKey="value"
+                                        isAnimationActive={false}
+                                    >
+                                        {chartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} style={{ outline: 'none' }} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '4px', fontSize: '10px', padding: '5px', color: '#fff' }} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
 
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', position: 'absolute', bottom: '2px', width: '100%', fontSize: '9px', color: '#94a3b8' }}>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#10b981', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> منفذة</span>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#f59e0b', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> قيد التنفيذ</span>
-                            <span style={{ display: 'flex', alignItems: 'center' }}><i style={{ background: '#3b82f6', width: '6px', height: '6px', borderRadius: '2px', marginLeft: '3px' }}></i> مخططة</span>
-                          </div>
+                        {/* مفتاح الألوان أسفل المخطط بشكل مرتب ومنظم */}
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '8px', fontSize: '10px', color: '#94a3b8', flexWrap: 'wrap' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', display: 'inline-block' }}></i> منفذة
+                            </span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <i style={{ background: '#f59e0b', width: '8px', height: '8px', borderRadius: '2px', display: 'inline-block' }}></i> قيد التنفيذ
+                            </span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <i style={{ background: '#3b82f6', width: '8px', height: '8px', borderRadius: '2px', display: 'inline-block' }}></i> مخططة
+                            </span>
                         </div>
                     </div>
 
