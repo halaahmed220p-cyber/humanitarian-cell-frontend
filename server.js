@@ -428,6 +428,15 @@ app.get('/api/programs', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+app.get('/api/sectors', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM sectors ORDER BY name ASC');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 
 // مسار تسجيل دخول الشركاء والمانحين
 app.post('/api/partners/login', async (req, res) => {

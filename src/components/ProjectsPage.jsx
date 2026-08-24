@@ -6,6 +6,7 @@ import './ProjectsPage.css';
 const ProjectsPage = () => {
     const [projectsList, setProjectsList] = useState([]);
     const [programsList, setProgramsList] = useState([]); 
+    const [sectorsList, setSectorsList] = useState([]); // قائمة القطاعات من جدول sectors
     const [loading, setLoading] = useState(true);
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,13 +23,24 @@ const ProjectsPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // 1. جلب المشاريع
                 const projRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const projData = await projRes.json();
                 setProjectsList(projData);
 
+                // 2. جلب البرامج الرئيسية
                 const progRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/programs');
                 const progData = await progRes.json();
                 setProgramsList(progData);
+
+                // 3. جلب القطاعات من جدول sectors في قاعدة البيانات
+                try {
+                    const sectRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/sectors');
+                    const sectData = await sectRes.json();
+                    setSectorsList(sectData);
+                } catch (sectErr) {
+                    console.log('ملاحظة: مسار القطاعات قد يكون مختلفاً، جاري استخدام القطاعات الافتراضية', sectErr);
+                }
 
                 setLoading(false);
             } catch (err) {
@@ -40,7 +52,7 @@ const ProjectsPage = () => {
         fetchData();
     }, []);
 
-    // استخراج التصنيفات المتاحة من البيانات الفعلية
+    // استخراج التصنيفات الموسمية المتاحة من المشاريع
     const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => {
         return String(p.project_category || p.category || '').trim();
     }).filter(Boolean))];
@@ -49,8 +61,7 @@ const ProjectsPage = () => {
         return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // منطق تصفية ذكي يتعامل مع النصوص والأرقام ومعرفات البرامج (IDs)
-    // منطق تصفية دقيق وصارم للبرامج والمشاريع
+    // منطق التصفية والفلترة الشامل والدقيق
     const filteredProjects = projectsList.filter(proj => {
         const fullRowText = JSON.stringify(proj).toLowerCase();
 
@@ -66,18 +77,15 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلترة البرنامج الرئيسي (مطابقة صارمة للبرنامج المختار فقط)
+        // 3. فلترة البرنامج الرئيسي (مطابقة دقيقة)
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.trim();
-            
-            // البحث عن الـ ID الخاص بهذا البرنامج في جدول البرامج
             const matchedProgObj = programsList.find(p => String(p.name).trim() === targetMain);
             const targetProgId = matchedProgObj ? String(matchedProgObj.id) : null;
 
             const projProgramId = String(proj.program_id || proj.programId || '').trim();
             const projProgramName = String(proj.program_name || proj.programName || '').trim();
 
-            // مطابقة دقيقة إما عبر الـ ID أو تطابق اسم البرنامج حرفياً
             const isProgramMatch = 
                 (targetProgId && projProgramId === targetProgId) ||
                 (projProgramName.toLowerCase() === targetMain.toLowerCase()) ||
@@ -98,13 +106,23 @@ const ProjectsPage = () => {
             if (!isSeasonMatch) return false;
         }
 
-        // 5. القطاعات التنموية
+        // 5. القطاعات التنموية (مربوطة بجدول sectors في قاعدة البيانات)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim().toLowerCase();
-            const projSector = String(proj.sector_id || proj.sector || '').trim().toLowerCase();
+            
+            // البحث عن الـ ID الخاص بالقطاع من القائمة المستلمة من جدول sectors
+            const matchedSectorObj = sectorsList.find(s => String(s.name).trim().toLowerCase() === targetSector);
+            const targetSectorId = matchedSectorObj ? String(matchedSectorObj.id) : null;
 
-            let matchesSector = projSector.includes(targetSector) || fullRowText.includes(targetSector);
+            const projSectorId = String(proj.sector_id || proj.sectorId || '').trim();
+            const projSectorName = String(proj.sector_name || proj.sector || '').trim().toLowerCase();
 
+            let matchesSector = 
+                (targetSectorId && projSectorId === targetSectorId) ||
+                projSectorName.includes(targetSector) ||
+                fullRowText.includes(targetSector);
+
+            // مرونة إضافية للكلمات المفتاحية المرتبطة بالقطاعات
             if (!matchesSector) {
                 if (targetSector.includes('غذاء') || targetSector.includes('مأوى')) {
                     matchesSector = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال');
@@ -189,6 +207,10 @@ const ProjectsPage = () => {
         { name: 'قيد التنفيذ / جديد', value: inProgressTotal > 0 ? inProgressTotal : 1, color: '#f59e0b' },
         { name: 'مخططة', value: plannedTotal > 0 ? plannedTotal : 1, color: '#3b82f6' },
     ];
+
+    // قائمة القطاعات الافتراضية احتياطياً في حال لم يتم جلبها مباشرة من الـ API
+    const fallbackSectors = ['المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ والطاقة الخضراء', 'البنية التحتية'];
+    const activeSectorsList = sectorsList.length > 0 ? sectorsList.map(s => s.name) : fallbackSectors;
 
     return (
         <div className="hac-projects-page">
@@ -301,16 +323,24 @@ const ProjectsPage = () => {
                         </select>
                     </div>
 
+                    {/* القطاعات التنموية (مجلوبة من جدول sectors في قاعدة البيانات) */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ والطاقة الخضراء', 'البنية التحتية'].map(sector => (
+                        <button 
+                            className={`filter-btn ${selectedSector === 'الكل' ? 'active' : ''}`}
+                            onClick={() => setSelectedSector('الكل')}
+                            style={{ fontSize: '11px', padding: '4px 8px' }}
+                        >
+                            الكل
+                        </button>
+                        {activeSectorsList.map(sectorName => (
                             <button 
-                                key={sector} 
-                                className={`filter-btn ${selectedSector === sector ? 'active' : ''}`}
-                                onClick={() => setSelectedSector(sector)}
+                                key={sectorName} 
+                                className={`filter-btn ${selectedSector === sectorName ? 'active' : ''}`}
+                                onClick={() => setSelectedSector(sectorName)}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
-                                {sector}
+                                {sectorName}
                             </button>
                         ))}
                     </div>
