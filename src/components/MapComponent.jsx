@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
     
-    // إحداثيات مركزية للمناطق والمحافظات (تشمل المحافظات والمديريات الهامة مثل صبر)
+    // قاموس الإحداثيات الشامل للمحافظات والمديريات (مثل صبر)
     const locationsCoords = {
         'تعز': { lat: 13.5779, lng: 44.0219 },
         'صبر': { lat: 13.5200, lng: 44.0500 },
@@ -29,16 +29,14 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
         'البيضاء': { lat: 14.3300, lng: 45.5700 }
     };
 
-    // تجميع المشاريع الحقيقية القادمة من قاعدة البيانات ديناميكياً
     const dynamicGroups = {};
 
+    // تجميع المشاريع الحقيقية القادمة من الفلتر
     if (projects && projects.length > 0) {
         projects.forEach(proj => {
-            // استخراج اسم المنطقة أو المحافظة أو المديرية من حقول المشروع
             let placeName = proj.region || proj.district || proj.province_name || proj.province || proj.governorate || 'تعز';
             
-            // البحث عن أقرب مطابقة في القاموس الجغرافي
-            let matchedKey = 'تعز'; // افتراضي
+            let matchedKey = 'تعز';
             for (let key of Object.keys(locationsCoords)) {
                 if (placeName.includes(key)) {
                     matchedKey = key;
