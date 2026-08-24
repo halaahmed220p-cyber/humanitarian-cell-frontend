@@ -24,17 +24,15 @@ const ProjectsPage = () => {
             try {
                 const projRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
                 const projData = await projRes.json();
-                console.log("📦 عينة من بيانات المشاريع المستلمة:", projData[0]); // لفحص الحقول في المتصفح F12
                 setProjectsList(projData);
 
                 const progRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/programs');
                 const progData = await progRes.json();
-                console.log("📂 قائمة البرامج:", progData);
                 setProgramsList(progData);
 
                 setLoading(false);
             } catch (err) {
-                console.error('خطأ في جلب البيانات من قاعدة البيانات:', err);
+                console.error('خطأ في جلب البيانات:', err);
                 setLoading(false);
             }
         };
@@ -42,16 +40,16 @@ const ProjectsPage = () => {
         fetchData();
     }, []);
 
-    // استخراج التصنيفات بأمان
+    // استخراج التصنيفات المتاحة من البيانات الفعلية
     const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => {
-        return String(p.project_category || p.category || p.program_name || '').trim();
+        return String(p.project_category || p.category || '').trim();
     }).filter(Boolean))];
 
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
         return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // منطق تصفية فائق المرونة (لا يهم نوع أو اسم الحقل، يبحث داخل كامل كائن المشروع)
+    // منطق تصفية ذكي يتعامل مع النصوص والأرقام ومعرفات البرامج (IDs)
     const filteredProjects = projectsList.filter(proj => {
         const fullRowText = JSON.stringify(proj).toLowerCase();
 
@@ -67,35 +65,59 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلترة البرنامج الرئيسي
+        // 3. فلترة البرنامج الرئيسي (مطابقة الاسم أو الـ ID أو البحث الشامل)
         if (selectedMainProgram !== 'الكل') {
-            const targetMain = selectedMainProgram.toLowerCase();
-            // مطابقة ذكية مع اسم البرنامج، أو الـ ID، أو النص العام للصف
-            const matchesMain = 
-                fullRowText.includes(targetMain) || 
-                String(proj.program_id || '').toLowerCase() === targetMain;
-            if (!matchesMain) return false;
+            const targetMain = selectedMainProgram.trim().toLowerCase();
+            
+            // البحث عن الـ ID الخاص بهذا البرنامج في قائمة البرامج
+            const matchedProgObj = programsList.find(p => String(p.name).trim().toLowerCase() === targetMain);
+            const targetProgId = matchedProgObj ? String(matchedProgObj.id) : null;
+
+            const projProgramId = String(proj.program_id || '').trim();
+            const projProgramName = String(proj.program_name || '').trim().toLowerCase();
+
+            const isMatch = 
+                projProgramName.includes(targetMain) ||
+                targetMain.includes(projProgramName) ||
+                (targetProgId && projProgramId === targetProgId) ||
+                projProgramId === targetMain ||
+                fullRowText.includes(targetMain);
+
+            if (!isMatch) return false;
         }
 
-        // 4. فلترة التصنيف الموسمي
+        // 4. فلترة التصنيف الموسمي / الفئة
         if (selectedSeasonalProgram !== 'الكل') {
-            const targetSeason = selectedSeasonalProgram.toLowerCase();
-            const matchesSeason = 
-                fullRowText.includes(targetSeason) ||
-                String(proj.project_category || '').toLowerCase() === targetSeason;
-            if (!matchesSeason) return false;
+            const targetSeason = selectedSeasonalProgram.trim().toLowerCase();
+            const projCategory = String(proj.project_category || proj.category || '').trim().toLowerCase();
+
+            const isSeasonMatch = 
+                projCategory.includes(targetSeason) ||
+                targetSeason.includes(projCategory) ||
+                fullRowText.includes(targetSeason);
+
+            if (!isSeasonMatch) return false;
         }
 
         // 5. القطاعات التنموية
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim().toLowerCase();
-            if (!fullRowText.includes(targetSector)) {
-                // مرونة إضافية للقطاعات الشائعة
-                if (targetSector === 'الغذاء والمأوى' && !fullRowText.includes('غذاء') && !fullRowText.includes('مأوى') && !fullRowText.includes('تمر') && !fullRowText.includes('سلال')) return false;
-                if (targetSector === 'التعليم' && !fullRowText.includes('تعليم') && !fullRowText.includes('مدرسة')) return false;
-                if (targetSector === 'الصحة' && !fullRowText.includes('صحة') && !fullRowText.includes('طبي')) return false;
-                if (targetSector === 'المياه' && !fullRowText.includes('مياه') && !fullRowText.includes('بئر')) return false;
+            const projSector = String(proj.sector_id || '').trim().toLowerCase();
+
+            let matchesSector = fullRowText.includes(targetSector) || projSector.includes(targetSector);
+
+            if (!matchesSector) {
+                if (targetSector.includes('غذاء') || targetSector.includes('مأوى')) {
+                    matchesSector = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال');
+                } else if (targetSector.includes('تعليم')) {
+                    matchesSector = fullRowText.includes('تعليم') || fullRowText.includes('مدرسة');
+                } else if (targetSector.includes('صحة')) {
+                    matchesSector = fullRowText.includes('صحة') || fullRowText.includes('طبي');
+                } else if (targetSector.includes('مياه')) {
+                    matchesSector = fullRowText.includes('مياه') || fullRowText.includes('بئر');
+                }
             }
+            if (!matchesSector) return false;
         }
 
         if (selectedGovName) {
