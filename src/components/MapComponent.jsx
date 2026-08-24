@@ -53,16 +53,22 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
         });
     } else {
         Object.keys(allProvincesCoords).forEach(key => {
-            // بيانات تجريبية مطابقة للتصميم في حال لم تتوفر المشاريع مباشرة في الـ prop
-            const sampleProjects = [
-                { project_name: `مشروع حفر آبار مياه الشرب ب${key}`, program_name: 'صرح', sector_name: 'المياه', execution_year: '2024' },
-                { project_name: `بناء وتجهيز مدارس ب${key}`, program_name: 'وسم', sector_name: 'التعليم', execution_year: '2023' },
-                { project_name: `ترميم وتجهيز المستشفى العام ب${key}`, program_name: 'صرح', sector_name: 'الصحة', execution_year: '2024' }
-            ];
+            // توليد عدد مطابق للعدد الثابت لضمان عرض القائمة كاملة عند عدم توفر مصفوفة المشاريع الخارجية
+            const sampleProjectsCount = allProvincesCoords[key].count;
+            const sampleProjects = [];
+            
+            for (let i = 1; i <= sampleProjectsCount; i++) {
+                sampleProjects.push({
+                    project_name: `مشروع تنموي رقم ${i} في محافظة ${key}`,
+                    program_name: i % 2 === 0 ? 'صرح' : 'وسم',
+                    sector_name: i % 3 === 0 ? 'المياه' : (i % 2 === 0 ? 'التعليم' : 'الصحة'),
+                    execution_year: '2024'
+                });
+            }
 
             dynamicGroups[key] = {
                 name: key,
-                count: allProvincesCoords[key].count,
+                count: sampleProjectsCount,
                 coords: allProvincesCoords[key],
                 projects: sampleProjects
             };
@@ -129,7 +135,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                 }
                             }}
                         >
-                            <Popup maxWidth={340} maxHeight={400}>
+                            <Popup maxWidth={340} maxHeight={420}>
                                 <div style={{ 
                                     textAlign: 'right', 
                                     fontFamily: 'Cairo, sans-serif', 
@@ -151,10 +157,10 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                         </span>
                                     </div>
 
-                                    {/* قائمة بطاقات المشاريع داخل النافذة */}
-                                    <div style={{ maxHeight: '250px', overflowY: 'auto', paddingRight: '2px' }}>
+                                    {/* قائمة بطاقات المشاريع كاملة مع شريط تمرير */}
+                                    <div style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}>
                                         {item.projects && item.projects.length > 0 ? (
-                                            item.projects.slice(0, 5).map((proj, idx) => (
+                                            item.projects.map((proj, idx) => (
                                                 <div key={idx} style={{ 
                                                     background: '#f8fafc', 
                                                     border: '1px solid #e2e8f0', 
