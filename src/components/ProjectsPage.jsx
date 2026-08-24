@@ -46,41 +46,43 @@ const ProjectsPage = () => {
         return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بشكل دقيق ومرن
+    // تصفية المشاريع بمنطق مرن يمنع تصفير النتائج بالخطأ
     const filteredProjects = projectsList.filter(proj => {
+        const fullRowText = JSON.stringify(proj).toLowerCase();
+
+        // 1. بحث النص العام
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
-            const name = String(proj.project_name || '').toLowerCase();
-            const category = String(proj.project_category || '').toLowerCase();
-            const notes = String(proj.quality_notes || '').toLowerCase();
-            const progName = String(proj.program_id || proj.program_name || '').toLowerCase();
-            if (!name.includes(query) && !category.includes(query) && !notes.includes(query) && !progName.includes(query)) return false;
+            if (!fullRowText.includes(query)) return false;
         }
 
+        // 2. تصفية المركز الإداري
         if (selectedAdministrativeArea !== 'عرض كلي') {
             const locValue = String(proj.province_id || proj.district_id || proj.landmark_type || '').trim();
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        const projMain = String(proj.program_id || proj.program_name || '').toLowerCase();
-        const projSeason = String(proj.project_category || '').toLowerCase();
-        const fullRowText = JSON.stringify(proj).toLowerCase();
-
-        // 1. فلترة البرنامج الرئيسي (إذا لم يكن "الكل")
+        // 3. فلترة البرنامج الرئيسي (إذا لم يكن "الكل")
         if (selectedMainProgram !== 'الكل') {
             const targetMain = selectedMainProgram.toLowerCase();
-            const matchesMain = projMain.includes(targetMain) || fullRowText.includes(targetMain);
+            // البحث داخل الحقول النصية أو الرقمية أو محتوى الصف بالكامل
+            const matchesMain = 
+                String(proj.program_id || '').toLowerCase().includes(targetMain) ||
+                String(proj.program_name || '').toLowerCase().includes(targetMain) ||
+                fullRowText.includes(targetMain);
             if (!matchesMain) return false;
         }
 
-        // 2. فلترة التصنيف الموسمي (إذا لم يكن "الكل")
+        // 4. فلترة التصنيف الموسمي (إذا لم يكن "الكل")
         if (selectedSeasonalProgram !== 'الكل') {
             const targetSeason = selectedSeasonalProgram.toLowerCase();
-            const matchesSeason = projSeason.includes(targetSeason) || fullRowText.includes(targetSeason);
+            const matchesSeason = 
+                String(proj.project_category || '').toLowerCase().includes(targetSeason) ||
+                fullRowText.includes(targetSeason);
             if (!matchesSeason) return false;
         }
 
-        // 3. فلترة القطاعات التنموية (إذا لم يكن "الكل")
+        // 5. فلترة القطاعات التنموية (إذا لم يكن "الكل")
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projSector = String(proj.sector_id || '').trim();
@@ -437,5 +439,7 @@ const ProjectsPage = () => {
         </div>
     );
 };
+
+ProjectsPage.displayName = 'ProjectsPage';
 
 export default ProjectsPage;
