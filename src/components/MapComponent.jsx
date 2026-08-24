@@ -53,7 +53,6 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
         });
     } else {
         Object.keys(allProvincesCoords).forEach(key => {
-            // توليد عدد مطابق للعدد الثابت لضمان عرض القائمة كاملة عند عدم توفر مصفوفة المشاريع الخارجية
             const sampleProjectsCount = allProvincesCoords[key].count;
             const sampleProjects = [];
             
@@ -82,6 +81,22 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
 
     return (
         <div style={{ width: '100%', height: '100%', minHeight: '400px', flex: 1, position: 'relative' }}>
+            {/* تنسيق لتبرير حجم الـ Popup وملء المساحة بشكل كامل */}
+            <style>
+                {`
+                    .leaflet-popup-content-wrapper {
+                        max-height: 450px !important;
+                        overflow: hidden !important;
+                        border-radius: 12px !important;
+                        padding: 0 !important;
+                    }
+                    .leaflet-popup-content {
+                        margin: 12px !important;
+                        line-height: 1.4;
+                    }
+                `}
+            </style>
+
             <MapContainer 
                 center={[15.5, 47.5]} 
                 zoom={6} 
@@ -135,30 +150,33 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                 }
                             }}
                         >
-                            <Popup maxWidth={340} maxHeight={420}>
+                            <Popup>
                                 <div style={{ 
                                     textAlign: 'right', 
                                     fontFamily: 'Cairo, sans-serif', 
                                     direction: 'rtl',
-                                    width: '300px',
-                                    padding: '5px'
+                                    width: '310px'
                                 }}>
                                     {/* رأس النافذة */}
                                     <div style={{ 
                                         borderBottom: '2px solid #e2e8f0', 
                                         paddingBottom: '8px', 
-                                        marginBottom: '10px' 
+                                        marginBottom: '10px',
+                                        backgroundColor: '#fff',
+                                        position: 'sticky',
+                                        top: 0,
+                                        zIndex: 2
                                     }}>
-                                        <h3 style={{ margin: '0 0 5px 0', color: '#1e3a8a', fontSize: '16px', fontWeight: 'bold' }}>
+                                        <h3 style={{ margin: '0 0 4px 0', color: '#1e3a8a', fontSize: '15px', fontWeight: 'bold' }}>
                                             محافظة {item.name}
                                         </h3>
-                                        <span style={{ color: '#64748b', fontSize: '12px' }}>
+                                        <span style={{ color: '#64748b', fontSize: '11px' }}>
                                             المحافظة: {item.name} | إجمالي المشاريع: {item.count}
                                         </span>
                                     </div>
 
-                                    {/* قائمة بطاقات المشاريع كاملة مع شريط تمرير */}
-                                    <div style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}>
+                                    {/* قائمة بطاقات المشاريع مع شريط تمرير غير مقصوص */}
+                                    <div style={{ maxHeight: '320px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
                                         {item.projects && item.projects.length > 0 ? (
                                             item.projects.map((proj, idx) => (
                                                 <div key={idx} style={{ 
@@ -167,12 +185,11 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                                     borderRadius: '6px', 
                                                     padding: '8px', 
                                                     marginBottom: '8px',
-                                                    position: 'relative',
                                                     borderRight: '4px solid #0284c7'
                                                 }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                                         <span style={{ 
-                                                            fontSize: '11px', 
+                                                            fontSize: '10px', 
                                                             background: '#e0f2fe', 
                                                             color: '#0369a1', 
                                                             padding: '2px 6px', 
@@ -182,7 +199,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                                             {proj.program_name || 'صرح'}
                                                         </span>
                                                     </div>
-                                                    <p style={{ margin: '6px 0 4px 0', fontSize: '13px', fontWeight: 'bold', color: '#1e293b' }}>
+                                                    <p style={{ margin: '6px 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#1e293b' }}>
                                                         {proj.project_name || proj.name}
                                                     </p>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
