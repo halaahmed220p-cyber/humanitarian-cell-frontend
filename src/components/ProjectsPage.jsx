@@ -50,6 +50,7 @@ const ProjectsPage = () => {
     }).filter(Boolean))];
 
     // منطق تصفية ذكي يتعامل مع النصوص والأرقام ومعرفات البرامج (IDs)
+    // منطق تصفية دقيق وصارم للبرامج والمشاريع
     const filteredProjects = projectsList.filter(proj => {
         const fullRowText = JSON.stringify(proj).toLowerCase();
 
@@ -65,25 +66,24 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // 3. فلترة البرنامج الرئيسي (مطابقة الاسم أو الـ ID أو البحث الشامل)
+        // 3. فلترة البرنامج الرئيسي (مطابقة صارمة للبرنامج المختار فقط)
         if (selectedMainProgram !== 'الكل') {
-            const targetMain = selectedMainProgram.trim().toLowerCase();
+            const targetMain = selectedMainProgram.trim();
             
-            // البحث عن الـ ID الخاص بهذا البرنامج في قائمة البرامج
-            const matchedProgObj = programsList.find(p => String(p.name).trim().toLowerCase() === targetMain);
+            // البحث عن الـ ID الخاص بهذا البرنامج في جدول البرامج
+            const matchedProgObj = programsList.find(p => String(p.name).trim() === targetMain);
             const targetProgId = matchedProgObj ? String(matchedProgObj.id) : null;
 
-            const projProgramId = String(proj.program_id || '').trim();
-            const projProgramName = String(proj.program_name || '').trim().toLowerCase();
+            const projProgramId = String(proj.program_id || proj.programId || '').trim();
+            const projProgramName = String(proj.program_name || proj.programName || '').trim();
 
-            const isMatch = 
-                projProgramName.includes(targetMain) ||
-                targetMain.includes(projProgramName) ||
+            // مطابقة دقيقة إما عبر الـ ID أو تطابق اسم البرنامج حرفياً
+            const isProgramMatch = 
                 (targetProgId && projProgramId === targetProgId) ||
-                projProgramId === targetMain ||
-                fullRowText.includes(targetMain);
+                (projProgramName.toLowerCase() === targetMain.toLowerCase()) ||
+                (projProgramId.toLowerCase() === targetMain.toLowerCase());
 
-            if (!isMatch) return false;
+            if (!isProgramMatch) return false;
         }
 
         // 4. فلترة التصنيف الموسمي / الفئة
@@ -92,9 +92,8 @@ const ProjectsPage = () => {
             const projCategory = String(proj.project_category || proj.category || '').trim().toLowerCase();
 
             const isSeasonMatch = 
-                projCategory.includes(targetSeason) ||
-                targetSeason.includes(projCategory) ||
-                fullRowText.includes(targetSeason);
+                projCategory === targetSeason ||
+                projCategory.includes(targetSeason);
 
             if (!isSeasonMatch) return false;
         }
@@ -102,9 +101,9 @@ const ProjectsPage = () => {
         // 5. القطاعات التنموية
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim().toLowerCase();
-            const projSector = String(proj.sector_id || '').trim().toLowerCase();
+            const projSector = String(proj.sector_id || proj.sector || '').trim().toLowerCase();
 
-            let matchesSector = fullRowText.includes(targetSector) || projSector.includes(targetSector);
+            let matchesSector = projSector.includes(targetSector) || fullRowText.includes(targetSector);
 
             if (!matchesSector) {
                 if (targetSector.includes('غذاء') || targetSector.includes('مأوى')) {
