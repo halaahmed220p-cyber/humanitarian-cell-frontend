@@ -40,21 +40,20 @@ const ProjectsPage = () => {
         fetchData();
     }, []);
 
-    // استخراج التصنيفات ديناميكياً مع دمج احتمالية تخزينها في حقول متعددة (مثل category أو program أو name)
     const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => String(p.project_category || p.program_name || '').trim()).filter(Boolean))];
 
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
         return String(p.province_id || p.district_id || p.landmark_type || '').trim();
     }).filter(Boolean))];
 
-    // تصفية المشاريع بشكل مرن (يتيح البحث بالبرامج والمشاريع الموسمية بشكل متكامل)
+    // تصفية المشاريع بشكل دقيق ومرن
     const filteredProjects = projectsList.filter(proj => {
         if (searchTerm.trim() !== '') {
             const query = searchTerm.toLowerCase();
             const name = String(proj.project_name || '').toLowerCase();
             const category = String(proj.project_category || '').toLowerCase();
             const notes = String(proj.quality_notes || '').toLowerCase();
-            const progName = String(proj.program_id || '').toLowerCase();
+            const progName = String(proj.program_id || proj.program_name || '').toLowerCase();
             if (!name.includes(query) && !category.includes(query) && !notes.includes(query) && !progName.includes(query)) return false;
         }
 
@@ -63,24 +62,25 @@ const ProjectsPage = () => {
             if (locValue !== selectedAdministrativeArea.trim()) return false;
         }
 
-        // المنطق المرن الجديد: التحقق من مطابقة البرنامج الرئيسي أو التصنيف الموسمي أو النص داخل المشروع
-        const projMain = String(proj.program_id || proj.program_name || '').trim();
-        const projSeason = String(proj.project_category || '').trim();
+        const projMain = String(proj.program_id || proj.program_name || '').toLowerCase();
+        const projSeason = String(proj.project_category || '').toLowerCase();
         const fullRowText = JSON.stringify(proj).toLowerCase();
 
-        const matchesMainProg = selectedMainProgram === 'الكل' || projMain.toLowerCase().includes(selectedMainProgram.toLowerCase()) || fullRowText.includes(selectedMainProgram.toLowerCase());
-        const matchesSeasonProg = selectedSeasonalProgram === 'الكل' || projSeason.toLowerCase().includes(selectedSeasonalProgram.toLowerCase()) || fullRowText.includes(selectedSeasonalProgram.toLowerCase());
-
-        // إذا كان المستخدم قد حدد أحدهما أو كليعيهما
-        if (selectedMainProgram !== 'الكل' && selectedSeasonalProgram !== 'الكل') {
-            // إذا حدد الاثنين، نتحقق أن المشروع ينتمي لأحدهما على الأقل لتجنب تصفير النتائج بالخطأ
-            if (!matchesMainProg && !matchesSeasonProg) return false;
-        } else if (selectedMainProgram !== 'الكل') {
-            if (!matchesMainProg) return false;
-        } else if (selectedSeasonalProgram !== 'الكل') {
-            if (!matchesSeasonProg) return false;
+        // 1. فلترة البرنامج الرئيسي (إذا لم يكن "الكل")
+        if (selectedMainProgram !== 'الكل') {
+            const targetMain = selectedMainProgram.toLowerCase();
+            const matchesMain = projMain.includes(targetMain) || fullRowText.includes(targetMain);
+            if (!matchesMain) return false;
         }
 
+        // 2. فلترة التصنيف الموسمي (إذا لم يكن "الكل")
+        if (selectedSeasonalProgram !== 'الكل') {
+            const targetSeason = selectedSeasonalProgram.toLowerCase();
+            const matchesSeason = projSeason.includes(targetSeason) || fullRowText.includes(targetSeason);
+            if (!matchesSeason) return false;
+        }
+
+        // 3. فلترة القطاعات التنموية (إذا لم يكن "الكل")
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim();
             const projSector = String(proj.sector_id || '').trim();
@@ -93,6 +93,8 @@ const ProjectsPage = () => {
                 } else if (targetSector === 'الصحة' && !fullRowText.includes('صحة') && !fullRowText.includes('طبي')) {
                     return false;
                 } else if (targetSector === 'المياه' && !fullRowText.includes('مياه') && !fullRowText.includes('بئر')) {
+                    return false;
+                } else if (!fullRowText.includes(targetSector.toLowerCase())) {
                     return false;
                 }
             }
