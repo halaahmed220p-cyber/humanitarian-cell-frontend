@@ -12,65 +12,61 @@ L.Icon.Default.mergeOptions({
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
     
-    // قاموس شامل وكبير يغطي محافظات ومديريات الجمهورية اليمنية
-    const locationsCoords = {
-        'تعز': { lat: 13.5779, lng: 44.0219 },
-        'صبر': { lat: 13.5200, lng: 44.0500 },
-        'صالة': { lat: 13.5800, lng: 44.0400 },
-        'المخا': { lat: 13.3167, lng: 43.2500 },
-        'إب': { lat: 13.9667, lng: 44.1833 },
-        'عدن': { lat: 12.7855, lng: 45.0187 },
-        'الحديدة': { lat: 14.7979, lng: 42.9545 },
-        'صنعاء': { lat: 15.3694, lng: 44.1910 },
-        'مأرب': { lat: 15.4286, lng: 45.3286 },
-        'حضرموت': { lat: 15.9250, lng: 48.7900 },
-        'تعز': { lat: 13.5779, lng: 44.0219 },
-        'لحج': { lat: 13.0592, lng: 44.8828 },
-        'الضالع': { lat: 13.6925, lng: 44.7303 },
-        'أبين': { lat: 13.3500, lng: 45.6600 },
-        'المهرة': { lat: 16.2000, lng: 51.1500 },
-        'شبوة': { lat: 14.9500, lng: 47.0000 },
-        'الجوف': { lat: 16.5000, lng: 45.5000 },
-        'حجة': { lat: 15.7042, lng: 43.6011 },
-        'ذمار': { lat: 14.5428, lng: 44.4056 },
-        'عمران': { lat: 15.6572, lng: 43.9453 },
-        'البيضاء': { lat: 14.3300, lng: 45.5700 },
-        'صعدة': { lat: 16.9400, lng: 43.7639 },
-        'سقطرى': { lat: 12.4634, lng: 53.8237 }
+    // خريطة تقريبية تربط IDs المحافظات أو أسمائها بالإحداثيات الجغرافية في اليمن
+    // يمكنك تعديل الربط بحسب الـ IDs الموجودة في جدول provinces لديك
+    const provinceCoordsMap = {
+        1: { name: 'تعز', lat: 13.5779, lng: 44.0219 },
+        2: { name: 'عدن', lat: 12.7855, lng: 45.0187 },
+        3: { name: 'إب', lat: 13.9667, lng: 44.1833 },
+        4: { name: 'الحديدة', lat: 14.7979, lng: 42.9545 },
+        5: { name: 'مأرب', lat: 15.4286, lng: 45.3286 },
+        6: { name: 'صنعاء', lat: 15.3694, lng: 44.1910 },
+        7: { name: 'لحج', lat: 13.0592, lng: 44.8828 },
+        8: { name: 'الضالع', lat: 13.6925, lng: 44.7303 },
+        9: { name: 'أبين', lat: 13.3500, lng: 45.6600 },
+        10: { name: 'حضرموت', lat: 15.9250, lng: 48.7900 },
+        11: { name: 'شبوة', lat: 14.9500, lng: 47.0000 }
     };
 
     const dynamicGroups = {};
 
-    // تجميع المشاريع الحقيقية القادمة من قاعدة البيانات والفلترة بشكل كامل
+    // تجميع المشاريع بناءً على province_id أو إحداثياتها المباشرة (latitude, longitude) إن وجدت
     if (projects && projects.length > 0) {
         projects.forEach(proj => {
-            // البحث عن مكان المشروع في مختلف الحقول الممكنة
-            let placeName = proj.district || proj.region || proj.area || proj.location || proj.province_name || proj.province || proj.governorate || 'تعز';
-            
-            let matchedKey = '';
-            for (let key of Object.keys(locationsCoords)) {
-                if (placeName.includes(key)) {
-                    matchedKey = key;
-                    break;
+            // إذا كان المشروع يحتوي على إحداثيات دقيقة latitude و longitude في الجدول
+            if (proj.latitude && proj.longitude) {
+                const latKey = parseFloat(proj.latitude).toFixed(2);
+                const lngKey = parseFloat(proj.longitude).toFixed(2);
+                const customKey = `${latKey},${lngKey}`;
+
+                if (!dynamicGroups[customKey]) {
+                    dynamicGroups[customKey] = {
+                        name: proj.project_name || 'موقع المشروع',
+                        count: 0,
+                        projects: [],
+                        coords: { lat: parseFloat(proj.latitude), lng: parseFloat(proj.longitude) }
+                    };
                 }
-            }
+                dynamicGroups[customKey].count += 1;
+                dynamicGroups[customKey].projects.push(proj);
+            } 
+            else {
+                // الاعتماد على province_id أو اسم المحافظة
+                const provId = proj.province_id || 1; // افتراضي تعز إذا لم يوجد
+                const provinceInfo = provinceCoordsMap[provId] || { name: 'تعز', lat: 13.5779, lng: 44.0219 };
 
-            // إذا لم يتم مطابقة الكلمة، نستخدم اسم الموقع الوارد أو نصنفه تحت تعز افتراضياً
-            if (!matchedKey) {
-                matchedKey = 'تعز';
-            }
+                if (!dynamicGroups[provId]) {
+                    dynamicGroups[provId] = {
+                        name: provinceInfo.name,
+                        count: 0,
+                        projects: [],
+                        coords: { lat: provinceInfo.lat, lng: provinceInfo.lng }
+                    };
+                }
 
-            if (!dynamicGroups[matchedKey]) {
-                dynamicGroups[matchedKey] = {
-                    name: matchedKey,
-                    count: 0,
-                    projects: [],
-                    coords: locationsCoords[matchedKey] || locationsCoords['تعز']
-                };
+                dynamicGroups[provId].count += 1;
+                dynamicGroups[provId].projects.push(proj);
             }
-
-            dynamicGroups[dynamicGroups[matchedKey] ? matchedKey : 'تعز'].count += 1;
-            dynamicGroups[matchedKey].projects.push(proj);
         });
     }
 
