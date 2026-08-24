@@ -5,6 +5,7 @@ import './ProjectsPage.css';
 
 const ProjectsPage = () => {
     const [projectsList, setProjectsList] = useState([]);
+    const [programsList, setProgramsList] = useState([]); // حالة لتخزين البرامج القادمة من قاعدة البيانات
     const [loading, setLoading] = useState(true);
 
     // حالات الفلترة والبحث
@@ -15,27 +16,32 @@ const ProjectsPage = () => {
     const [selectedAdministrativeArea, setSelectedAdministrativeArea] = useState('عرض كلي');
 
     const [selectedGovName, setSelectedGovName] = useState(null);
-
-    // الحالات الناقصة
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [currentGovData, setCurrentGovData] = useState(null);
     const [selectedProject, setSelectedProject] = useState(null);
 
-    // جلب المشاريع الحقيقية من السيرفر/قاعدة البيانات
+    // جلب المشاريع والبرامج من قاعدة البيانات مباشرة
     useEffect(() => {
-        const fetchProjects = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
-                const data = await response.json();
-                setProjectsList(data);
+                // 1. جلب المشاريع
+                const projRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/projects');
+                const projData = await projRes.json();
+                setProjectsList(projData);
+
+                // 2. جلب البرامج من جدول programs في قاعدة البيانات
+                const progRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/programs');
+                const progData = await progRes.json();
+                setProgramsList(progData);
+
                 setLoading(false);
             } catch (err) {
-                console.error('خطأ في جلب المشاريع من قاعدة البيانات:', err);
+                console.error('خطأ في جلب البيانات من قاعدة البيانات:', err);
                 setLoading(false);
             }
         };
 
-        fetchProjects();
+        fetchData();
     }, []);
 
     // استخراج المحافظات والمناطق ديناميكياً
@@ -160,7 +166,6 @@ const ProjectsPage = () => {
 
     return (
         <div className="hac-projects-page">
-            {/* شريط الإحصائيات العلوي */}
             <div className="hac-projects-top-bar">
                 <div className="top-bar-card">
                     <span className="top-num">{Object.keys(governoratesMap).length}</span>
@@ -213,20 +218,21 @@ const ProjectsPage = () => {
                         />
                     </div>
 
-                    {/* التعديل 1: عرض أسماء البرامج بدلاً من "برنامج 1، برنامج 2..." */}
+                    {/* جلب البرامج ديناميكياً من جدول programs في قاعدة البيانات */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {[
-                            { id: 'الكل', name: 'الكل' },
-                            { id: '1', name: 'برنامج التنمية المستدامة' },
-                            { id: '2', name: 'برنامج الاستجابة العاجلة' },
-                            { id: '3', name: 'برنامج التمكين المجتمعي' },
-                            { id: '4', name: 'برنامج الرعاية الإنسانية' }
-                        ].map(prog => (
+                        <button 
+                            className={`filter-btn ${selectedMainProgram === 'الكل' ? 'active' : ''}`}
+                            onClick={() => setSelectedMainProgram('الكل')}
+                            style={{ fontSize: '11px', padding: '5px 8px' }}
+                        >
+                            الكل
+                        </button>
+                        {programsList.map(prog => (
                             <button 
                                 key={prog.id} 
-                                className={`filter-btn ${selectedMainProgram === prog.id ? 'active' : ''}`}
-                                onClick={() => setSelectedMainProgram(prog.id)}
+                                className={`filter-btn ${selectedMainProgram === String(prog.id) ? 'active' : ''}`}
+                                onClick={() => setSelectedMainProgram(String(prog.id))}
                                 style={{ fontSize: '11px', padding: '5px 8px' }}
                             >
                                 {prog.name}
@@ -277,7 +283,6 @@ const ProjectsPage = () => {
 
                     <h3 className="panel-title" style={{ marginTop: '15px' }}>قائمة المشاريع حسب النتائج ({filteredProjects.length} مشروع)</h3>
 
-                    {/* التعديل 2: عرض أسماء المشاريع مباشرة بدلاً من الأرقام المبهمة في القائمة الجانبية */}
                     <div className="gov-list-container" style={{ maxHeight: '220px', overflowY: 'auto' }}>
                         {loading ? (
                             <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>جاري التحميل من قاعدة البيانات...</p>
@@ -354,7 +359,6 @@ const ProjectsPage = () => {
                 </aside>
             </main>
 
-            {/* نافذة تفاصيل المشروع العميق */}
             {selectedProject && (
                 <div className="hac-modal-overlay active" style={{ zIndex: 3500 }} onClick={() => setSelectedProject(null)}>
                     <div className="hac-modal-container deep-modal" onClick={(e) => e.stopPropagation()}>
