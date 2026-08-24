@@ -81,18 +81,24 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
 
     return (
         <div style={{ width: '100%', height: '100%', minHeight: '400px', flex: 1, position: 'relative' }}>
-            {/* تنسيق لتبرير حجم الـ Popup وملء المساحة بشكل كامل */}
+            {/* تعديل جذري لخصائص CSS الخاصة بـ Leaflet Popup لمنع القص نهائياً */}
             <style>
                 {`
+                    .leaflet-popup {
+                        bottom: 20px !important;
+                    }
                     .leaflet-popup-content-wrapper {
-                        max-height: 450px !important;
+                        max-height: 480px !important;
+                        min-height: 350px !important;
                         overflow: hidden !important;
                         border-radius: 12px !important;
                         padding: 0 !important;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
                     }
                     .leaflet-popup-content {
-                        margin: 12px !important;
+                        margin: 10px 14px !important;
                         line-height: 1.4;
+                        width: 310px !important;
                     }
                 `}
             </style>
@@ -155,17 +161,17 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                     textAlign: 'right', 
                                     fontFamily: 'Cairo, sans-serif', 
                                     direction: 'rtl',
-                                    width: '310px'
+                                    width: '100%'
                                 }}>
-                                    {/* رأس النافذة */}
+                                    {/* رأس النافذة الثابت */}
                                     <div style={{ 
                                         borderBottom: '2px solid #e2e8f0', 
                                         paddingBottom: '8px', 
-                                        marginBottom: '10px',
+                                        marginBottom: '8px',
                                         backgroundColor: '#fff',
                                         position: 'sticky',
                                         top: 0,
-                                        zIndex: 2
+                                        zIndex: 10
                                     }}>
                                         <h3 style={{ margin: '0 0 4px 0', color: '#1e3a8a', fontSize: '15px', fontWeight: 'bold' }}>
                                             محافظة {item.name}
@@ -175,8 +181,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                         </span>
                                     </div>
 
-                                    {/* قائمة بطاقات المشاريع مع شريط تمرير غير مقصوص */}
-                                    <div style={{ maxHeight: '320px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
+                                    {/* قائمة بطاقات المشاريع مع شريط تمرير واسع وغير مقصوص */}
+                                    <div style={{ maxHeight: '360px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
                                         {item.projects && item.projects.length > 0 ? (
                                             item.projects.map((proj, idx) => (
                                                 <div key={idx} style={{ 
