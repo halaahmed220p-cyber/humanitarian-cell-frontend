@@ -106,34 +106,25 @@ const ProjectsPage = () => {
             if (!isSeasonMatch) return false;
         }
 
-        // 5. القطاعات التنموية (مربوطة بجدول sectors في قاعدة البيانات)
+        // 5. القطاعات التنموية (مطابقة دقيقة وصارمة عبر الـ sector_id حصراً)
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim().toLowerCase();
             
-            // البحث عن الـ ID الخاص بالقطاع من القائمة المستلمة من جدول sectors
+            // البحث عن الـ ID الخاص بالقطاع من جدول sectors
             const matchedSectorObj = sectorsList.find(s => String(s.name).trim().toLowerCase() === targetSector);
             const targetSectorId = matchedSectorObj ? String(matchedSectorObj.id) : null;
 
             const projSectorId = String(proj.sector_id || proj.sectorId || '').trim();
-            const projSectorName = String(proj.sector_name || proj.sector || '').trim().toLowerCase();
 
-            let matchesSector = 
-                (targetSectorId && projSectorId === targetSectorId) ||
-                projSectorName.includes(targetSector) ||
-                fullRowText.includes(targetSector);
+            // مطابقة دقيقة تعتمد على الـ ID الحقيقي للقطاع في قاعدة البيانات
+            let matchesSector = targetSectorId && projSectorId === targetSectorId;
 
-            // مرونة إضافية للكلمات المفتاحية المرتبطة بالقطاعات
+            // في حال لم يتوفر الـ ID، نعتمد مطابقة الاسم الحرفية الدقيقة فقط
             if (!matchesSector) {
-                if (targetSector.includes('غذاء') || targetSector.includes('مأوى')) {
-                    matchesSector = fullRowText.includes('غذاء') || fullRowText.includes('مأوى') || fullRowText.includes('تمر') || fullRowText.includes('سلال');
-                } else if (targetSector.includes('تعليم')) {
-                    matchesSector = fullRowText.includes('تعليم') || fullRowText.includes('مدرسة');
-                } else if (targetSector.includes('صحة')) {
-                    matchesSector = fullRowText.includes('صحة') || fullRowText.includes('طبي');
-                } else if (targetSector.includes('مياه')) {
-                    matchesSector = fullRowText.includes('مياه') || fullRowText.includes('بئر');
-                }
+                const projSectorName = String(proj.sector_name || proj.sector || '').trim().toLowerCase();
+                matchesSector = projSectorName === targetSector;
             }
+
             if (!matchesSector) return false;
         }
 
