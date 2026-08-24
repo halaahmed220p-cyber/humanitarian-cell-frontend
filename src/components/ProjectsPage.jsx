@@ -5,7 +5,7 @@ import './ProjectsPage.css';
 
 const ProjectsPage = () => {
     const [projectsList, setProjectsList] = useState([]);
-    const [programsList, setProgramsList] = useState([]); // حالة لتخزين البرامج القادمة من قاعدة البيانات
+    const [programsList, setProgramsList] = useState([]); // البرامج الرئيسية من قاعدة البيانات
     const [loading, setLoading] = useState(true);
 
     // حالات الفلترة والبحث
@@ -29,7 +29,7 @@ const ProjectsPage = () => {
                 const projData = await projRes.json();
                 setProjectsList(projData);
 
-                // 2. جلب البرامج من جدول programs في قاعدة البيانات
+                // 2. جلب البرامج الرئيسية
                 const progRes = await fetch('https://humanitarian-cell-frontend.onrender.com/api/programs');
                 const progData = await progRes.json();
                 setProgramsList(progData);
@@ -43,6 +43,9 @@ const ProjectsPage = () => {
 
         fetchData();
     }, []);
+
+    // استخراج التصنيفات والمشاريع الموسمية ديناميكياً من الحقل project_category في قاعدة البيانات
+    const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => String(p.project_category || '').trim()).filter(Boolean))];
 
     // استخراج المحافظات والمناطق ديناميكياً
     const uniqueLocations = ['عرض كلي', ...new Set(projectsList.map(p => {
@@ -70,7 +73,7 @@ const ProjectsPage = () => {
         }
 
         if (selectedSeasonalProgram !== 'الكل') {
-            const projSeason = String(proj.is_seasonal || proj.project_category || '').trim();
+            const projSeason = String(proj.project_category || '').trim();
             if (projSeason !== selectedSeasonalProgram.trim()) return false;
         }
 
@@ -218,7 +221,7 @@ const ProjectsPage = () => {
                         />
                     </div>
 
-                    {/* جلب البرامج ديناميكياً من جدول programs في قاعدة البيانات */}
+                    {/* البرامج الرئيسية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>البرامج الرئيسية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         <button 
@@ -240,16 +243,17 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
+                    {/* المشاريع الموسمية والتصنيفات (تُجلب ديناميكياً من حقل project_category) */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                        {['الكل', 'مشاريع عامة وتنموية', 'نسك', 'قطوف', 'موائد الخير', 'عيدكم عيدنا', 'يسر', 'اقرأ', 'إعفاف', 'أهل الذكر'].map(season => (
+                        {uniqueCategories.map(category => (
                             <button 
-                                key={season} 
-                                className={`filter-btn ${selectedSeasonalProgram === season ? 'active' : ''}`}
-                                onClick={() => setSelectedSeasonalProgram(season)}
+                                key={category} 
+                                className={`filter-btn ${selectedSeasonalProgram === category ? 'active' : ''}`}
+                                onClick={() => setSelectedSeasonalProgram(category)}
                                 style={{ fontSize: '11px', padding: '4px 8px' }}
                             >
-                                {season}
+                                {category === 'الكل' ? 'الكل' : category}
                             </button>
                         ))}
                     </div>
@@ -423,4 +427,4 @@ const ProjectsPage = () => {
     );
 };
 
-export default ProjectsPage;
+export datefault ProjectsPage;
