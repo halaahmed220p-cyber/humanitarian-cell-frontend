@@ -150,7 +150,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                 }
                             }}
                         >
-                            <Popup maxWidth={325} minWidth={300} autoPan={true} autoPanPadding={[50, 50]}>
+                            {/* إضافة offset لرفع مكان ظهور الـ Popup للأعلى قليلاً وضمان نزوله للأسفل بعيداً عن حافة الإطار */}
+                            <Popup maxWidth={325} minWidth={300} offset={[0, -10]} autoPan={true} autoPanPadding={[60, 60]}>
                                 <div style={{ 
                                     textAlign: 'right', 
                                     fontFamily: 'Cairo, sans-serif', 
