@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -143,35 +144,36 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                 })}
             </MapContainer>
 
-            {/* نافذة منبثقة زجاجية (Glassmorphism Modal) */}
-            {selectedGovData && (
+            {/* استخدام Portal لإخراج النافذة بالكامل خارج حدود الخريطة وعرضها فوق كل عناصر الصفحة */}
+            {selectedGovData && ReactDOM.createPortal(
                 <div style={{
                     position: 'fixed',
                     top: 0,
                     left: 0,
                     width: '100vw',
                     height: '100vh',
-                    backgroundColor: 'rgba(11, 19, 43, 0.75)',
-                    backdropFilter: 'blur(6px)',
+                    backgroundColor: 'rgba(11, 19, 43, 0.8)',
+                    backdropFilter: 'blur(8px)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    zIndex: 9999,
+                    zIndex: 999999,
                     fontFamily: 'Cairo, sans-serif',
-                    direction: 'rtl'
+                    direction: 'rtl',
+                    margin: 0,
+                    padding: 0
                 }}>
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+                        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98))',
                         border: '1px solid rgba(255, 255, 255, 0.15)',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)',
                         borderRadius: '16px',
                         width: '90%',
                         maxWidth: '550px',
                         maxHeight: '85vh',
                         display: 'flex',
                         flexDirection: 'column',
-                        overflow: 'hidden',
-                        animation: 'fadeInScale 0.25s ease-out'
+                        overflow: 'hidden'
                     }}>
                         {/* رأس النافذة */}
                         <div style={{
@@ -287,7 +289,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
