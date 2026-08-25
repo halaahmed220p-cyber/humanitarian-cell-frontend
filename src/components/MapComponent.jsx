@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -11,6 +11,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }) => {
+    const [selectedGovData, setSelectedGovData] = useState(null);
     
     const allProvincesCoords = {
         'تعز': { lat: 13.5779, lng: 44.0219, count: 45 },
@@ -79,22 +80,11 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
         [19.0, 55.0]  
     ];
 
-    // دالة لعرض تفاصيل المحافظة بـ Alert منسق وواضح
     const handleMarkerClick = (item) => {
         if (onSelectGovernorate) {
             onSelectGovernorate(item.name);
         }
-        
-        let message = `مرحباً بك في محافظة ${item.name}\nإجمالي المشاريع: ${item.count}\n\nأبرز المشاريع:\n`;
-        item.projects.slice(0, 5).forEach((p, idx) => {
-            message += `${idx + 1}. ${p.project_name || p.name} (${p.sector_name || 'تنمية'})\n`;
-        });
-        
-        if(item.projects.length > 5) {
-            message += `... و ${item.projects.length - 5} مشاريع أخرى.`;
-        }
-
-        alert(message);
+        setSelectedGovData(item);
     };
 
     return (
@@ -152,6 +142,153 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     );
                 })}
             </MapContainer>
+
+            {/* نافذة منبثقة زجاجية (Glassmorphism Modal) */}
+            {selectedGovData && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    backgroundColor: 'rgba(11, 19, 43, 0.75)',
+                    backdropFilter: 'blur(6px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    fontFamily: 'Cairo, sans-serif',
+                    direction: 'rtl'
+                }}>
+                    <div style={{
+                        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                        borderRadius: '16px',
+                        width: '90%',
+                        maxWidth: '550px',
+                        maxHeight: '85vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                        animation: 'fadeInScale 0.25s ease-out'
+                    }}>
+                        {/* رأس النافذة */}
+                        <div style={{
+                            padding: '20px 24px',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <div>
+                                <h3 style={{ margin: '0 0 5px 0', color: '#ffffff', fontSize: '18px', fontWeight: 'bold' }}>
+                                    محافظة {selectedGovData.name}
+                                </h3>
+                                <span style={{ color: '#94a3b8', fontSize: '13px' }}>
+                                    إجمالي المشاريع المسجلة: <strong style={{ color: '#38bdf8' }}>{selectedGovData.count}</strong>
+                                </span>
+                            </div>
+                            <button 
+                                onClick={() => setSelectedGovData(null)}
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.1)',
+                                    border: 'none',
+                                    color: '#fff',
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '50%',
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.8)'}
+                                onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.1)'}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        {/* محتوى المشاريع */}
+                        <div style={{
+                            padding: '20px 24px',
+                            overflowY: 'auto',
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px'
+                        }}>
+                            <h4 style={{ margin: '0 0 5px 0', color: '#cbd5e1', fontSize: '14px' }}>أبرز المشاريع في المحافظة:</h4>
+                            {selectedGovData.projects && selectedGovData.projects.length > 0 ? (
+                                selectedGovData.projects.map((proj, idx) => (
+                                    <div key={idx} style={{
+                                        background: 'rgba(255, 255, 255, 0.04)',
+                                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                                        borderRadius: '10px',
+                                        padding: '12px 16px',
+                                        borderRight: '4px solid #38bdf8'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                            <span style={{
+                                                fontSize: '11px',
+                                                background: 'rgba(56, 189, 248, 0.15)',
+                                                color: '#38bdf8',
+                                                padding: '2px 8px',
+                                                borderRadius: '4px',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                {proj.program_name || 'صرح'}
+                                            </span>
+                                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                                                {proj.execution_year || '2024'}
+                                            </span>
+                                        </div>
+                                        <p style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 'bold', color: '#f1f5f9' }}>
+                                            {proj.project_name || proj.name}
+                                        </p>
+                                        <span style={{ fontSize: '12px', color: '#cbd5e1' }}>
+                                            القطاع: {proj.sector_name || proj.sector || 'تنمية'}
+                                        </span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p style={{ color: '#94a3b8', textAlign: 'center', padding: '20px' }}>لا توجد مشاريع مضافة حالياً</p>
+                            )}
+                        </div>
+
+                        {/* تذييل النافذة */}
+                        <div style={{
+                            padding: '16px 24px',
+                            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            background: 'rgba(15, 23, 42, 0.6)'
+                        }}>
+                            <button 
+                                onClick={() => setSelectedGovData(null)}
+                                style={{
+                                    background: '#0284c7',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    padding: '8px 22px',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#0369a1'}
+                                onMouseLeave={(e) => e.target.style.background = '#0284c7'}
+                            >
+                                إغلاق
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
