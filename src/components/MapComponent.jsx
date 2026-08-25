@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -79,23 +79,26 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
         [19.0, 55.0]  
     ];
 
+    // دالة لعرض تفاصيل المحافظة بـ Alert منسق وواضح
+    const handleMarkerClick = (item) => {
+        if (onSelectGovernorate) {
+            onSelectGovernorate(item.name);
+        }
+        
+        let message = `مرحباً بك في محافظة ${item.name}\nإجمالي المشاريع: ${item.count}\n\nأبرز المشاريع:\n`;
+        item.projects.slice(0, 5).forEach((p, idx) => {
+            message += `${idx + 1}. ${p.project_name || p.name} (${p.sector_name || 'تنمية'})\n`;
+        });
+        
+        if(item.projects.length > 5) {
+            message += `... و ${item.projects.length - 5} مشاريع أخرى.`;
+        }
+
+        alert(message);
+    };
+
     return (
         <div style={{ width: '100%', height: '100%', minHeight: '450px', flex: 1, position: 'relative' }}>
-            <style>
-                {`
-                    .leaflet-popup-content-wrapper {
-                        background: #ffffff !important;
-                        border-radius: 12px !important;
-                        padding: 0 !important;
-                        box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
-                    }
-                    .leaflet-popup-content {
-                        margin: 10px 14px !important;
-                        line-height: 1.4;
-                    }
-                `}
-            </style>
-
             <MapContainer 
                 center={[15.5, 47.5]} 
                 zoom={6} 
@@ -143,75 +146,9 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                             position={[item.coords.lat, item.coords.lng]} 
                             icon={customIcon}
                             eventHandlers={{
-                                click: () => {
-                                    if (onSelectGovernorate) {
-                                        onSelectGovernorate(item.name);
-                                    }
-                                }
+                                click: () => handleMarkerClick(item)
                             }}
-                        >
-                            {/* إلغاء القفز التلقائي للشاشة بإضافة autoPan={false} */}
-                            <Popup maxWidth={325} minWidth={300} offset={[0, 15]} autoPan={false}>
-                                <div style={{ 
-                                    textAlign: 'right', 
-                                    fontFamily: 'Cairo, sans-serif', 
-                                    direction: 'rtl',
-                                    width: '100%'
-                                }}>
-                                    {/* رأس النافذة */}
-                                    <div style={{ 
-                                        borderBottom: '2px solid #e2e8f0', 
-                                        paddingBottom: '8px', 
-                                        marginBottom: '10px' 
-                                    }}>
-                                        <h3 style={{ margin: '0 0 4px 0', color: '#1e3a8a', fontSize: '15px', fontWeight: 'bold' }}>
-                                            محافظة {item.name}
-                                        </h3>
-                                        <span style={{ color: '#64748b', fontSize: '11px' }}>
-                                            المحافظة: {item.name} | إجمالي المشاريع: {item.count}
-                                        </span>
-                                    </div>
-
-                                    {/* قائمة المشاريع */}
-                                    <div style={{ maxHeight: '200px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
-                                        {item.projects && item.projects.length > 0 ? (
-                                            item.projects.map((proj, idx) => (
-                                                <div key={idx} style={{ 
-                                                    background: '#f8fafc', 
-                                                    border: '1px solid #e2e8f0', 
-                                                    borderRadius: '6px', 
-                                                    padding: '8px',
-                                                    marginBottom: '8px',
-                                                    borderRight: '4px solid #0284c7'
-                                                }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                        <span style={{ 
-                                                            fontSize: '10px', 
-                                                            background: '#e0f2fe', 
-                                                            color: '#0369a1', 
-                                                            padding: '2px 6px', 
-                                                            borderRadius: '4px',
-                                                            fontWeight: 'bold'
-                                                        }}>
-                                                            {proj.program_name || 'صرح'}
-                                                        </span>
-                                                    </div>
-                                                    <p style={{ margin: '6px 0 4px 0', fontSize: '12px', fontWeight: 'bold', color: '#1e293b' }}>
-                                                        {proj.project_name || proj.name}
-                                                    </p>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
-                                                        <span>{proj.sector_name || proj.sector || 'تنمية'}</span>
-                                                        <span>{proj.execution_year || '2024'}</span>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p style={{ fontSize: '12px', color: '#64748b', textAlign: 'center' }}>لا توجد مشاريع مفصلة</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </Popup>
-                        </Marker>
+                        />
                     );
                 })}
             </MapContainer>
