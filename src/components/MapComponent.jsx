@@ -113,8 +113,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     const customIcon = L.divIcon({
                         className: 'custom-map-marker',
                         html: `<div style="
-                            background-color: #d97706; 
-                            color: white; 
+                            background-color: #f59e0b; 
+                            color: #0b132b; 
                             width: 38px; 
                             height: 38px; 
                             border-radius: 50%; 
@@ -144,7 +144,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                 })}
             </MapContainer>
 
-            {/* النافذة المنبثقة بالهوية البصرية الذهبية */}
+            {/* النافذة المنبثقة بلون زر التبرع تماماً */}
             {selectedGovData && ReactDOM.createPortal(
                 <div style={{
                     position: 'fixed',
@@ -165,7 +165,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                 }}>
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98))',
-                        border: '1px solid rgba(217, 119, 6, 0.4)', // حد سفلي/خارجي بلون ذهبي
+                        border: '1px solid rgba(245, 158, 11, 0.5)', 
                         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)',
                         borderRadius: '16px',
                         width: '90%',
@@ -178,7 +178,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                         {/* رأس النافذة */}
                         <div style={{
                             padding: '20px 24px',
-                            borderBottom: '1px solid rgba(217, 119, 6, 0.2)',
+                            borderBottom: '1px solid rgba(245, 158, 11, 0.25)',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center'
@@ -194,8 +194,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                             <button 
                                 onClick={() => setSelectedGovData(null)}
                                 style={{
-                                    background: 'rgba(217, 119, 6, 0.15)',
-                                    border: '1px solid rgba(217, 119, 6, 0.3)',
+                                    background: 'rgba(245, 158, 11, 0.15)',
+                                    border: '1px solid rgba(245, 158, 11, 0.4)',
                                     color: '#f59e0b',
                                     width: '36px',
                                     height: '36px',
@@ -208,11 +208,11 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                     transition: 'all 0.2s'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.target.style.background = '#d97706';
-                                    e.target.style.color = '#fff';
+                                    e.target.style.background = '#f59e0b';
+                                    e.target.style.color = '#0b132b';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.target.style.background = 'rgba(217, 119, 6, 0.15)';
+                                    e.target.style.background = 'rgba(245, 158, 11, 0.15)';
                                     e.target.style.color = '#f59e0b';
                                 }}
                             >
@@ -237,17 +237,17 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                         border: '1px solid rgba(255, 255, 255, 0.08)',
                                         borderRadius: '10px',
                                         padding: '12px 16px',
-                                        borderRight: '4px solid #d97706' // الخط الجانبي باللون الذهبي
+                                        borderRight: '4px solid #f59e0b' // الخط الجانبي بلون التبرع
                                     }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                                             <span style={{
                                                 fontSize: '11px',
-                                                background: 'rgba(217, 119, 6, 0.15)',
+                                                background: 'rgba(245, 158, 11, 0.15)',
                                                 color: '#f59e0b',
                                                 padding: '2px 8px',
                                                 borderRadius: '4px',
                                                 fontWeight: 'bold',
-                                                border: '1px solid rgba(217, 119, 6, 0.3)'
+                                                border: '1px solid rgba(245, 158, 11, 0.3)'
                                             }}>
                                                 {proj.program_name || 'صرح'}
                                             </span>
@@ -271,7 +271,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                         {/* تذييل النافذة */}
                         <div style={{
                             padding: '16px 24px',
-                            borderTop: '1px solid rgba(217, 119, 6, 0.2)',
+                            borderTop: '1px solid rgba(245, 158, 11, 0.25)',
                             display: 'flex',
                             justifyContent: 'flex-end',
                             background: 'rgba(15, 23, 42, 0.6)'
@@ -279,15 +279,15 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                             <button 
                                 onClick={() => setSelectedGovData(null)}
                                 style={{
-                                    background: 'linear-gradient(135deg, #d97706, #b45309)',
-                                    color: '#ffffff',
+                                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                    color: '#0b132b',
                                     border: 'none',
-                                    padding: '8px 22px',
+                                    padding: '8px 24px',
                                     borderRadius: '8px',
                                     fontSize: '14px',
                                     fontWeight: 'bold',
                                     cursor: 'pointer',
-                                    boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
+                                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
                                     transition: 'opacity 0.2s'
                                 }}
                                 onMouseEnter={(e) => e.target.style.opacity = '0.9'}
