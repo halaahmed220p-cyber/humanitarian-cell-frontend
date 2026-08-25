@@ -113,7 +113,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                     const customIcon = L.divIcon({
                         className: 'custom-map-marker',
                         html: `<div style="
-                            background-color: #1e40af; 
+                            background-color: #d97706; 
                             color: white; 
                             width: 38px; 
                             height: 38px; 
@@ -144,7 +144,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                 })}
             </MapContainer>
 
-            {/* استخدام Portal لإخراج النافذة بالكامل خارج حدود الخريطة وعرضها فوق كل عناصر الصفحة */}
+            {/* النافذة المنبثقة بالهوية البصرية الذهبية */}
             {selectedGovData && ReactDOM.createPortal(
                 <div style={{
                     position: 'fixed',
@@ -165,7 +165,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                 }}>
                     <div style={{
                         background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98))',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        border: '1px solid rgba(217, 119, 6, 0.4)', // حد سفلي/خارجي بلون ذهبي
                         boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)',
                         borderRadius: '16px',
                         width: '90%',
@@ -178,7 +178,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                         {/* رأس النافذة */}
                         <div style={{
                             padding: '20px 24px',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderBottom: '1px solid rgba(217, 119, 6, 0.2)',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center'
@@ -188,15 +188,15 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                     محافظة {selectedGovData.name}
                                 </h3>
                                 <span style={{ color: '#94a3b8', fontSize: '13px' }}>
-                                    إجمالي المشاريع المسجلة: <strong style={{ color: '#38bdf8' }}>{selectedGovData.count}</strong>
+                                    إجمالي المشاريع المسجلة: <strong style={{ color: '#f59e0b' }}>{selectedGovData.count}</strong>
                                 </span>
                             </div>
                             <button 
                                 onClick={() => setSelectedGovData(null)}
                                 style={{
-                                    background: 'rgba(255, 255, 255, 0.1)',
-                                    border: 'none',
-                                    color: '#fff',
+                                    background: 'rgba(217, 119, 6, 0.15)',
+                                    border: '1px solid rgba(217, 119, 6, 0.3)',
+                                    color: '#f59e0b',
                                     width: '36px',
                                     height: '36px',
                                     borderRadius: '50%',
@@ -205,10 +205,16 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    transition: 'background 0.2s'
+                                    transition: 'all 0.2s'
                                 }}
-                                onMouseEnter={(e) => e.target.style.background = 'rgba(239, 68, 68, 0.8)'}
-                                onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.1)'}
+                                onMouseEnter={(e) => {
+                                    e.target.style.background = '#d97706';
+                                    e.target.style.color = '#fff';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.background = 'rgba(217, 119, 6, 0.15)';
+                                    e.target.style.color = '#f59e0b';
+                                }}
                             >
                                 &times;
                             </button>
@@ -231,16 +237,17 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                         border: '1px solid rgba(255, 255, 255, 0.08)',
                                         borderRadius: '10px',
                                         padding: '12px 16px',
-                                        borderRight: '4px solid #38bdf8'
+                                        borderRight: '4px solid #d97706' // الخط الجانبي باللون الذهبي
                                     }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                                             <span style={{
                                                 fontSize: '11px',
-                                                background: 'rgba(56, 189, 248, 0.15)',
-                                                color: '#38bdf8',
+                                                background: 'rgba(217, 119, 6, 0.15)',
+                                                color: '#f59e0b',
                                                 padding: '2px 8px',
                                                 borderRadius: '4px',
-                                                fontWeight: 'bold'
+                                                fontWeight: 'bold',
+                                                border: '1px solid rgba(217, 119, 6, 0.3)'
                                             }}>
                                                 {proj.program_name || 'صرح'}
                                             </span>
@@ -264,7 +271,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                         {/* تذييل النافذة */}
                         <div style={{
                             padding: '16px 24px',
-                            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderTop: '1px solid rgba(217, 119, 6, 0.2)',
                             display: 'flex',
                             justifyContent: 'flex-end',
                             background: 'rgba(15, 23, 42, 0.6)'
@@ -272,7 +279,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                             <button 
                                 onClick={() => setSelectedGovData(null)}
                                 style={{
-                                    background: '#0284c7',
+                                    background: 'linear-gradient(135deg, #d97706, #b45309)',
                                     color: '#ffffff',
                                     border: 'none',
                                     padding: '8px 22px',
@@ -280,10 +287,11 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                     fontSize: '14px',
                                     fontWeight: 'bold',
                                     cursor: 'pointer',
-                                    transition: 'background 0.2s'
+                                    boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
+                                    transition: 'opacity 0.2s'
                                 }}
-                                onMouseEnter={(e) => e.target.style.background = '#0369a1'}
-                                onMouseLeave={(e) => e.target.style.background = '#0284c7'}
+                                onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                                onMouseLeave={(e) => e.target.style.opacity = '1'}
                             >
                                 إغلاق
                             </button>
