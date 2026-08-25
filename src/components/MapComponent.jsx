@@ -150,8 +150,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                 }
                             }}
                         >
-                            {/* إضافة offset لرفع مكان ظهور الـ Popup للأعلى قليلاً وضمان نزوله للأسفل بعيداً عن حافة الإطار */}
-                            <Popup maxWidth={325} minWidth={300} offset={[0, -10]} autoPan={true} autoPanPadding={[60, 60]}>
+                            <Popup maxWidth={325} minWidth={300} offset={[0, 15]} autoPan={true} autoPanPadding={[50, 50]}>
                                 <div style={{ 
                                     textAlign: 'right', 
                                     fontFamily: 'Cairo, sans-serif', 
@@ -172,15 +171,15 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                         </span>
                                     </div>
 
-                                    {/* قائمة المشاريع الداخلية مع شريط تمرير مرتب وغير مقصوص */}
-                                    <div style={{ maxHeight: '250px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
+                                    {/* قائمة المشاريع */}
+                                    <div style={{ maxHeight: '200px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
                                         {item.projects && item.projects.length > 0 ? (
                                             item.projects.map((proj, idx) => (
                                                 <div key={idx} style={{ 
                                                     background: '#f8fafc', 
                                                     border: '1px solid #e2e8f0', 
                                                     borderRadius: '6px', 
-                                                    padding: '8px', 
+                                                    padding: '8px',
                                                     marginBottom: '8px',
                                                     borderRight: '4px solid #0284c7'
                                                 }}>
