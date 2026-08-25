@@ -80,17 +80,17 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
     ];
 
     return (
-        <div style={{ width: '100%', height: '100%', minHeight: '400px', flex: 1, position: 'relative' }}>
+        <div style={{ width: '100%', height: '100%', minHeight: '450px', flex: 1, position: 'relative' }}>
             <style>
                 {`
                     .leaflet-popup-content-wrapper {
                         background: #ffffff !important;
                         border-radius: 12px !important;
                         padding: 0 !important;
-                        box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+                        box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
                     }
                     .leaflet-popup-content {
-                        margin: 12px !important;
+                        margin: 10px 14px !important;
                         line-height: 1.4;
                     }
                 `}
@@ -103,7 +103,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                 maxZoom={13}
                 maxBounds={yemenBounds}
                 maxBoundsViscosity={1.0}
-                style={{ width: '100%', height: '100%', minHeight: '400px', background: '#f8fafc', zIndex: 1 }}
+                style={{ width: '100%', height: '100%', minHeight: '450px', background: '#f8fafc', zIndex: 1 }}
                 scrollWheelZoom={true}
             >
                 <TileLayer
@@ -150,7 +150,7 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                 }
                             }}
                         >
-                            <Popup maxWidth={320} minWidth={300}>
+                            <Popup maxWidth={325} minWidth={300} autoPan={true} autoPanPadding={[50, 50]}>
                                 <div style={{ 
                                     textAlign: 'right', 
                                     fontFamily: 'Cairo, sans-serif', 
@@ -171,8 +171,8 @@ const MapComponent = ({ projects = [], provincesList = [], onSelectGovernorate }
                                         </span>
                                     </div>
 
-                                    {/* قائمة المشاريع الداخلية مع شريط تمرير مرتب */}
-                                    <div style={{ maxHeight: '280px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
+                                    {/* قائمة المشاريع الداخلية مع شريط تمرير مرتب وغير مقصوص */}
+                                    <div style={{ maxHeight: '250px', overflowY: 'auto', paddingLeft: '4px', paddingRight: '2px' }}>
                                         {item.projects && item.projects.length > 0 ? (
                                             item.projects.map((proj, idx) => (
                                                 <div key={idx} style={{ 
