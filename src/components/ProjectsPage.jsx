@@ -52,7 +52,7 @@ const ProjectsPage = () => {
         fetchData();
     }, []);
 
-    // استخراج التصنيفات الموسمية المتاحة من المشاريع
+    // استخراج التصنيفات الموسمية المتاحة من المشاريع ودعم "قطوف" و"نسك" بدقة
     const uniqueCategories = ['الكل', ...new Set(projectsList.map(p => {
         return String(p.project_category || p.category || '').trim();
     }).filter(Boolean))];
@@ -94,13 +94,13 @@ const ProjectsPage = () => {
             if (!isProgramMatch) return false;
         }
 
-        // 4. فلترة التصنيف الموسمي / الفئة
+        // 4. فلترة التصنيف الموسمي / الفئة (تتبع حقل project_category مثل قطوف ونسك)
         if (selectedSeasonalProgram !== 'الكل') {
-            const targetSeason = selectedSeasonalProgram.trim().toLowerCase();
-            const projCategory = String(proj.project_category || proj.category || '').trim().toLowerCase();
+            const targetSeason = selectedSeasonalProgram.trim();
+            const projCategory = String(proj.project_category || proj.category || '').trim();
 
             const isSeasonMatch = 
-                projCategory === targetSeason ||
+                projCategory.toLowerCase() === targetSeason.toLowerCase() ||
                 projCategory.includes(targetSeason);
 
             if (!isSeasonMatch) return false;
@@ -110,16 +110,13 @@ const ProjectsPage = () => {
         if (selectedSector !== 'الكل') {
             const targetSector = selectedSector.trim().toLowerCase();
             
-            // البحث عن الـ ID الخاص بالقطاع من جدول sectors
             const matchedSectorObj = sectorsList.find(s => String(s.name).trim().toLowerCase() === targetSector);
             const targetSectorId = matchedSectorObj ? String(matchedSectorObj.id) : null;
 
             const projSectorId = String(proj.sector_id || proj.sectorId || '').trim();
 
-            // مطابقة دقيقة تعتمد على الـ ID الحقيقي للقطاع في قاعدة البيانات
             let matchesSector = targetSectorId && projSectorId === targetSectorId;
 
-            // في حال لم يتوفر الـ ID، نعتمد مطابقة الاسم الحرفية الدقيقة فقط
             if (!matchesSector) {
                 const projSectorName = String(proj.sector_name || proj.sector || '').trim().toLowerCase();
                 matchesSector = projSectorName === targetSector;
@@ -199,7 +196,6 @@ const ProjectsPage = () => {
         { name: 'مخططة', value: plannedTotal > 0 ? plannedTotal : 1, color: '#3b82f6' },
     ];
 
-    // قائمة القطاعات الافتراضية احتياطياً في حال لم يتم جلبها مباشرة من الـ API
     const fallbackSectors = ['المياه', 'التعليم', 'الصحة', 'الغذاء والمأوى', 'الحماية', 'المناخ والطاقة الخضراء', 'البنية التحتية'];
     const activeSectorsList = sectorsList.length > 0 ? sectorsList.map(s => s.name) : fallbackSectors;
 
@@ -279,7 +275,7 @@ const ProjectsPage = () => {
                         ))}
                     </div>
 
-                    {/* المشاريع الموسمية والتصنيفات */}
+                    {/* المشاريع الموسمية والتصنيفات (تظهر هنا قطوف، نسك، وغيرها بحسب حقل project_category) */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>المشاريع الموسمية والتصنيفات</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         <button 
@@ -314,7 +310,7 @@ const ProjectsPage = () => {
                         </select>
                     </div>
 
-                    {/* القطاعات التنموية (مجلوبة من جدول sectors في قاعدة البيانات) */}
+                    {/* القطاعات التنموية */}
                     <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#1e293b' }}>القطاعات التنموية</h4>
                     <div className="filter-buttons" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '15px' }}>
                         <button 
@@ -366,7 +362,7 @@ const ProjectsPage = () => {
                                             {proj.project_name}
                                         </div>
                                         <div style={{ fontSize: '10px', color: '#64748b' }}>
-                                            {proj.province_id || proj.district_id || 'منطقة عامة'} • {proj.project_status || 'جديد'}
+                                            {proj.province_id || proj.district_id || 'منطقة عامة'} • {proj.project_status || 'جديد'} {proj.project_category ? `• ${proj.project_category}` : ''}
                                         </div>
                                     </div>
                                     <button style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', padding: '3px 8px', fontSize: '10px', cursor: 'pointer' }}>
@@ -402,7 +398,6 @@ const ProjectsPage = () => {
                             </ResponsiveContainer>
                         </div>
 
-                        {/* مفتاح الألوان أسفل المخطط بشكل مرتب ومنظم */}
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '8px', fontSize: '10px', color: '#94a3b8', flexWrap: 'wrap' }}>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <i style={{ background: '#10b981', width: '8px', height: '8px', borderRadius: '2px', display: 'inline-block' }}></i> منفذة
@@ -416,7 +411,7 @@ const ProjectsPage = () => {
                         </div>
                     </div>
 
-                  </div>
+                 </div>
                 </aside>
             </main>
 
@@ -426,7 +421,7 @@ const ProjectsPage = () => {
                         <button className="hac-modal-close" onClick={() => setSelectedProject(null)}>&times;</button>
 
                         <div className="hac-modal-header">
-                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع (ID: {selectedProject.id})</span>
+                            <span className="hac-modal-badge gold-bg">تفاصيل المشروع (ID: {selectedProject.id}) {selectedProject.project_category ? `| التصنيف: ${selectedProject.project_category}` : ''}</span>
                             <h2>{selectedProject.project_name}</h2>
                         </div>
 
