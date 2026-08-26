@@ -77,13 +77,18 @@ export default function ProgramDetail() {
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program.projects || []
 
-  // استخراج التصنيفات حصراً من حقل project_category القادم من قاعدة البيانات
-  const categories = ['all', ...new Set(rawProjects.map(p => p.project_category).filter(Boolean))]
+  // استخراج التصنيفات مباشرة من حقول قاعدة البيانات المتاحة لكل مشروع
+  const categories = ['all', ...new Set(rawProjects.map(p => {
+    return p.project_category || p.category || p.is_seasonal;
+  }).filter(Boolean))];
 
-  // فلترة المشاريع بناءً على مطابقة حقل project_category مع التبويب النشط
+  // دالة فلترة المشاريع بناءً على التصنيف القادم من قاعدة البيانات
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
-    : rawProjects.filter(p => p.project_category === activeTab)
+    : rawProjects.filter(p => {
+        const cat = p.project_category || p.category || p.is_seasonal;
+        return cat === activeTab;
+      })
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-0">
@@ -146,7 +151,7 @@ export default function ProgramDetail() {
                 </button>
 
                 {categories.filter(c => c !== 'all').map((cat, idx) => {
-                  const count = rawProjects.filter(p => p.project_category === cat).length;
+                  const count = rawProjects.filter(p => (p.project_category || p.category || p.is_seasonal) === cat).length;
                   return (
                     <button
                       key={idx}
@@ -169,15 +174,16 @@ export default function ProgramDetail() {
             {/* شبكة المشاريع */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
+                const displayCategory = project.project_category || project.category || project.is_seasonal;
                 return (
                   <ScrollReveal key={project.id || i} delay={i * 0.1}>
                     <div className="bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 p-7">
                       <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
                         <span className="flex items-center gap-1">📍 {project.location || 'اليمن'}</span>
                         <span className="flex items-center gap-1">📅 {project.date || '2026'}</span>
-                        {project.project_category && (
+                        {displayCategory && (
                           <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/10 text-[#c9a84c]">
-                            {project.project_category}
+                            {displayCategory}
                           </span>
                         )}
                       </div>
