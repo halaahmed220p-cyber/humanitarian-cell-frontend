@@ -77,7 +77,7 @@ export default function ProgramDetail() {
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program.projects || []
 
-  // استخراج التصنيفات بدقة ودعم حقول قاعدة البيانات (تصنيف_المشروع_الموسمي، project_category، category، وغيرها)
+  // استخراج التصنيفات (دعم الأعمدة العربية والإنجليزية للتصنيفات مثل قطوف ونسك)
   const categories = ['all', ...new Set(rawProjects.map(p => {
     return String(
       p.تصنيف_المشروع_الموسمي || 
@@ -88,7 +88,7 @@ export default function ProgramDetail() {
     ).trim();
   }).filter(Boolean))];
 
-  // دالة فلترة المشاريع بناءً على التصنيف المختار
+  // فلترة المشاريع بناءً على التصنيف المختار (مثل قطوف أو نسك)
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
     : rawProjects.filter(p => {
@@ -146,7 +146,7 @@ export default function ProgramDetail() {
               </div>
             </ScrollReveal>
 
-            {/* أزرار التصنيفات التلقائية (تتضمن قطوف، نسك، والمشاريع التنموية) */}
+            {/* أزرار الفلترة للتصنيفات الموسمية (قطوف، نسك، وغيرها) */}
             <ScrollReveal delay={0.1}>
               <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
                 <button
@@ -190,10 +190,11 @@ export default function ProgramDetail() {
             {/* شبكة المشاريع */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
+                // جلب الحقول بدعم كامل للأسماء العربية والإنجليزية القادمة من قاعدة البيانات
                 const displayCategory = project.تصنيف_المشروع_الموسمي || project.project_category || project.category || project.is_seasonal;
-                const projectName = project.اسم_المشروع_المعتمد || project.title || project.project_name;
+                const projectName = project.اسم_المشروع_المعتمد || project.title || project.project_name || project.name;
                 const projectLoc = project.المحافظة || project.المديرية_النطاق_الميداني || project.location || 'اليمن';
-                const projectDate = project.سنة_التنفيذ || project.date || '2026';
+                const projectDate = project.سنة_التنفيذ || project.date || project.year || '2026';
                 const beneficiariesCount = project.عدد_المستفيدين || project.beneficiaries || project.beneficiaries_count || 'غير محدد';
                 const projectDesc = project.ملاحظات_وضبط_الجودة || project.description || project.quality_notes || 'مشروع تنموي مستدام.';
 
@@ -233,7 +234,7 @@ export default function ProgramDetail() {
         )}
       </div>
 
-      {/* نافذة تفاصيل المشروع المنبثقة */}
+      {/* نافذة تفاصيل المشروع المنبثقة عند الضغط على زر التفاصيل */}
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedProject(null)}>
           <div className="bg-[#111827] border border-white/15 rounded-3xl p-7 max-w-lg w-full text-white relative shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -249,7 +250,7 @@ export default function ProgramDetail() {
             </span>
 
             <h3 className="text-2xl font-black mb-3">
-              {selectedProject.اسم_المشروع_المعتمد || selectedProject.title || selectedProject.project_name}
+              {selectedProject.اسم_المشروع_المعتمد || selectedProject.title || selectedProject.project_name || selectedProject.name}
             </h3>
 
             <p className="text-sm text-gray-300 mb-5 leading-relaxed">
@@ -267,7 +268,7 @@ export default function ProgramDetail() {
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">سنة التنفيذ:</span>
-                <strong className="text-white">{selectedProject.سنة_التنفيذ || selectedProject.date || '2026'}</strong>
+                <strong className="text-white">{selectedProject.سنة_التنفيذ || selectedProject.date || selectedProject.year || '2026'}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">حالة المشروع:</span>
