@@ -30,11 +30,12 @@ export default function ProgramDetail() {
   const [loading, setLoading] = useState(true)
   const [selectedProject, setSelectedProject] = useState(null)
   
-  // حالة لتحديد التبويب أو التصنيف النشط (افتراضياً 'all' أو أول تصنيف متاح)
+  // حالة لتحديد التبويب النشط (مثلاً 'all' أو تصنيف معين / مشروع موسمي)
   const [activeTab, setActiveTab] = useState('all')
 
   useEffect(() => {
     setLoading(true)
+    // جلب بيانات البرنامج مع مشاريعه المرتبطة بناءً على الـ API الخاص بك
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${programId}`)
       .then(res => res.json())
       .then(data => {
@@ -55,7 +56,7 @@ export default function ProgramDetail() {
     )
   }
 
-  if (!program || !program.name) {
+  if (!program || (!program.name && !program.program_name)) {
     return (
       <div className="program-detail-page min-h-screen flex flex-col justify-between pt-29 bg-[#0b132b]">
         <Header />
@@ -73,20 +74,20 @@ export default function ProgramDetail() {
     )
   }
 
-  const { color, gradient } = program
+  const color = program.color || '#eab308'
+  const gradient = program.gradient || 'linear-gradient(135deg, #eab308, #ca8a04)'
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
 
-  // استخراج التصنيفات المتاحة للمشاريع (في حال كانت المشاريع مقسمة لموسمية/تنموية أو تحتوي على خصائص تصنيف)
-  // سنعتمد هنا على خاصية مثل project.category أو project.type إن وجدت، أو تجميعها افتراضياً
-  const projects = program.projects || []
-  
-  // استخراج قائمة التصنيفات الفرعية الفريدة إن وجدت في البيانات، أو تصنيفات افتراضية
-  const categories = ['all', ...new Set(projects.map(p => p.category || p.sector || 'عام'))]
+  // استخراج قائمة المشاريع ومطابقة أسماء الحقول من قاعدة البيانات
+  const rawProjects = program.projects || []
 
-  // فلترة المشاريع بناءً على التبويب النشط
+  // استخراج التصنيفات المتاحة بناءً على حقل project_category أو is_seasonal
+  const categories = ['all', ...new Set(rawProjects.map(p => p.project_category || p.is_seasonal || 'عام'))]
+
+  // فلترة المشاريع بناءً على التبويب النشط المختار
   const filteredProjects = activeTab === 'all' 
-    ? projects 
-    : projects.filter(p => (p.category || p.sector || 'عام') === activeTab)
+    ? rawProjects 
+    : rawProjects.filter(p => (p.project_category || p.is_seasonal || 'عام') === activeTab)
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-0">
@@ -100,7 +101,7 @@ export default function ProgramDetail() {
             <div className="mb-6 flex justify-center">
               <img 
                 src={logoSrc} 
-                alt={program.name} 
+                alt={program.name || program.program_name} 
                 className="w-28 h-28 md:w-36 md:h-36 object-contain drop-shadow-xl transition-transform duration-300 hover:scale-105"
                 onError={(e) => {
                   e.target.style.display = 'none';
@@ -111,13 +112,13 @@ export default function ProgramDetail() {
 
           <ScrollReveal delay={0.1}>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-2 rounded-full text-sm font-bold mb-6" style={{ color }}>
-              {program.badge}
+              {program.badge || 'برنامج استراتيجي'}
             </div>
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
             <h1 className="text-5xl md:text-6xl font-black leading-tight mb-5 text-white">
-              {program.name}
+              {program.name || program.program_name}
             </h1>
           </ScrollReveal>
 
@@ -134,35 +135,34 @@ export default function ProgramDetail() {
           </ScrollReveal>
         </section>
 
-        {projects.length > 0 && (
+        {rawProjects.length > 0 && (
           <section className="pb-20">
             <ScrollReveal>
               <div className="flex items-center gap-4 mb-8">
-                <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج</h2>
+                <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج والمشاريع الموسمية</h2>
                 <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
                 <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color }}>
-                  {projects.length} مشروع
+                  {rawProjects.length} مشروع
                 </span>
               </div>
             </ScrollReveal>
 
-            {/* أزرار التبويبات للتصنيفات والمشاريع المندرجة */}
+            {/* أزرار التبويبات التفاعلية (مثل المشاريع الموسمية والتصنفيات المندرجة) */}
             <ScrollReveal delay={0.1}>
               <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
                 <button
                   onClick={() => setActiveTab('all')}
                   className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
                     activeTab === 'all' 
-                      ? 'bg-white text-[#0b132b] shadow-lg' 
+                      ? 'text-[#0b132b] shadow-lg' 
                       : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
                   }`}
                   style={activeTab === 'all' ? { backgroundColor: color } : {}}
                 >
-                  جميع المشاريع ({projects.length})
+                  جميع المشاريع ({rawProjects.length})
                 </button>
 
-                {/* استخراج التبويبات بناءً على تصنيفات المشاريع */}
-                {Array.from(new Set(projects.map(p => p.category || p.sector || 'مشاريع عامة'))).map((cat, idx) => (
+                {categories.filter(c => c !== 'all').map((cat, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveTab(cat)}
@@ -179,10 +179,12 @@ export default function ProgramDetail() {
               </div>
             </ScrollReveal>
 
-            {/* شبكة عرض المشاريع التابعة للتبويب النشط */}
+            {/* شبكة عرض المشاريع المندرجة تحت التبويب النشط */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
-                const status = statusConfig[project.status] || statusConfig['active']
+                const statusKey = project.project_status || 'active'
+                const status = statusConfig[statusKey] || statusConfig['active']
+                
                 return (
                   <ScrollReveal key={project.id || i} delay={i * 0.1}>
                     <motion.div
@@ -203,28 +205,28 @@ export default function ProgramDetail() {
                       <div className="p-7">
                         <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
                           <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" /> {project.location}
+                            <MapPin className="w-3.5 h-3.5" /> {project.landmark_type || 'اليمن'}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" /> {project.date}
+                            <Calendar className="w-3.5 h-3.5" /> {project.execution_year || '2024'}
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-extrabold mb-3 text-white">{project.title}</h3>
-                        <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{project.description}</p>
+                        {/* اسم المشروع المطابق لحقل project_name في قاعدة البيانات */}
+                        <h3 className="text-xl font-extrabold mb-3 text-white">{project.project_name}</h3>
+                        <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{project.quality_notes || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.'}</p>
 
                         <div className="mb-5">
                           <div className="flex justify-between text-sm mb-2">
-                            <span className="text-[#b0b8c8]">نسبة الإنجاز</span>
-                            <span className="font-bold" style={{ color }}>{project.progress}%</span>
+                            <span className="text-[#b0b8c8]">التصنيف أو الموسم</span>
+                            <span className="font-bold text-amber-400">{project.project_category || project.is_seasonal || 'عام'}</span>
                           </div>
-                          <ProgressBar progress={project.progress} color={color} />
                         </div>
 
                         <div className="flex justify-between items-center pt-4 border-t border-white/5">
                           <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
                             <Users className="w-4 h-4" />
-                            <span><strong style={{ color }}>{project.beneficiaries}</strong></span>
+                            <span>المستفيدون: <strong style={{ color }}>{project.beneficiaries_count || 0}</strong></span>
                           </div>
                           <button 
                             onClick={() => setSelectedProject(project)}
@@ -243,7 +245,7 @@ export default function ProgramDetail() {
         )}
       </div>
 
-      {/* نافذة تفاصيل المشروع المنبثقة */}
+      {/* نافذة التفاصيل المنبثقة */}
       <AnimatePresence>
         {selectedProject && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-md overflow-y-auto py-10">
@@ -263,102 +265,47 @@ export default function ProgramDetail() {
               </button>
 
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-5xl">{selectedProject.icon || '📁'}</span>
+                <span className="text-5xl">📁</span>
                 <div>
-                  <h3 className="text-2xl font-black text-white">{selectedProject.title}</h3>
+                  <h3 className="text-2xl font-black text-white">{selectedProject.project_name}</h3>
                 </div>
               </div>
 
               <div className="space-y-4 mb-6 text-sm text-[#b0b8c8]">
                 <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                  <h4 className="font-bold text-white mb-2">وصف المشروع:</h4>
-                  <p className="leading-relaxed">{selectedProject.description}</p>
+                  <h4 className="font-bold text-white mb-2">ملاحظات الجودة / الوصف:</h4>
+                  <p className="leading-relaxed">{selectedProject.quality_notes || 'لا توجد ملاحظات إضافية.'}</p>
                 </div>
-
-                {selectedProject.strategic_overview && (
-                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <h4 className="font-extrabold text-white mb-2 flex items-center gap-2 text-sm" style={{ color }}>
-                      التعريف الاستراتيجي (OVERVIEW)
-                    </h4>
-                    <p className="text-sm text-[#b0b8c8] leading-relaxed mb-2">{selectedProject.strategic_overview}</p>
-                    {selectedProject.strategic_overview_en && (
-                      <p className="text-xs text-gray-500 italic">{selectedProject.strategic_overview_en}</p>
-                    )}
-                  </div>
-                )}
-
-                {selectedProject.strategic_goals && selectedProject.strategic_goals.length > 0 && (
-                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                    <h4 className="font-extrabold text-white mb-3 text-sm" style={{ color }}>
-                      الأهداف الاستراتيجية الميدانية
-                    </h4>
-                    <ul className="space-y-2 text-sm text-[#b0b8c8] list-disc list-inside">
-                      {selectedProject.strategic_goals.map((goal, idx) => (
-                        <li key={idx} className="leading-relaxed">{goal}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {selectedProject.sdg_alignment && (
-                  <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-xs font-bold text-amber-400 flex items-center gap-2">
-                    <span>التوافق الدولي:</span>
-                    <span>{selectedProject.sdg_alignment}</span>
-                  </div>
-                )}
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <span className="text-gray-400 block mb-1">الموقع:</span>
-                    <span className="font-bold text-white">{selectedProject.location || 'غير محدد'}</span>
+                    <span className="text-gray-400 block mb-1">معرّف التنفيذ:</span>
+                    <span className="font-bold text-white">{selectedProject.implementation_id || 'غير محدد'}</span>
                   </div>
                   <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <span className="text-gray-400 block mb-1">التاريخ / الموسم:</span>
-                    <span className="font-bold text-white">{selectedProject.date || 'مستمر'}</span>
+                    <span className="text-gray-400 block mb-1">سنة التنفيذ:</span>
+                    <span className="font-bold text-white">{selectedProject.execution_year || '2024'}</span>
                   </div>
                   <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <span className="text-gray-400 block mb-1">نسبة الإنجاز:</span>
-                    <span className="font-bold" style={{ color }}>{selectedProject.progress}%</span>
+                    <span className="text-gray-400 block mb-1">الجهة المانحة:</span>
+                    <span className="font-bold" style={{ color }}>{selectedProject.donor || 'خلية الأعمال الإنسانية'}</span>
                   </div>
                   <div className="bg-white/5 p-3 rounded-xl border border-white/5">
-                    <span className="text-gray-400 block mb-1">المستفيدون:</span>
-                    <span className="font-bold text-white">{selectedProject.beneficiaries || 'غير محدد'}</span>
+                    <span className="text-gray-400 block mb-1">عدد المستفيدين:</span>
+                    <span className="font-bold text-white">{selectedProject.beneficiaries_count || 0}</span>
                   </div>
                 </div>
 
-                {selectedProject.download_url && (
+                {selectedProject.google_maps_link && (
                   <div className="pt-2">
                     <a 
-                      href={selectedProject.download_url} 
-                      download 
+                      href={selectedProject.google_maps_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white bg-white/10 border border-white/20 hover:bg-white/20 transition-all cursor-pointer"
                     >
-                      <Download className="w-4 h-4" />
-                      <span>تحميل تفاصيل المشروع / التقرير (PDF)</span>
+                      <span>عرض الموقع على خريطة جوجل (Google Maps)</span>
                     </a>
-                  </div>
-                )}
-
-                {selectedProject.media && selectedProject.media.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-white/10">
-                    <h4 className="font-extrabold text-white mb-4 flex items-center gap-2 text-base">
-                      <ImageIcon className="w-5 h-5" style={{ color }} />
-                      توثيق الصور والفيديوهات للمشروع
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {selectedProject.media.map((item, idx) => (
-                        <div key={idx} className="bg-black/30 rounded-2xl overflow-hidden border border-white/10">
-                          {item.type === 'image' ? (
-                            <img src={item.url} alt={item.caption || "توثيق"} className="w-full h-40 object-cover" />
-                          ) : (
-                            <video src={item.url} controls className="w-full h-40 object-cover" />
-                          )}
-                          {item.caption && (
-                            <div className="p-2 text-xs text-center text-white bg-white/5">{item.caption}</div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
