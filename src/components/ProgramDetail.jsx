@@ -10,10 +10,10 @@ import './ProgramDetail.css'
 
 // خريطة تحويل الأسماء النصية في الرابط إلى الـ ID الرقمي المطابق لقاعدة البيانات
 const programIdMap = {
-  rafed: 1,
-  himaya: 2,
-  sarh: 3,
-  wasam: 4,
+  rafed: 3,
+  himaya: 4,
+  sarh: 1,
+  wasam: 2,
 }
 
 const statusConfig = {
