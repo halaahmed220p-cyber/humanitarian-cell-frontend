@@ -8,7 +8,6 @@ import Footer from '../components/Footer'
 import ScrollReveal from '../components/ScrollReveal'
 import './ProgramDetail.css'
 
-// خريطة تحويل الأسماء النصية في الرابط إلى الـ ID الرقمي المطابق لقاعدة البيانات
 const programIdMap = {
   rafed: 3,
   himaya: 4,
@@ -40,13 +39,25 @@ export default function ProgramDetail() {
 
   useEffect(() => {
     setLoading(true)
-    
-    // تحويل النص (مثل rafed) إلى الرقم الصحيح (مثل 1) الذي يطلبه السيرفر
     const numericId = programIdMap[programId] || programId
 
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${numericId}`)
       .then(res => res.json())
       .then(data => {
+        // معالجة المشاريع وإعطاء تصنيف افتراضي في حال لم يكن موجوداً من السيرفر
+        if (data && data.projects) {
+          data.projects = data.projects.map(p => {
+            let cat = p.project_category || p.category || p.type;
+            if (!cat) {
+              // تصنيف تلقائي استناداً إلى اسم المشروع إن لم يرسل السيرفر الحقل
+              const title = (p.title || p.project_name || '').toLowerCase();
+              if (title.includes('قطوف') || title.includes('تمر')) cat = 'قطوف';
+              else if (title.includes('نسك') || title.includes('أضحية') || title.includes('لحوم')) cat = 'نسك';
+              else cat = 'مشاريع تنموية';
+            }
+            return { ...p, project_category: cat };
+          });
+        }
         setProgram(data)
         setLoading(false)
       })
@@ -83,16 +94,16 @@ export default function ProgramDetail() {
   }
 
   const color = program.color || '#eab308'
-  const gradient = program.gradient || 'linear-gradient(135deg, #eab308, #ca8a04)'
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
-
   const rawProjects = program.projects || []
 
-  const categories = ['all', ...new Set(rawProjects.map(p => p.project_category || p.is_seasonal || 'عام'))]
+  // استخراج كافة التصنيفات الفريدة لعرضها كأزرار
+  const categories = ['all', ...new Set(rawProjects.map(p => p.project_category).filter(Boolean))]
 
+  // فلترة المشاريع بناءً على التبويب النشط
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
-    : rawProjects.filter(p => (p.project_category || p.is_seasonal || 'عام') === activeTab)
+    : rawProjects.filter(p => p.project_category === activeTab)
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-0">
@@ -127,90 +138,91 @@ export default function ProgramDetail() {
         </section>
 
         {rawProjects.length > 0 && (
-  <section className="pb-20">
-    <ScrollReveal>
-      <div className="flex items-center gap-4 mb-8">
-        <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج والمشاريع الموسمية</h2>
-        <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
-        <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color }}>
-          {rawProjects.length} مشروع
-        </span>
-      </div>
-    </ScrollReveal>
-
-    {/* الأزرار والتصنيفات المستخرجة من project_category */}
-    <ScrollReveal delay={0.1}>
-      <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
-        <button
-          onClick={() => setActiveTab('all')}
-          className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
-            activeTab === 'all' ? 'text-[#0b132b] shadow-lg' : 'bg-white/5 text-white border border-white/10'
-          }`}
-          style={activeTab === 'all' ? { backgroundColor: color } : {}}
-        >
-          جميع المشاريع ({rawProjects.length})
-        </button>
-
-        {categories.filter(c => c !== 'all').map((cat, idx) => {
-          // حساب عدد المشاريع التابعة لهذا التصنيف
-          const count = rawProjects.filter(p => p.project_category === cat).length;
-          
-          return (
-            <button
-              key={idx}
-              onClick={() => setActiveTab(cat)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer flex items-center gap-2 ${
-                activeTab === cat ? 'text-[#0b132b] shadow-lg' : 'bg-white/5 text-white border border-white/10'
-              }`}
-              style={activeTab === cat ? { backgroundColor: color } : {}}
-            >
-              <span>{cat}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${activeTab === cat ? 'bg-black/20 text-[#0b132b]' : 'bg-white/10 text-white'}`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </ScrollReveal>
-
-    {/* شبكة المشاريع المصفاة */}
-    <div className="grid md:grid-cols-2 gap-7">
-      {filteredProjects.map((project, i) => {
-        return (
-          <ScrollReveal key={project.id || i} delay={i * 0.1}>
-            <div className="bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 p-7">
-              <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
-                <span className="flex items-center gap-1">📍 {project.location || 'اليمن'}</span>
-                <span className="flex items-center gap-1">📅 {project.date || '2026'}</span>
-                {project.project_category && (
-                  <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/10 text-[#c9a84c]">
-                    {project.project_category}
-                  </span>
-                )}
+          <section className="pb-20">
+            <ScrollReveal>
+              <div className="flex items-center gap-4 mb-8">
+                <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج والمشاريع الموسمية</h2>
+                <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
+                <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color }}>
+                  {rawProjects.length} مشروع
+                </span>
               </div>
+            </ScrollReveal>
 
-              <h3 className="text-xl font-extrabold mb-3 text-white">{project.title || project.project_name}</h3>
-              <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{project.description || project.quality_notes || 'مشروع تنموي مستدام.'}</p>
-
-              <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
-                  <span>المستفيدون: <strong style={{ color }}>{project.beneficiaries || project.beneficiaries_count || 'غير محدد'}</strong></span>
-                </div>
-                <button 
-                  onClick={() => setSelectedProject(project)}
-                  className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 cursor-pointer"
+            {/* أزرار التصنيفات (قطوف، نسك، مشاريع تنموية) */}
+            <ScrollReveal delay={0.1}>
+              <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer flex items-center gap-2 ${
+                    activeTab === 'all' ? 'text-[#0b132b] shadow-lg' : 'bg-white/5 text-white border border-white/10'
+                  }`}
+                  style={activeTab === 'all' ? { backgroundColor: color } : {}}
                 >
-                  التفاصيل
+                  <span>جميع المشاريع</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${activeTab === 'all' ? 'bg-black/20 text-[#0b132b]' : 'bg-white/10 text-white'}`}>
+                    {rawProjects.length}
+                  </span>
                 </button>
+
+                {categories.filter(c => c !== 'all').map((cat, idx) => {
+                  const count = rawProjects.filter(p => p.project_category === cat).length;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveTab(cat)}
+                      className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer flex items-center gap-2 ${
+                        activeTab === cat ? 'text-[#0b132b] shadow-lg' : 'bg-white/5 text-white border border-white/10'
+                      }`}
+                      style={activeTab === cat ? { backgroundColor: color } : {}}
+                    >
+                      <span>{cat}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${activeTab === cat ? 'bg-black/20 text-[#0b132b]' : 'bg-white/10 text-white'}`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
+            </ScrollReveal>
+
+            {/* شبكة المشاريع */}
+            <div className="grid md:grid-cols-2 gap-7">
+              {filteredProjects.map((project, i) => {
+                return (
+                  <ScrollReveal key={project.id || i} delay={i * 0.1}>
+                    <div className="bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 p-7">
+                      <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
+                        <span className="flex items-center gap-1">📍 {project.location || 'اليمن'}</span>
+                        <span className="flex items-center gap-1">📅 {project.date || '2026'}</span>
+                        {project.project_category && (
+                          <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/10 text-[#c9a84c]">
+                            {project.project_category}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-xl font-extrabold mb-3 text-white">{project.title || project.project_name}</h3>
+                      <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{project.description || project.quality_notes || 'مشروع تنموي مستدام.'}</p>
+
+                      <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                        <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
+                          <span>المستفيدون: <strong style={{ color }}>{project.beneficiaries || project.beneficiaries_count || 'غير محدد'}</strong></span>
+                        </div>
+                        <button 
+                          onClick={() => setSelectedProject(project)}
+                          className="px-5 py-2 bg-transparent border border-white/15 rounded-xl text-sm font-bold text-white hover:bg-white/10 cursor-pointer"
+                        >
+                          التفاصيل
+                        </button>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                );
+              })}
             </div>
-          </ScrollReveal>
-        );
-      })}
-    </div>
-  </section>
-)}
+          </section>
+        )}
       </div>
       <Footer />
     </div>
