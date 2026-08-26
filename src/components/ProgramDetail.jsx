@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Users, X, Image as ImageIcon, Download } from 'lucide-react'
 import BackgroundAnimation from '../components/BackgroundAnimation'
-import Header from '../components/Header' // تم التعديل هنا
+import Header from '../components/Header'
 import Footer from '../components/Footer'
 import ScrollReveal from '../components/ScrollReveal'
 import ProgressBar from '../components/ProgressBar'
@@ -29,6 +29,9 @@ export default function ProgramDetail() {
   const [program, setProgram] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedProject, setSelectedProject] = useState(null)
+  
+  // حالة لتحديد التبويب أو التصنيف النشط (افتراضياً 'all' أو أول تصنيف متاح)
+  const [activeTab, setActiveTab] = useState('all')
 
   useEffect(() => {
     setLoading(true)
@@ -72,6 +75,18 @@ export default function ProgramDetail() {
 
   const { color, gradient } = program
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
+
+  // استخراج التصنيفات المتاحة للمشاريع (في حال كانت المشاريع مقسمة لموسمية/تنموية أو تحتوي على خصائص تصنيف)
+  // سنعتمد هنا على خاصية مثل project.category أو project.type إن وجدت، أو تجميعها افتراضياً
+  const projects = program.projects || []
+  
+  // استخراج قائمة التصنيفات الفرعية الفريدة إن وجدت في البيانات، أو تصنيفات افتراضية
+  const categories = ['all', ...new Set(projects.map(p => p.category || p.sector || 'عام'))]
+
+  // فلترة المشاريع بناءً على التبويب النشط
+  const filteredProjects = activeTab === 'all' 
+    ? projects 
+    : projects.filter(p => (p.category || p.sector || 'عام') === activeTab)
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-0">
@@ -119,20 +134,54 @@ export default function ProgramDetail() {
           </ScrollReveal>
         </section>
 
-        {program.projects && program.projects.length > 0 && (
+        {projects.length > 0 && (
           <section className="pb-20">
             <ScrollReveal>
-              <div className="flex items-center gap-4 mb-10">
+              <div className="flex items-center gap-4 mb-8">
                 <h2 className="text-3xl font-extrabold text-white">مشاريع البرنامج</h2>
                 <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)`, opacity: 0.3 }} />
                 <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-sm font-bold" style={{ color }}>
-                  {program.projects.length} مشروع
+                  {projects.length} مشروع
                 </span>
               </div>
             </ScrollReveal>
 
+            {/* أزرار التبويبات للتصنيفات والمشاريع المندرجة */}
+            <ScrollReveal delay={0.1}>
+              <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                    activeTab === 'all' 
+                      ? 'bg-white text-[#0b132b] shadow-lg' 
+                      : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
+                  }`}
+                  style={activeTab === 'all' ? { backgroundColor: color } : {}}
+                >
+                  جميع المشاريع ({projects.length})
+                </button>
+
+                {/* استخراج التبويبات بناءً على تصنيفات المشاريع */}
+                {Array.from(new Set(projects.map(p => p.category || p.sector || 'مشاريع عامة'))).map((cat, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveTab(cat)}
+                    className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                      activeTab === cat 
+                        ? 'text-[#0b132b] shadow-lg' 
+                        : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
+                    }`}
+                    style={activeTab === cat ? { backgroundColor: color } : {}}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </ScrollReveal>
+
+            {/* شبكة عرض المشاريع التابعة للتبويب النشط */}
             <div className="grid md:grid-cols-2 gap-7">
-              {program.projects.map((project, i) => {
+              {filteredProjects.map((project, i) => {
                 const status = statusConfig[project.status] || statusConfig['active']
                 return (
                   <ScrollReveal key={project.id || i} delay={i * 0.1}>
@@ -194,6 +243,7 @@ export default function ProgramDetail() {
         )}
       </div>
 
+      {/* نافذة تفاصيل المشروع المنبثقة */}
       <AnimatePresence>
         {selectedProject && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-md overflow-y-auto py-10">
@@ -225,7 +275,6 @@ export default function ProgramDetail() {
                   <p className="leading-relaxed">{selectedProject.description}</p>
                 </div>
 
-                {/* التعريف الاستراتيجي */}
                 {selectedProject.strategic_overview && (
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                     <h4 className="font-extrabold text-white mb-2 flex items-center gap-2 text-sm" style={{ color }}>
@@ -238,7 +287,6 @@ export default function ProgramDetail() {
                   </div>
                 )}
 
-                {/* الأهداف الاستراتيجية الميدانية */}
                 {selectedProject.strategic_goals && selectedProject.strategic_goals.length > 0 && (
                   <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
                     <h4 className="font-extrabold text-white mb-3 text-sm" style={{ color }}>
@@ -252,7 +300,6 @@ export default function ProgramDetail() {
                   </div>
                 )}
 
-                {/* التوافق الدولي */}
                 {selectedProject.sdg_alignment && (
                   <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-xs font-bold text-amber-400 flex items-center gap-2">
                     <span>التوافق الدولي:</span>
