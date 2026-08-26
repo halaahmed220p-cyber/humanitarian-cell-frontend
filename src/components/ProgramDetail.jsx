@@ -15,12 +15,6 @@ const programIdMap = {
   wasam: 2,
 }
 
-const statusConfig = {
-  active: { label: 'نشط', className: 'bg-green-400/25 text-green-400 border-green-400/30' },
-  completed: { label: 'مكتمل', className: 'bg-blue-400/25 text-blue-400 border-blue-400/30' },
-  ongoing: { label: 'قيد التنفيذ', className: 'bg-orange-400/25 text-orange-400 border-orange-400/30' },
-}
-
 const programLogos = {
   rafed: '/rafid-logo.png',
   himaya: '/himaya-logo.png',
@@ -44,20 +38,6 @@ export default function ProgramDetail() {
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${numericId}`)
       .then(res => res.json())
       .then(data => {
-        // معالجة المشاريع وإعطاء تصنيف افتراضي في حال لم يكن موجوداً من السيرفر
-        if (data && data.projects) {
-          data.projects = data.projects.map(p => {
-            let cat = p.project_category || p.category || p.type;
-            if (!cat) {
-              // تصنيف تلقائي استناداً إلى اسم المشروع إن لم يرسل السيرفر الحقل
-              const title = (p.title || p.project_name || '').toLowerCase();
-              if (title.includes('قطوف') || title.includes('تمر')) cat = 'قطوف';
-              else if (title.includes('نسك') || title.includes('أضحية') || title.includes('لحوم')) cat = 'نسك';
-              else cat = 'مشاريع تنموية';
-            }
-            return { ...p, project_category: cat };
-          });
-        }
         setProgram(data)
         setLoading(false)
       })
@@ -97,10 +77,10 @@ export default function ProgramDetail() {
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program.projects || []
 
-  // استخراج كافة التصنيفات الفريدة لعرضها كأزرار
+  // استخراج التصنيفات حصراً من حقل project_category القادم من قاعدة البيانات
   const categories = ['all', ...new Set(rawProjects.map(p => p.project_category).filter(Boolean))]
 
-  // فلترة المشاريع بناءً على التبويب النشط
+  // فلترة المشاريع بناءً على مطابقة حقل project_category مع التبويب النشط
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
     : rawProjects.filter(p => p.project_category === activeTab)
@@ -149,7 +129,7 @@ export default function ProgramDetail() {
               </div>
             </ScrollReveal>
 
-            {/* أزرار التصنيفات (قطوف، نسك، مشاريع تنموية) */}
+            {/* أزرار التصنيفات المستخرجة من قاعدة البيانات */}
             <ScrollReveal delay={0.1}>
               <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
                 <button
