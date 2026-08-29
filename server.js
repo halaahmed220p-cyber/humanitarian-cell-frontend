@@ -139,7 +139,7 @@ app.get('/api/projects', async (req, res) => {
 });
 
 app.post('/api/projects', async (req, res) => {
-  const { title, description, target, raised, needs_donation, program_id, province, district, beneficiaries, status, date } = req.body;
+  const { title, description, target, raised, needs_donation, program_id, province, district, beneficiaries, status, execution_year } = req.body;
 
   if (!title || !description || !target || !program_id || !province) {
     return res.status(400).json({ error: 'يرجى ملء الحقول الأساسية: العنوان، الوصف، المبلغ المطلوب، البرنامج، والمحافظة' });
@@ -147,7 +147,7 @@ app.post('/api/projects', async (req, res) => {
 
   try {
     const queryText = `
-      INSERT INTO projects (title, description, target, raised, needs_donation, program_id, province, district, beneficiaries, status, date) 
+      INSERT INTO projects (title, description, target, raised, needs_donation, program_id, province, district, beneficiaries, status, execution_year) 
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
       RETURNING *;
     `;
@@ -162,7 +162,7 @@ app.post('/api/projects', async (req, res) => {
       district || '',
       beneficiaries || 'غير محدد',
       status || 'active',
-      date || new Date().getFullYear().toString()
+      execution_year || new Date().getFullYear()
     ];
     
     const result = await pool.query(queryText, values);
