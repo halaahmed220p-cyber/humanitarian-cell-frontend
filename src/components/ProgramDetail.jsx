@@ -77,28 +77,16 @@ export default function ProgramDetail() {
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program.projects || []
 
-  // استخراج التصنيفات (دعم الأعمدة العربية والإنجليزية للتصنيفات مثل قطوف ونسك)
+  // استخراج التصنيفات بالاعتماد على الأعمدة الإنجليزية الحقيقية في قاعدة البيانات
   const categories = ['all', ...new Set(rawProjects.map(p => {
-    return String(
-      p.تصنيف_المشروع_الموسمي || 
-      p.project_category || 
-      p.category || 
-      p.is_seasonal || 
-      ''
-    ).trim();
+    return String(p.project_category || p.category || p.is_seasonal || '').trim();
   }).filter(Boolean))];
 
-  // فلترة المشاريع بناءً على التصنيف المختار (مثل قطوف أو نسك)
+  // فلترة المشاريع بناءً على التصنيف المختار
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
     : rawProjects.filter(p => {
-        const cat = String(
-          p.تصنيف_المشروع_الموسمي || 
-          p.project_category || 
-          p.category || 
-          p.is_seasonal || 
-          ''
-        ).trim();
+        const cat = String(p.project_category || p.category || p.is_seasonal || '').trim();
         return cat.toLowerCase() === activeTab.toLowerCase();
       });
 
@@ -129,7 +117,7 @@ export default function ProgramDetail() {
 
           <ScrollReveal delay={0.3}>
             <p className="text-lg text-[#b0b8c8] max-w-3xl leading-relaxed">
-              {program.description || 'برنامج استراتيجي يهدف لتحقيق التنمية المستدامة.'}
+              {program.description || 'برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال ومتابعة المشاريع التنموية والموسمية.'}
             </p>
           </ScrollReveal>
         </section>
@@ -146,7 +134,7 @@ export default function ProgramDetail() {
               </div>
             </ScrollReveal>
 
-            {/* أزرار الفلترة للتصنيفات الموسمية (قطوف، نسك، وغيرها) */}
+            {/* أزرار الفلترة للتصنيفات */}
             <ScrollReveal delay={0.1}>
               <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
                 <button
@@ -164,7 +152,7 @@ export default function ProgramDetail() {
 
                 {categories.filter(c => c !== 'all').map((cat, idx) => {
                   const count = rawProjects.filter(p => {
-                    const pCat = String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
+                    const pCat = String(p.project_category || p.category || p.is_seasonal || '').trim();
                     return pCat.toLowerCase() === cat.toLowerCase();
                   }).length;
 
@@ -190,29 +178,31 @@ export default function ProgramDetail() {
             {/* شبكة المشاريع */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
-                // جلب الحقول بدعم كامل للأسماء العربية والإنجليزية القادمة من قاعدة البيانات
-                const displayCategory = project.تصنيف_المشروع_الموسمي || project.project_category || project.category || project.is_seasonal;
-                const projectName = project.اسم_المشروع_المعتمد || project.title || project.project_name || project.name;
-                const projectLoc = project.المحافظة || project.المديرية_النطاق_الميداني || project.location || 'اليمن';
-                const projectDate = project.سنة_التنفيذ || project.date || project.year || '2026';
-                const beneficiariesCount = project.عدد_المستفيدين || project.beneficiaries || project.beneficiaries_count || 'غير محدد';
-                const projectDesc = project.ملاحظات_وضبط_الجودة || project.description || project.quality_notes || 'مشروع تنموي مستدام.';
+                // جلب الحقول بدقة مطابقة لجدول projects الإنجليزي
+                const displayCategory = project.project_category || project.category || project.is_seasonal;
+                const projectName = project.project_name || project.title || project.name;
+                const projectLoc = project.province_id || project.location || 'اليمن';
+                const projectDate = project.execution_year || project.date || project.year || '2026';
+                const beneficiariesCount = project.beneficiaries_count !== undefined ? project.beneficiaries_count : (project.beneficiaries || 'غير محدد');
+                const projectDesc = project.quality_notes || project.description || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
 
                 return (
-                  <ScrollReveal key={project.id || project.الرقم_التسلسلي || i} delay={i * 0.1}>
-                    <div className="bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 p-7">
-                      <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
-                        <span className="flex items-center gap-1">📍 {projectLoc}</span>
-                        <span className="flex items-center gap-1">📅 {projectDate}</span>
-                        {displayCategory && (
-                          <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/10 text-[#c9a84c]">
-                            {displayCategory}
-                          </span>
-                        )}
-                      </div>
+                  <ScrollReveal key={project.id || i} delay={i * 0.1}>
+                    <div className="bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 p-7 flex flex-col justify-between">
+                      <div>
+                        <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
+                          <span className="flex items-center gap-1">📍 نطاق تنفيذي: {projectLoc}</span>
+                          <span className="flex items-center gap-1">📅 {projectDate}</span>
+                          {displayCategory && (
+                            <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-white/10 text-[#c9a84c]">
+                              {displayCategory}
+                            </span>
+                          )}
+                        </div>
 
-                      <h3 className="text-xl font-extrabold mb-3 text-white">{projectName}</h3>
-                      <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{projectDesc}</p>
+                        <h3 className="text-xl font-extrabold mb-3 text-white">{projectName}</h3>
+                        <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">{projectDesc}</p>
+                      </div>
 
                       <div className="flex justify-between items-center pt-4 border-t border-white/5">
                         <div className="flex items-center gap-2 text-sm text-[#b0b8c8]">
@@ -234,7 +224,7 @@ export default function ProgramDetail() {
         )}
       </div>
 
-      {/* نافذة تفاصيل المشروع المنبثقة عند الضغط على زر التفاصيل */}
+      {/* نافذة تفاصيل المشروع المنبثقة */}
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedProject(null)}>
           <div className="bg-[#111827] border border-white/15 rounded-3xl p-7 max-w-lg w-full text-white relative shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -246,39 +236,39 @@ export default function ProgramDetail() {
             </button>
 
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#eab308]/20 text-[#eab308] mb-3 inline-block">
-              {selectedProject.تصنيف_المشروع_الموسمي || selectedProject.project_category || 'مشروع تنموي'}
+              {selectedProject.project_category || selectedProject.category || 'مشروع تنموي'}
             </span>
 
             <h3 className="text-2xl font-black mb-3">
-              {selectedProject.اسم_المشروع_المعتمد || selectedProject.title || selectedProject.project_name || selectedProject.name}
+              {selectedProject.project_name || selectedProject.title || selectedProject.name}
             </h3>
 
             <p className="text-sm text-gray-300 mb-5 leading-relaxed">
-              {selectedProject.ملاحظات_وضبط_الجودة || selectedProject.description || selectedProject.quality_notes || 'لا توجد ملاحظات إضافية.'}
+              {selectedProject.quality_notes || selectedProject.description || 'لا توجد ملاحظات ضبط جودة إضافية مسجلة.'}
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-6 text-sm bg-white/5 p-4 rounded-2xl">
               <div>
-                <span className="text-gray-400 block text-xs">المحافظة / النطاق:</span>
-                <strong className="text-white">{selectedProject.المحافظة || selectedProject.المديرية_النطاق_الميداني || selectedProject.location || 'غير محدد'}</strong>
+                <span className="text-gray-400 block text-xs">معرف المحافظة / النطاق:</span>
+                <strong className="text-white">{selectedProject.province_id || selectedProject.location || 'غير محدد'}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">عدد المستفيدين:</span>
-                <strong className="text-[#eab308]">{selectedProject.عدد_المستفيدين || selectedProject.beneficiaries || selectedProject.beneficiaries_count || 0}</strong>
+                <strong className="text-[#eab308]">{selectedProject.beneficiaries_count !== undefined ? selectedProject.beneficiaries_count : 0}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">سنة التنفيذ:</span>
-                <strong className="text-white">{selectedProject.سنة_التنفيذ || selectedProject.date || selectedProject.year || '2026'}</strong>
+                <strong className="text-white">{selectedProject.execution_year || selectedProject.year || '2026'}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">حالة المشروع:</span>
-                <strong className="text-emerald-400">{selectedProject.حالة_المشروع || selectedProject.status || 'منجز'}</strong>
+                <strong className="text-emerald-400">{selectedProject.project_status || selectedProject.status || 'منجز'}</strong>
               </div>
             </div>
 
-            {(selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link) && (
+            {selectedProject.google_maps_link && (
               <a 
-                href={selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link} 
+                href={selectedProject.google_maps_link} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block text-center py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all"
