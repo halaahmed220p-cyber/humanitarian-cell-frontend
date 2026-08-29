@@ -39,17 +39,29 @@ const programIdMap = {
 
 export default function ProgramsPage() {
   const [programs, setPrograms] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://humanitarian-cell-frontend.onrender.com/api/programs')
-      .then(res => res.json())
-      .then(data => {
-        setPrograms(data);
+    // جلب البرامج والمشاريع بالتوازي من الخادم
+    Promise.all([
+      fetch('https://humanitarian-cell-frontend.onrender.com/api/programs').then(res => res.json()),
+      fetch('https://humanitarian-cell-frontend.onrender.com/api/projects').catch(() => ({ json: () => [] }))
+    ])
+      .then(async ([programsData, projectsRes]) => {
+        let projectsData = [];
+        try {
+          projectsData = await projectsRes.json();
+        } catch (e) {
+          projectsData = [];
+        }
+        
+        setPrograms(Array.isArray(programsData) ? programsData : []);
+        setProjects(Array.isArray(projectsData) ? projectsData : []);
         setLoading(false);
       })
       .catch(err => {
-        console.error("خطأ في جلب البرامج:", err);
+        console.error("خطأ في جلب البيانات:", err);
         setLoading(false);
       });
   }, []);
@@ -84,16 +96,16 @@ export default function ProgramsPage() {
         </header>
 
         {loading ? (
-          <div className="text-center py-24 text-xl font-bold text-white">جاري تحميل البرامج من قاعدة البيانات...</div>
+          <div className="text-center py-24 text-xl font-bold text-white">جاري تحميل البرامج والمشاريع من قاعدة البيانات...</div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8 pb-24">
             {programs.map((prog, index) => {
               const progKey = Object.keys(programIdMap).find(key => programIdMap[key] === prog.id) || 'rafed';
               const style = programStylesMap[progKey] || { color: '#c9a84c', glowPos: '', logo: '/rafid-logo.png' };
               
-              // استخراج المشاريع اعتماداً على اسم الحقل الحقيقي في قاعدة البيانات: project_name
-              const rawProjects = prog.projects || [];
-              const subProjectsList = rawProjects.map(p => p.project_name).filter(Boolean);
+              // ربط المشاريع بهذا البرنامج بناءً على program_id المطابق لـ id البرنامج
+              const progProjects = projects.filter(p => Number(p.program_id) === Number(prog.id));
+              const subProjectsList = progProjects.map(p => p.project_name).filter(Boolean);
 
               return (
                 <ScrollReveal key={prog.id || index} delay={index * 0.1}>
@@ -123,7 +135,7 @@ export default function ProgramsPage() {
                               {prog.name}
                             </h2>
                             <span className="text-xs font-medium text-white/70 block">
-                              {prog.slogan || 'خلية الأعمال الإنسانية'}
+                              خلية الأعمال الإنسانية
                             </span>
                           </div>
                         </div>
@@ -133,7 +145,7 @@ export default function ProgramsPage() {
 
                       <div className="flex-1 mb-6">
                         <p className="text-sm text-[#b0b8c8] leading-relaxed mb-5">
-                          {prog.description || "برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال."}
+                          برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال ومتابعة المشاريع التنموية والموسمية.
                         </p>
 
                         <div className="bg-black/20 border border-white/5 rounded-2xl p-4">
