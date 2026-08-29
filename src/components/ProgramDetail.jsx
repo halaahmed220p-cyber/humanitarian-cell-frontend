@@ -178,9 +178,9 @@ export default function ProgramDetail() {
             {/* شبكة المشاريع */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
-                // جلب الحقول بدعم كامل للأسماء العربية والإنجليزية معاً
+                // جلب الحقول بدعم كامل لحقل "اسم_المشروع" و"سنة_التنفيذ" الفعليين من قاعدة البيانات
                 const displayCategory = project.تصنيف_المشروع_الموسمي || project.project_category || project.category || project.is_seasonal;
-                const projectName = project.اسم_المشروع_المعتمد || project.project_name || project.title || project.name || 'مشروع تنموي';
+                const projectName = project.اسم_المشروع || project.اسم_المشروع_المعتمد || project.project_name || project.title || project.name || 'مشروع تنموي';
                 const projectLoc = project.المحافظة || project.المديرية_النطاق_الميداني || project.province_id || project.location || 'اليمن';
                 const projectDate = project.سنة_التنفيذ || project.execution_year || project.date || project.year || '2026';
                 const beneficiariesCount = project.عدد_المستفيدين !== undefined ? project.عدد_المستفيدين : (project.beneficiaries_count !== undefined ? project.beneficiaries_count : (project.beneficiaries || 'غير محدد'));
@@ -240,7 +240,7 @@ export default function ProgramDetail() {
             </span>
 
             <h3 className="text-2xl font-black mb-3">
-              {selectedProject.اسم_المشروع_المعتمد || selectedProject.project_name || selectedProject.title || selectedProject.name}
+              {selectedProject.اسم_المشروع || selectedProject.اسم_المشروع_المعتمد || selectedProject.project_name || selectedProject.title || selectedProject.name}
             </h3>
 
             <p className="text-sm text-gray-300 mb-5 leading-relaxed">
