@@ -7,7 +7,6 @@ import ScrollReveal from '../components/ScrollReveal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-// خريطة لربط معرفات أو أسماء البرامج بالألوان، المواضع، والشعارات الثابتة
 const programStylesMap = {
   rafed: { 
     color: '#16a34a', 
@@ -31,7 +30,6 @@ const programStylesMap = {
   },
 };
 
-// ربط مفاتيح الـ URL بالمعرف الرقمي في قاعدة البيانات
 const programIdMap = {
   sarh: 1,
   wasam: 2,
@@ -44,7 +42,6 @@ export default function ProgramsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // جلب جميع البرامج ومشاريعها المرتبطة من قاعدة البيانات عبر الـ API
     fetch('https://humanitarian-cell-frontend.onrender.com/api/programs')
       .then(res => res.json())
       .then(data => {
@@ -91,13 +88,12 @@ export default function ProgramsPage() {
         ) : (
           <div className="grid md:grid-cols-2 gap-8 pb-24">
             {programs.map((prog, index) => {
-              // استخراج المفتاح النصي للبرنامج بناءً على المعرف أو الاسم لتطبيق التصميم المناسب
               const progKey = Object.keys(programIdMap).find(key => programIdMap[key] === prog.id) || 'rafed';
               const style = programStylesMap[progKey] || { color: '#c9a84c', glowPos: '', logo: '/rafid-logo.png' };
               
-              // استخراج المشاريع التابعة لهذا البرنامج من قاعدة البيانات (دعم الحقول العربية والإنجليزية)
+              // استخراج المشاريع اعتماداً على اسم الحقل الحقيقي في قاعدة البيانات: project_name
               const rawProjects = prog.projects || [];
-              const subProjectsList = rawProjects.map(p => p.اسم_المشروع_المعتمد || p.title || p.project_name).filter(Boolean);
+              const subProjectsList = rawProjects.map(p => p.project_name).filter(Boolean);
 
               return (
                 <ScrollReveal key={prog.id || index} delay={index * 0.1}>
@@ -117,14 +113,14 @@ export default function ProgramsPage() {
                           <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-3 shadow-inner">
                             <img 
                               src={style.logo} 
-                              alt={prog.name || prog.program_name} 
+                              alt={prog.name} 
                               className="w-full h-full object-contain relative z-10 drop-shadow-md transition-transform duration-300 group-hover:scale-110" 
                               onError={(e) => { e.target.style.display = 'none'; }}
                             />
                           </div>
                           <div>
                             <h2 className="text-2xl font-extrabold mb-1" style={{ color: style.color }}>
-                              {prog.name || prog.program_name}
+                              {prog.name}
                             </h2>
                             <span className="text-xs font-medium text-white/70 block">
                               {prog.slogan || 'خلية الأعمال الإنسانية'}
@@ -145,7 +141,7 @@ export default function ProgramsPage() {
                             <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c]"></span>
                             المشاريع المندرجة تحت البرنامج ({subProjectsList.length}):
                           </span>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto pr-1">
                             {subProjectsList.length > 0 ? (
                               subProjectsList.map((sub, idx) => (
                                 <div key={idx} className="flex items-center gap-2 text-xs text-white/80 bg-white/5 px-3 py-2 rounded-xl">
@@ -154,7 +150,7 @@ export default function ProgramsPage() {
                                 </div>
                               ))
                             ) : (
-                              <span className="text-xs text-white/50">توجد مشاريع موسمية وتنموية مسجلة في قاعدة البيانات</span>
+                              <span className="text-xs text-white/50">لا توجد مشاريع مسجلة لهذا البرنامج حالياً</span>
                             )}
                           </div>
                         </div>
