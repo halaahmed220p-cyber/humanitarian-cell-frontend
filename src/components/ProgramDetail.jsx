@@ -22,7 +22,6 @@ const programLogos = {
   wasam: '/wasam-logo.png',
 }
 
-// قائمة بأسماء مشاريع واقعية وإنسانية يتم توزيعها بذكاء على المشاريع
 const humanitarianProjectNames = [
   "تنفيذ حملات نظافة شاملة ورفع المخلفات في مدينة المخا",
   "مشروع تأهيل وترميم الوحدات الصحية والمراكز الطبية",
@@ -40,7 +39,6 @@ const getProjectName = (p, index = 0) => {
   if (p.title && p.title !== 'undefined' && !p.title.includes('مشروع تنموي رقم')) return p.title;
   if (p.name && p.name !== 'undefined' && !p.name.includes('مشروع تنموي رقم')) return p.name;
   
-  // اختيار عنوان واقعي بناءً على رقم الـ ID أو الترتيب
   const idNum = p.id ? Number(p.id) : index;
   return humanitarianProjectNames[idNum % humanitarianProjectNames.length];
 };
@@ -54,10 +52,13 @@ const getProjectLocation = (p) => {
   return p.location;
 };
 
+// جلب سنة التنفيذ مباشرة من حقل execution_year القادم من قاعدة البيانات
 const getProjectDate = (p) => {
   if (!p) return '2026';
   if (typeof p === 'string') return '2026';
-  return p.date ? String(p.date).slice(0, 4) : '2026';
+  if (p.execution_year) return String(p.execution_year);
+  if (p.date) return String(p.date).slice(0, 4);
+  return '2026';
 };
 
 const getBeneficiaries = (p) => {
