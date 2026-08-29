@@ -22,62 +22,94 @@ const programLogos = {
   wasam: '/wasam-logo.png',
 }
 
-// دالة ذكية جداً لاستخراج اسم المشروع الحقيقي بغض النظر عن شكل تخزينه في قاعدة البيانات
+// دوال الاستخراج الذكية الشاملة لكافة احتمالات أسماء الحقول في قاعدة البيانات
 const getProjectName = (p) => {
   if (!p) return 'مشروع تنموي';
   if (typeof p === 'string') return p;
-  
-  // إذا كان العنصر عبارة عن مصفوفة (Array)، نبحث عن أول نص طويل بما يكفي ليكون اسم مشروع
   if (Array.isArray(p)) {
-    const found = p.find(item => typeof item === 'string' && item.length > 5 && !item.includes('خلية'));
+    const found = p.find(item => typeof item === 'string' && item.length > 3);
     return found || 'مشروع تنموي';
   }
 
-  // البحث في المفاتيح النصية المعتادة أو أي قيمة نصية داخل الكائن
-  if (p.اسم_المشروع) return p.اسم_المشروع;
-  if (p.project_name) return p.project_name;
-  if (p.title) return p.title;
-  if (p.name) return p.name;
+  const possibleKeys = ['title', 'name', 'project_name', 'اسم_المشروع', 'project_title', 'program_name', 'heading'];
+  for (let key of possibleKeys) {
+    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '' && p[key] !== 'غير محدد') {
+      return p[key];
+    }
+  }
 
-  // فحص كافة خصائص الكائن بحثاً عن نص عربي حقيقي
-  const textValues = Object.values(p).filter(v => typeof v === 'string' && v.length > 5 && /[أ-ي]/.test(v));
-  return textValues[0] || 'مشروع تنموي';
+  const textVal = Object.values(p).find(v => typeof v === 'string' && v.trim().length > 3 && !v.includes('خلية'));
+  return textVal || 'مشروع تنموي مستدام';
 };
 
 const getProjectLocation = (p) => {
   if (!p) return 'اليمن';
   if (typeof p === 'string') return 'اليمن';
   if (Array.isArray(p)) return p[13] || p[14] || 'اليمن';
-  return p.المحافظة || p.المديرية_النطاق_الميداني || p.province_id || p.location || p.region || 'اليمن';
+  
+  const possibleKeys = ['province', 'location', 'region', 'المحافظة', 'المديرية', 'district', 'address', 'place', 'نطاق_تنفيذي'];
+  for (let key of possibleKeys) {
+    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '') {
+      return p[key];
+    }
+  }
+  return p.province_id ? `منطقة رقم ${p.province_id}` : 'اليمن';
 };
 
 const getProjectDate = (p) => {
   if (!p) return '2026';
   if (typeof p === 'string') return '2026';
-  if (Array.isArray(p)) return p[10] || '2026';
-  return p.سنة_التنفيذ || p.execution_year || p.date || p.year || '2026';
+  if (Array.isArray(p)) return '2026';
+  
+  const possibleKeys = ['date', 'execution_year', 'year', 'سنة_التنفيذ', 'created_at', 'updated_at'];
+  for (let key of possibleKeys) {
+    if (p[key] && String(p[key]).trim() !== '') {
+      return String(p[key]).slice(0, 4);
+    }
+  }
+  return '2026';
 };
 
 const getBeneficiaries = (p) => {
   if (!p) return 'غير محدد';
   if (typeof p === 'string') return 'غير محدد';
   if (Array.isArray(p)) return 'غير محدد';
-  const val = p.عدد_المستفيدين !== undefined ? p.عدد_المستفيدين : (p.beneficiaries_count !== undefined ? p.beneficiaries_count : p.beneficiaries);
-  return val !== undefined && val !== null && val !== '' ? val : 'غير محدد';
+
+  const possibleKeys = ['beneficiaries', 'beneficiaries_count', 'عدد_المستفيدين', 'count', 'total_beneficiaries'];
+  for (let key of possibleKeys) {
+    if (p[key] !== undefined && p[key] !== null && String(p[key]).trim() !== '') {
+      return p[key];
+    }
+  }
+  return 'غير محدد';
 };
 
 const getProjectDesc = (p) => {
   if (!p) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
   if (typeof p === 'string') return p;
-  if (Array.isArray(p)) return p[16] || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
-  return p.ملاحظات_وضبط_الجودة || p.quality_notes || p.description || p.notes || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+  if (Array.isArray(p)) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+
+  const possibleKeys = ['description', 'notes', 'details', 'ملاحظات_وضبط_الجودة', 'quality_notes', 'summary', 'info'];
+  for (let key of possibleKeys) {
+    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '') {
+      return p[key];
+    }
+  }
+  return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
 };
 
 const getProjectCategory = (p) => {
   if (!p) return '';
   if (typeof p === 'string') return '';
-  if (Array.isArray(p)) return p[6] || '';
-  return String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || '').trim();
+  if (Array.isArray(p)) return '';
+
+  const possibleKeys = ['category', 'project_category', 'تصنيف_المشروع_الموسمي', 'type', 'section'];
+  for (let key of possibleKeys) {
+    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '') {
+      return p[key].trim();
+    }
+  }
+  return '';
 };
 
 export default function ProgramDetail() {
@@ -117,6 +149,10 @@ export default function ProgramDetail() {
   const color = program?.color || '#eab308'
   const logoSrc = program?.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program?.projects || program?.items || program?.data || []
+
+  if (rawProjects.length > 0) {
+    console.log("عينة من أول مشروع في الـ Frontend:", rawProjects[0]);
+  }
 
   const categories = ['all', ...new Set(rawProjects.map(p => getProjectCategory(p)).filter(Boolean))];
 
