@@ -381,20 +381,29 @@ app.get('/api/partners/:id/reports', async (req, res) => {
 // 5.1 مسار إضافة بلاغ أو رأي جديد (Field Reports)
 // ==========================================
 app.post('/api/field-reports', async (req, res) => {
-  const { type, title, full_name, phone, message, latitude, longitude } = req.body;
+  const { type, title, full_name, contact_type, contact_value, message, latitude, longitude } = req.body;
 
-  // التحقق من أن جميع البيانات المطلوبة موجودة (بما فيها العنوان)
-  if (!title || !full_name || !phone || !message || latitude === undefined || longitude === undefined) {
+  // التحقق من أن جميع البيانات المطلوبة موجودة
+  if (!title || !full_name || !contact_value || !message || latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: 'جميع الحقول الأساسية وتحديد الموقع الجغرافي إلزامية' });
   }
 
   try {
     const queryText = `
-      INSERT INTO field_reports (type, title, full_name, phone, message, latitude, longitude) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      INSERT INTO field_reports (type, title, full_name, contact_type, contact_value, message, latitude, longitude) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
       RETURNING *;
     `;
-    const values = [type || 'بلاغ طارئ', title, full_name, phone, message, latitude, longitude];
+    const values = [
+      type || 'بلاغ طارئ', 
+      title, 
+      full_name, 
+      contact_type || 'phone', 
+      contact_value, 
+      message, 
+      latitude, 
+      longitude
+    ];
     
     const result = await pool.query(queryText, values);
     
