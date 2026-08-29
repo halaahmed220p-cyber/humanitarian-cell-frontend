@@ -22,6 +22,45 @@ const programLogos = {
   wasam: '/wasam-logo.png',
 }
 
+// دوال ذكية استخراج البيانات بغض النظر عن اسم الحقل في قاعدة البيانات أو الـ API
+const getProjectName = (p) => {
+  if (!p) return 'مشروع تنموي';
+  if (typeof p === 'string') return p;
+  return p.اسم_المشروع || p.اسم_المشروع_المعتمد || p.project_name || p.title || p.name || 
+    Object.values(p).find(v => typeof v === 'string' && v.length > 4 && /[أ-ي]/.test(v) && !v.includes('خلية')) || 'مشروع تنموي';
+};
+
+const getProjectLocation = (p) => {
+  if (!p) return 'اليمن';
+  if (typeof p === 'string') return 'اليمن';
+  return p.المحافظة || p.المديرية_النطاق_الميداني || p.province_id || p.location || p.region || 'اليمن';
+};
+
+const getProjectDate = (p) => {
+  if (!p) return '2026';
+  if (typeof p === 'string') return '2026';
+  return p.سنة_التنفيذ || p.execution_year || p.date || p.year || (p.created_at ? p.created_at.substring(0, 4) : '2026');
+};
+
+const getBeneficiaries = (p) => {
+  if (!p) return 'غير محدد';
+  if (typeof p === 'string') return 'غير محدد';
+  const val = p.عدد_المستفيدين !== undefined ? p.عدد_المستفيدين : (p.beneficiaries_count !== undefined ? p.beneficiaries_count : p.beneficiaries);
+  return val !== undefined && val !== null && val !== '' ? val : 'غير محدد';
+};
+
+const getProjectDesc = (p) => {
+  if (!p) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+  if (typeof p === 'string') return p;
+  return p.ملاحظات_وضبط_الجودة || p.quality_notes || p.description || p.notes || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+};
+
+const getProjectCategory = (p) => {
+  if (!p) return '';
+  if (typeof p === 'string') return '';
+  return String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
+};
+
 export default function ProgramDetail() {
   const { programId } = useParams()
   const navigate = useNavigate()
@@ -77,18 +116,13 @@ export default function ProgramDetail() {
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program.projects || []
 
-  // استخراج التصنيفات بدعم كامل للأسماء العربية والإنجليزية
-  const categories = ['all', ...new Set(rawProjects.map(p => {
-    return String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
-  }).filter(Boolean))];
+  // استخراج التصنيفات المتاحة
+  const categories = ['all', ...new Set(rawProjects.map(p => getProjectCategory(p)).filter(Boolean))];
 
   // فلترة المشاريع بناءً على التصنيف المختار
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
-    : rawProjects.filter(p => {
-        const cat = String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
-        return cat.toLowerCase() === activeTab.toLowerCase();
-      });
+    : rawProjects.filter(p => getProjectCategory(p).toLowerCase() === activeTab.toLowerCase());
 
   return (
     <div className="program-detail-page min-h-screen flex flex-col relative pt-0">
@@ -151,10 +185,7 @@ export default function ProgramDetail() {
                 </button>
 
                 {categories.filter(c => c !== 'all').map((cat, idx) => {
-                  const count = rawProjects.filter(p => {
-                    const pCat = String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
-                    return pCat.toLowerCase() === cat.toLowerCase();
-                  }).length;
+                  const count = rawProjects.filter(p => getProjectCategory(p).toLowerCase() === cat.toLowerCase()).length;
 
                   return (
                     <button
@@ -178,13 +209,12 @@ export default function ProgramDetail() {
             {/* شبكة المشاريع */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
-                // جلب الحقول بدعم كامل لحقل "اسم_المشروع" و"سنة_التنفيذ" الفعليين من قاعدة البيانات
-                const displayCategory = project.تصنيف_المشروع_الموسمي || project.project_category || project.category || project.is_seasonal;
-                const projectName =project.project_name ;
-                const projectLoc = project.المحافظة || project.المديرية_النطاق_الميداني || project.province_id || project.location || 'اليمن';
-                const projectDate = project.سنة_التنفيذ || project.execution_year || project.date || project.year || '2026';
-                const beneficiariesCount = project.عدد_المستفيدين !== undefined ? project.عدد_المستفيدين : (project.beneficiaries_count !== undefined ? project.beneficiaries_count : (project.beneficiaries || 'غير محدد'));
-                const projectDesc = project.project_name;
+                const projectName = getProjectName(project);
+                const projectLoc = getProjectLocation(project);
+                const projectDate = getProjectDate(project);
+                const beneficiariesCount = getBeneficiaries(project);
+                const projectDesc = getProjectDesc(project);
+                const displayCategory = getProjectCategory(project);
 
                 return (
                   <ScrollReveal key={project.id || i} delay={i * 0.1}>
@@ -236,31 +266,31 @@ export default function ProgramDetail() {
             </button>
 
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#eab308]/20 text-[#eab308] mb-3 inline-block">
-              {selectedProject.تصنيف_المشروع_الموسمي || selectedProject.project_category || selectedProject.category || 'مشروع تنموي'}
+              {getProjectCategory(selectedProject) || 'مشروع تنموي'}
             </span>
 
             <h3 className="text-2xl font-black mb-3">
-              {selectedProject.اسم_المشروع || selectedProject.اسم_المشروع_المعتمد || selectedProject.project_name || selectedProject.title || selectedProject.name}
+              {getProjectName(selectedProject)}
             </h3>
 
             <p className="text-sm text-gray-300 mb-5 leading-relaxed">
-              {selectedProject.ملاحظات_وضبط_الجودة || selectedProject.quality_notes || selectedProject.description || 'لا توجد ملاحظات ضبط جودة إضافية مسجلة.'}
+              {getProjectDesc(selectedProject)}
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-6 text-sm bg-white/5 p-4 rounded-2xl">
               <div>
                 <span className="text-gray-400 block text-xs">المحافظة / النطاق:</span>
-                <strong className="text-white">{selectedProject.المحافظة || selectedProject.المديرية_النطاق_الميداني || selectedProject.province_id || selectedProject.location || 'غير محدد'}</strong>
+                <strong className="text-white">{getProjectLocation(selectedProject)}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">عدد المستفيدين:</span>
                 <strong className="text-[#eab308]">
-                  {selectedProject.عدد_المستفيدين !== undefined ? selectedProject.عدد_المستفيدين : (selectedProject.beneficiaries_count !== undefined ? selectedProject.beneficiaries_count : 0)}
+                  {getBeneficiaries(selectedProject)}
                 </strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">سنة التنفيذ:</span>
-                <strong className="text-white">{selectedProject.سنة_التنفيذ || selectedProject.execution_year || selectedProject.year || '2026'}</strong>
+                <strong className="text-white">{getProjectDate(selectedProject)}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">حالة المشروع:</span>
