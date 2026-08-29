@@ -52,11 +52,15 @@ const getProjectLocation = (p) => {
   return p.location;
 };
 
-// جلب سنة التنفيذ مباشرة من حقل execution_year القادم من قاعدة البيانات
 const getProjectDate = (p) => {
   if (!p) return '2026';
   if (typeof p === 'string') return '2026';
-  if (p.execution_year) return String(p.execution_year);
+  
+  const dbYear = p.execution_year || p.executionYear || p.year;
+  if (dbYear !== undefined && dbYear !== null && String(dbYear).trim() !== '' && String(dbYear) !== 'undefined') {
+    return String(dbYear).slice(0, 4);
+  }
+  
   if (p.date) return String(p.date).slice(0, 4);
   return '2026';
 };
@@ -286,7 +290,7 @@ export default function ProgramDetail() {
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">سنة التنفيذ:</span>
-                <strong className="text-white">{getProjectDate(selectedProject)}</strong>
+                <strong className="text-white">{getProjectDate(selectedProvider(selectedProject) || selectedProject)}</strong>
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">حالة المشروع:</span>
