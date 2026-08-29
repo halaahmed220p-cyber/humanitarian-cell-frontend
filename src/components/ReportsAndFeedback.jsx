@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { MessageSquarePlus, MapPin, CheckCircle } from 'lucide-react';
-// استيراد الهيدر والفوتر (تأكد من تعديل المسارات حسب مكان الملفات لديك)
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const ReportsAndFeedback = () => {
   const [formData, setFormData] = useState({
-    type: 'complaint', // complaint (بلاغ) / suggestion (مقترح) / feedback (رأي)
-    title: '',         // حقل عنوان البلاغ أو المقترح الجديد
+    type: 'complaint',
+    title: '',
     fullName: '',
-    phone: '',
+    contactType: 'phone', // 'phone' أو 'email'
+    contactValue: '',     // قيمة الهاتف أو الإيميل
     message: '',
     latitude: '',
     longitude: '',
@@ -19,7 +19,6 @@ const ReportsAndFeedback = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
-  // دالة لجلب الموقع الجغرافي تلقائياً عبر GPS المتصفح
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       alert('متصفحك لا يدعم خاصية تحديد الموقع الجغرافي');
@@ -46,7 +45,6 @@ const ReportsAndFeedback = () => {
     );
   };
 
-  // دالة إرسال البلاغ
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.latitude || !formData.longitude) {
@@ -66,9 +64,10 @@ const ReportsAndFeedback = () => {
         },
         body: JSON.stringify({
           type: formData.type,
-          title: formData.title, // إرسال العنوان للسيرفر
+          title: formData.title,
           full_name: formData.fullName,
-          phone: formData.phone,
+          contact_type: formData.contactType,
+          contact_value: formData.contactValue,
           message: formData.message,
           latitude: formData.latitude,
           longitude: formData.longitude
@@ -115,7 +114,7 @@ const ReportsAndFeedback = () => {
               <button 
                 onClick={() => {
                   setSubmittedSuccess(false);
-                  setFormData({ type: 'complaint', title: '', fullName: '', phone: '', message: '', latitude: '', longitude: '', locationStatus: 'لم يتم تحديد الموقع بعد' });
+                  setFormData({ type: 'complaint', title: '', fullName: '', contactType: 'phone', contactValue: '', message: '', latitude: '', longitude: '', locationStatus: 'لم يتم تحديد الموقع بعد' });
                 }} 
                 style={{ padding: '10px 24px', backgroundColor: '#0b1d3a', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
               >
@@ -125,7 +124,6 @@ const ReportsAndFeedback = () => {
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
-              {/* نوع المشاركة */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
                   نوع المشاركة <span style={{ color: '#ef4444' }}>*</span>:
@@ -141,10 +139,9 @@ const ReportsAndFeedback = () => {
                 </select>
               </div>
 
-              {/* حقل العنوان الجديد */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
-                العنوان<span style={{ color: '#ef4444' }}>*</span>:
+                  عنوان البلاغ أو الموضوع <span style={{ color: '#ef4444' }}>*</span>:
                 </label>
                 <input 
                   type="text" 
@@ -156,7 +153,6 @@ const ReportsAndFeedback = () => {
                 />
               </div>
 
-              {/* الاسم ورقم الهاتف */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                 <div>
                   <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
@@ -171,22 +167,33 @@ const ReportsAndFeedback = () => {
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
                   />
                 </div>
+
+                {/* حقلي وسيلة التواصل (قائمة منسدلة لاختيار هاتف أو إيميل + خانة الإدخال المرنة) */}
                 <div>
-                  <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
-                    رقم الهاتف (للتواصل) <span style={{ color: '#ef4444' }}>*</span>:
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ fontWeight: 'bold', fontSize: '14px', color: '#0b1d3a' }}>
+                      وسيلة التواصل <span style={{ color: '#ef4444' }}>*</span>:
+                    </label>
+                    <select
+                      value={formData.contactType}
+                      onChange={(e) => setFormData({...formData, contactType: e.target.value, contactValue: ''})}
+                      style={{ padding: '2px 6px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: '#fff', outline: 'none' }}
+                    >
+                      <option value="phone">رقم الهاتف</option>
+                      <option value="email">البريد الإلكتروني</option>
+                    </select>
+                  </div>
                   <input 
-                    type="tel" 
+                    type={formData.contactType === 'phone' ? 'tel' : 'email'} 
                     required
-                    placeholder="00967XXXXXXXXX"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    placeholder={formData.contactType === 'phone' ? '00967XXXXXXXXX' : 'example@domain.com'}
+                    value={formData.contactValue}
+                    onChange={(e) => setFormData({...formData, contactValue: e.target.value})}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
                   />
                 </div>
               </div>
 
-              {/* تفاصيل البلاغ */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
                   تفاصيل البلاغ أو الملاحظة <span style={{ color: '#ef4444' }}>*</span>:
@@ -201,7 +208,6 @@ const ReportsAndFeedback = () => {
                 />
               </div>
 
-              {/* قسم الموقع الجغرافي الإلزامي (GPS) */}
               <div style={{ backgroundColor: '#f8fafc', padding: '18px', borderRadius: '12px', border: '1px dashed #c9a84c' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <MapPin size={18} color="#c9a84c" />
