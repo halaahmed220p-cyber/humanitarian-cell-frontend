@@ -180,7 +180,7 @@ export default function ProgramDetail() {
               {filteredProjects.map((project, i) => {
                 // جلب الحقول بدعم كامل لحقل "اسم_المشروع" و"سنة_التنفيذ" الفعليين من قاعدة البيانات
                 const displayCategory = project.تصنيف_المشروع_الموسمي || project.project_category || project.category || project.is_seasonal;
-                const projectName = project.اسم_المشروع || project.اسم_المشروع_المعتمد || project.project_name || project.title || project.name || 'مشروع تنموي';
+                const projectName =project.project_name ;
                 const projectLoc = project.المحافظة || project.المديرية_النطاق_الميداني || project.province_id || project.location || 'اليمن';
                 const projectDate = project.سنة_التنفيذ || project.execution_year || project.date || project.year || '2026';
                 const beneficiariesCount = project.عدد_المستفيدين !== undefined ? project.عدد_المستفيدين : (project.beneficiaries_count !== undefined ? project.beneficiaries_count : (project.beneficiaries || 'غير محدد'));
