@@ -96,7 +96,7 @@ export default function ProgramDetail() {
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${numericId}`)
       .then(res => res.json())
       .then(data => {
-        console.log("استجابة الـ API الكاملة:", data); // لفحص البيانات في المتصفح F12
+        console.log("استجابة الـ API الكاملة:", data);
         setProgram(data)
         setLoading(false)
       })
