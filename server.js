@@ -73,6 +73,7 @@ app.get('/api/programs/:programId', async (req, res) => {
     const projectsResult = await pool.query(queryStr, queryParams);
     
     // توحيد أسماء الحقول لتتوافق تماماً مع الواجهة الأمامية React
+   // توحيد أسماء الحقول لتتوافق تماماً مع الواجهة الأمامية React
     program.projects = projectsResult.rows.map(p => ({
       id: p.id,
       title: p.title,
@@ -82,7 +83,7 @@ app.get('/api/programs/:programId', async (req, res) => {
       beneficiaries: p.beneficiaries || 'غير محدد',
       progress: p.target > 0 ? Math.min(Math.round(((p.raised || 0) / p.target) * 100), 100) : 0,
       status: p.status || 'active',
-      date: p.date || '2026',
+      date: p.execution_year || p.date || '2026', // <-- التعديل هنا لجلب سنة التنفيذ من قاعدة البيانات
       icon: p.icon || '📁'
     }));
 
