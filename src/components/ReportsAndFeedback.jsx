@@ -144,7 +144,7 @@ const ReportsAndFeedback = () => {
               {/* حقل العنوان الجديد */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
-                  عنوان البلاغ أو الموضوع <span style={{ color: '#ef4444' }}>*</span>:
+                العنوان<span style={{ color: '#ef4444' }}>*</span>:
                 </label>
                 <input 
                   type="text" 
