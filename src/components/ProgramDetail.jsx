@@ -22,22 +22,33 @@ const programLogos = {
   wasam: '/wasam-logo.png',
 }
 
-// دوال ذكية شاملة لجلب البيانات من قاعدة البيانات بأي تسمية محتملة
+// دالة ذكية جداً لاستخراج اسم المشروع الحقيقي بغض النظر عن شكل تخزينه في قاعدة البيانات
 const getProjectName = (p) => {
   if (!p) return 'مشروع تنموي';
   if (typeof p === 'string') return p;
+  
+  // إذا كان العنصر عبارة عن مصفوفة (Array)، نبحث عن أول نص طويل بما يكفي ليكون اسم مشروع
   if (Array.isArray(p)) {
-    const textItem = p.find(item => typeof item === 'string' && item.length > 3 && !item.includes('HAC'));
-    return textItem || 'مشروع تنموي';
+    const found = p.find(item => typeof item === 'string' && item.length > 5 && !item.includes('خلية'));
+    return found || 'مشروع تنموي';
   }
-  return p.اسم_المشروع || p.اسم_المشروع_المعتمد || p.project_name || p.title || p.name || 'مشروع تنموي';
+
+  // البحث في المفاتيح النصية المعتادة أو أي قيمة نصية داخل الكائن
+  if (p.اسم_المشروع) return p.اسم_المشروع;
+  if (p.project_name) return p.project_name;
+  if (p.title) return p.title;
+  if (p.name) return p.name;
+
+  // فحص كافة خصائص الكائن بحثاً عن نص عربي حقيقي
+  const textValues = Object.values(p).filter(v => typeof v === 'string' && v.length > 5 && /[أ-ي]/.test(v));
+  return textValues[0] || 'مشروع تنموي';
 };
 
 const getProjectLocation = (p) => {
   if (!p) return 'اليمن';
   if (typeof p === 'string') return 'اليمن';
   if (Array.isArray(p)) return p[13] || p[14] || 'اليمن';
-  return p.المحافظة || p.المديرية_النطاق_الميداني || p.province_id || p.location || p.region || p.governorate || 'اليمن';
+  return p.المحافظة || p.المديرية_النطاق_الميداني || p.province_id || p.location || p.region || 'اليمن';
 };
 
 const getProjectDate = (p) => {
@@ -51,9 +62,7 @@ const getBeneficiaries = (p) => {
   if (!p) return 'غير محدد';
   if (typeof p === 'string') return 'غير محدد';
   if (Array.isArray(p)) return 'غير محدد';
-  const val = p.عدد_المستفيدين !== undefined ? p.عدد_المستفيدين : 
-              (p.beneficiaries_count !== undefined ? p.beneficiaries_count : 
-              (p.beneficiaries !== undefined ? p.beneficiaries : p.عدد_المستفيدين_المستهدفين));
+  const val = p.عدد_المستفيدين !== undefined ? p.عدد_المستفيدين : (p.beneficiaries_count !== undefined ? p.beneficiaries_count : p.beneficiaries);
   return val !== undefined && val !== null && val !== '' ? val : 'غير محدد';
 };
 
@@ -61,14 +70,14 @@ const getProjectDesc = (p) => {
   if (!p) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
   if (typeof p === 'string') return p;
   if (Array.isArray(p)) return p[16] || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
-  return p.ملاحظات_وضبط_الجودة || p.quality_notes || p.description || p.notes || p.تفاصيل_المشروع || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+  return p.ملاحظات_وضبط_الجودة || p.quality_notes || p.description || p.notes || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
 };
 
 const getProjectCategory = (p) => {
   if (!p) return '';
   if (typeof p === 'string') return '';
   if (Array.isArray(p)) return p[6] || '';
-  return String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
+  return String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || '').trim();
 };
 
 export default function ProgramDetail() {
@@ -87,7 +96,7 @@ export default function ProgramDetail() {
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${numericId}`)
       .then(res => res.json())
       .then(data => {
-        console.log("بيانات البرنامج المستلمة من قاعدة البيانات:", data); // لفحص الهيكل كاملاً في المتصفح (F12)
+        console.log("استجابة الـ API الكاملة:", data); // لفحص البيانات في المتصفح F12
         setProgram(data)
         setLoading(false)
       })
@@ -100,37 +109,17 @@ export default function ProgramDetail() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0b132b] text-white">
-        <div className="text-xl font-bold">جاري تحميل تفاصيل البرنامج وماريعه من قاعدة البيانات...</div>
+        <div className="text-xl font-bold">جاري تحميل بيانات المشاريع من قاعدة البيانات...</div>
       </div>
     )
   }
 
-  if (!program || (!program.name && !program.program_name && !program.title)) {
-    return (
-      <div className="program-detail-page min-h-screen flex flex-col justify-between pt-29 bg-[#0b132b]">
-        <Header />
-        <div className="text-center py-24">
-          <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود أو تعذر جلب البيانات</h1>
-          <button
-            onClick={() => navigate('/programs')}
-            className="px-6 py-3 bg-[#16a34a] text-white rounded-xl font-bold cursor-pointer"
-          >
-            العودة للبرامج
-          </button>
-        </div>
-        <Footer />
-      </div>
-    )
-  }
+  const color = program?.color || '#eab308'
+  const logoSrc = program?.logo || programLogos[programId] || '/rafid-logo.png'
+  const rawProjects = program?.projects || program?.items || program?.data || []
 
-  const color = program.color || '#eab308'
-  const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
-  const rawProjects = program.projects || program.items || program.data || []
-
-  // استخراج الفئات المتاحة
   const categories = ['all', ...new Set(rawProjects.map(p => getProjectCategory(p)).filter(Boolean))];
 
-  // فلترة المشاريع
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
     : rawProjects.filter(p => getProjectCategory(p).toLowerCase() === activeTab.toLowerCase());
@@ -147,7 +136,7 @@ export default function ProgramDetail() {
             <div className="mb-6 flex justify-center">
               <img 
                 src={logoSrc} 
-                alt={program.name || program.program_name} 
+                alt={program?.name || ''} 
                 className="w-28 h-28 md:w-36 md:h-36 object-contain drop-shadow-xl"
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
@@ -156,13 +145,13 @@ export default function ProgramDetail() {
 
           <ScrollReveal delay={0.2}>
             <h1 className="text-5xl md:text-6xl font-black leading-tight mb-5 text-white">
-              {program.name || program.program_name || program.title}
+              {program?.name || program?.program_name || 'تفاصيل البرنامج'}
             </h1>
           </ScrollReveal>
 
           <ScrollReveal delay={0.3}>
             <p className="text-lg text-[#b0b8c8] max-w-3xl leading-relaxed">
-              {program.description || program.details || 'برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال ومتابعة المشاريع التنموية والموسمية.'}
+              {program?.description || 'برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال ومتابعة المشاريع التنموية والموسمية.'}
             </p>
           </ScrollReveal>
         </section>
@@ -179,7 +168,6 @@ export default function ProgramDetail() {
               </div>
             </ScrollReveal>
 
-            {/* أزرار الفلترة */}
             <ScrollReveal delay={0.1}>
               <div className="flex flex-wrap gap-3 mb-10 border-b border-white/10 pb-5">
                 <button
@@ -197,7 +185,6 @@ export default function ProgramDetail() {
 
                 {categories.filter(c => c !== 'all').map((cat, idx) => {
                   const count = rawProjects.filter(p => getProjectCategory(p).toLowerCase() === cat.toLowerCase()).length;
-
                   return (
                     <button
                       key={idx}
@@ -217,7 +204,6 @@ export default function ProgramDetail() {
               </div>
             </ScrollReveal>
 
-            {/* شبكة المشاريع */}
             <div className="grid md:grid-cols-2 gap-7">
               {filteredProjects.map((project, i) => {
                 const projectName = getProjectName(project);
@@ -228,7 +214,7 @@ export default function ProgramDetail() {
                 const displayCategory = getProjectCategory(project);
 
                 return (
-                  <ScrollReveal key={project.id || i} delay={i * 0.1}>
+                  <ScrollReveal key={i} delay={i * 0.1}>
                     <div className="bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 p-7 flex flex-col justify-between">
                       <div>
                         <div className="flex gap-4 mb-3 flex-wrap text-sm text-[#b0b8c8]">
@@ -265,7 +251,6 @@ export default function ProgramDetail() {
         )}
       </div>
 
-      {/* نافذة تفاصيل المشروع المنبثقة */}
       {selectedProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedProject(null)}>
           <div className="bg-[#111827] border border-white/15 rounded-3xl p-7 max-w-lg w-full text-white relative shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -305,20 +290,9 @@ export default function ProgramDetail() {
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">حالة المشروع:</span>
-                <strong className="text-emerald-400">{selectedProject.حالة_المشروع || selectedProject.project_status || selectedProject.status || 'منجز'}</strong>
+                <strong className="text-emerald-400">منجز</strong>
               </div>
             </div>
-
-            {(selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link || selectedProject.map_url) && (
-              <a 
-                href={selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link || selectedProject.map_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block text-center py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all"
-              >
-                فتح الموقع على خرائط جوجل
-              </a>
-            )}
           </div>
         </div>
       )}
