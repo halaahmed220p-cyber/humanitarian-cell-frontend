@@ -150,9 +150,10 @@ export default function ProgramDetail() {
   const logoSrc = program?.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program?.projects || program?.items || program?.data || []
 
-  if (rawProjects.length > 0) {
-    console.log("عينة من أول مشروع في الـ Frontend:", rawProjects[0]);
-  }
+if (rawProjects.length > 0) {
+  console.log("مفاتيح الحقول الحقيقية في المشروع:", Object.keys(rawProjects[0]));
+  console.log("قيم المشروع كاملة:", rawProjects[0]);
+}
 
   const categories = ['all', ...new Set(rawProjects.map(p => getProjectCategory(p)).filter(Boolean))];
 
