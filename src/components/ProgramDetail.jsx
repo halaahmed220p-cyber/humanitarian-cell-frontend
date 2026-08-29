@@ -22,94 +22,46 @@ const programLogos = {
   wasam: '/wasam-logo.png',
 }
 
-// دوال الاستخراج الذكية الشاملة لكافة احتمالات أسماء الحقول في قاعدة البيانات
 const getProjectName = (p) => {
   if (!p) return 'مشروع تنموي';
   if (typeof p === 'string') return p;
-  if (Array.isArray(p)) {
-    const found = p.find(item => typeof item === 'string' && item.length > 3);
-    return found || 'مشروع تنموي';
-  }
-
-  const possibleKeys = ['title', 'name', 'project_name', 'اسم_المشروع', 'project_title', 'program_name', 'heading'];
-  for (let key of possibleKeys) {
-    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '' && p[key] !== 'غير محدد') {
-      return p[key];
-    }
-  }
-
-  const textVal = Object.values(p).find(v => typeof v === 'string' && v.trim().length > 3 && !v.includes('خلية'));
-  return textVal || 'مشروع تنموي مستدام';
+  return p.title || p.name || p.project_name || `مشروع تنموي رقم ${p.id || ''}`;
 };
 
 const getProjectLocation = (p) => {
   if (!p) return 'اليمن';
   if (typeof p === 'string') return 'اليمن';
-  if (Array.isArray(p)) return p[13] || p[14] || 'اليمن';
-  
-  const possibleKeys = ['province', 'location', 'region', 'المحافظة', 'المديرية', 'district', 'address', 'place', 'نطاق_تنفيذي'];
-  for (let key of possibleKeys) {
-    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '') {
-      return p[key];
-    }
+  if (!p.location || p.location === 'undefined') return 'اليمن';
+  if (typeof p.location === 'object') {
+    return p.location.name || p.location.province || 'اليمن';
   }
-  return p.province_id ? `منطقة رقم ${p.province_id}` : 'اليمن';
+  return p.location;
 };
 
 const getProjectDate = (p) => {
   if (!p) return '2026';
   if (typeof p === 'string') return '2026';
-  if (Array.isArray(p)) return '2026';
-  
-  const possibleKeys = ['date', 'execution_year', 'year', 'سنة_التنفيذ', 'created_at', 'updated_at'];
-  for (let key of possibleKeys) {
-    if (p[key] && String(p[key]).trim() !== '') {
-      return String(p[key]).slice(0, 4);
-    }
-  }
-  return '2026';
+  return p.date ? String(p.date).slice(0, 4) : '2026';
 };
 
 const getBeneficiaries = (p) => {
   if (!p) return 'غير محدد';
-  if (typeof p === 'string') return 'غير محدد';
-  if (Array.isArray(p)) return 'غير محدد';
-
-  const possibleKeys = ['beneficiaries', 'beneficiaries_count', 'عدد_المستفيدين', 'count', 'total_beneficiaries'];
-  for (let key of possibleKeys) {
-    if (p[key] !== undefined && p[key] !== null && String(p[key]).trim() !== '') {
-      return p[key];
-    }
-  }
-  return 'غير محدد';
+  if (typeof p === 'string') return p;
+  return p.beneficiaries !== undefined && p.beneficiaries !== null && p.beneficiaries !== 'غير محدد' 
+    ? p.beneficiaries 
+    : 'غير محدد';
 };
 
 const getProjectDesc = (p) => {
   if (!p) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
   if (typeof p === 'string') return p;
-  if (Array.isArray(p)) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
-
-  const possibleKeys = ['description', 'notes', 'details', 'ملاحظات_وضبط_الجودة', 'quality_notes', 'summary', 'info'];
-  for (let key of possibleKeys) {
-    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '') {
-      return p[key];
-    }
-  }
-  return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+  return p.description || p.notes || (p.status ? `حالة المشروع: ${p.status}` : 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.');
 };
 
 const getProjectCategory = (p) => {
   if (!p) return '';
   if (typeof p === 'string') return '';
-  if (Array.isArray(p)) return '';
-
-  const possibleKeys = ['category', 'project_category', 'تصنيف_المشروع_الموسمي', 'type', 'section'];
-  for (let key of possibleKeys) {
-    if (p[key] && typeof p[key] === 'string' && p[key].trim() !== '') {
-      return p[key].trim();
-    }
-  }
-  return '';
+  return p.category || p.status || '';
 };
 
 export default function ProgramDetail() {
@@ -128,7 +80,6 @@ export default function ProgramDetail() {
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${numericId}`)
       .then(res => res.json())
       .then(data => {
-        console.log("استجابة الـ API الكاملة:", data);
         setProgram(data)
         setLoading(false)
       })
@@ -149,11 +100,6 @@ export default function ProgramDetail() {
   const color = program?.color || '#eab308'
   const logoSrc = program?.logo || programLogos[programId] || '/rafid-logo.png'
   const rawProjects = program?.projects || program?.items || program?.data || []
-
-if (rawProjects.length > 0) {
-  console.log("مفاتيح الحقول الحقيقية في المشروع:", Object.keys(rawProjects[0]));
-  console.log("قيم المشروع كاملة:", rawProjects[0]);
-}
 
   const categories = ['all', ...new Set(rawProjects.map(p => getProjectCategory(p)).filter(Boolean))];
 
@@ -327,7 +273,7 @@ if (rawProjects.length > 0) {
               </div>
               <div>
                 <span className="text-gray-400 block text-xs">حالة المشروع:</span>
-                <strong className="text-emerald-400">منجز</strong>
+                <strong className="text-emerald-400">{selectedProject.status || 'منجز'}</strong>
               </div>
             </div>
           </div>
