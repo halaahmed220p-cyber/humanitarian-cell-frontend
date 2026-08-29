@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquarePlus, MapPin, CheckCircle, AlertTriangle } from 'lucide-react';
+import { MessageSquarePlus, MapPin, CheckCircle } from 'lucide-react';
 // استيراد الهيدر والفوتر (تأكد من تعديل المسارات حسب مكان الملفات لديك)
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 const ReportsAndFeedback = () => {
   const [formData, setFormData] = useState({
     type: 'complaint', // complaint (بلاغ) / suggestion (مقترح) / feedback (رأي)
+    title: '',         // حقل عنوان البلاغ أو المقترح الجديد
     fullName: '',
     phone: '',
     message: '',
@@ -65,6 +66,7 @@ const ReportsAndFeedback = () => {
         },
         body: JSON.stringify({
           type: formData.type,
+          title: formData.title, // إرسال العنوان للسيرفر
           full_name: formData.fullName,
           phone: formData.phone,
           message: formData.message,
@@ -88,10 +90,8 @@ const ReportsAndFeedback = () => {
 
   return (
     <>
-      {/* الهيدر في أعلى الصفحة */}
       <Header />
 
-      {/* المحتوى الرئيسي */}
       <div style={{ padding: '60px 20px', backgroundColor: '#f8fafc', minHeight: '85vh', direction: 'rtl' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto', backgroundColor: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
           
@@ -115,7 +115,7 @@ const ReportsAndFeedback = () => {
               <button 
                 onClick={() => {
                   setSubmittedSuccess(false);
-                  setFormData({ type: 'complaint', fullName: '', phone: '', message: '', latitude: '', longitude: '', locationStatus: 'لم يتم تحديد الموقع بعد' });
+                  setFormData({ type: 'complaint', title: '', fullName: '', phone: '', message: '', latitude: '', longitude: '', locationStatus: 'لم يتم تحديد الموقع بعد' });
                 }} 
                 style={{ padding: '10px 24px', backgroundColor: '#0b1d3a', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
               >
@@ -125,6 +125,7 @@ const ReportsAndFeedback = () => {
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
+              {/* نوع المشاركة */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
                   نوع المشاركة <span style={{ color: '#ef4444' }}>*</span>:
@@ -140,6 +141,22 @@ const ReportsAndFeedback = () => {
                 </select>
               </div>
 
+              {/* حقل العنوان الجديد */}
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
+                  عنوان البلاغ أو الموضوع <span style={{ color: '#ef4444' }}>*</span>:
+                </label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="مثال: انقطاع مياه الشرب في حي..."
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+                />
+              </div>
+
+              {/* الاسم ورقم الهاتف */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                 <div>
                   <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
@@ -169,6 +186,7 @@ const ReportsAndFeedback = () => {
                 </div>
               </div>
 
+              {/* تفاصيل البلاغ */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px', color: '#0b1d3a' }}>
                   تفاصيل البلاغ أو الملاحظة <span style={{ color: '#ef4444' }}>*</span>:
@@ -223,7 +241,6 @@ const ReportsAndFeedback = () => {
         </div>
       </div>
 
-      {/* الفوتر في أسفل الصفحة */}
       <Footer />
     </>
   );
