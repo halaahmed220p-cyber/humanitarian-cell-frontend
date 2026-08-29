@@ -184,7 +184,7 @@ export default function ProgramDetail() {
                 const projectLoc = project.المحافظة || project.المديرية_النطاق_الميداني || project.province_id || project.location || 'اليمن';
                 const projectDate = project.سنة_التنفيذ || project.execution_year || project.date || project.year || '2026';
                 const beneficiariesCount = project.عدد_المستفيدين !== undefined ? project.عدد_المستفيدين : (project.beneficiaries_count !== undefined ? project.beneficiaries_count : (project.beneficiaries || 'غير محدد'));
-                const projectDesc = project.ملاحظات_وضبط_الجودة || project.quality_notes || project.description || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+                const projectDesc = project.project_name;
 
                 return (
                   <ScrollReveal key={project.id || i} delay={i * 0.1}>
