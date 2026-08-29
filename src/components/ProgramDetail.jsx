@@ -22,42 +22,52 @@ const programLogos = {
   wasam: '/wasam-logo.png',
 }
 
-// دوال ذكية استخراج البيانات بغض النظر عن اسم الحقل في قاعدة البيانات أو الـ API
+// دوال ذكية شاملة لجلب البيانات من قاعدة البيانات بأي تسمية محتملة
 const getProjectName = (p) => {
   if (!p) return 'مشروع تنموي';
   if (typeof p === 'string') return p;
-  return p.اسم_المشروع || p.اسم_المشروع_المعتمد || p.project_name || p.title || p.name || 
-    Object.values(p).find(v => typeof v === 'string' && v.length > 4 && /[أ-ي]/.test(v) && !v.includes('خلية')) || 'مشروع تنموي';
+  if (Array.isArray(p)) {
+    const textItem = p.find(item => typeof item === 'string' && item.length > 3 && !item.includes('HAC'));
+    return textItem || 'مشروع تنموي';
+  }
+  return p.اسم_المشروع || p.اسم_المشروع_المعتمد || p.project_name || p.title || p.name || 'مشروع تنموي';
 };
 
 const getProjectLocation = (p) => {
   if (!p) return 'اليمن';
   if (typeof p === 'string') return 'اليمن';
-  return p.المحافظة || p.المديرية_النطاق_الميداني || p.province_id || p.location || p.region || 'اليمن';
+  if (Array.isArray(p)) return p[13] || p[14] || 'اليمن';
+  return p.المحافظة || p.المديرية_النطاق_الميداني || p.province_id || p.location || p.region || p.governorate || 'اليمن';
 };
 
 const getProjectDate = (p) => {
   if (!p) return '2026';
   if (typeof p === 'string') return '2026';
-  return p.سنة_التنفيذ || p.execution_year || p.date || p.year || (p.created_at ? p.created_at.substring(0, 4) : '2026');
+  if (Array.isArray(p)) return p[10] || '2026';
+  return p.سنة_التنفيذ || p.execution_year || p.date || p.year || '2026';
 };
 
 const getBeneficiaries = (p) => {
   if (!p) return 'غير محدد';
   if (typeof p === 'string') return 'غير محدد';
-  const val = p.عدد_المستفيدين !== undefined ? p.عدد_المستفيدين : (p.beneficiaries_count !== undefined ? p.beneficiaries_count : p.beneficiaries);
+  if (Array.isArray(p)) return 'غير محدد';
+  const val = p.عدد_المستفيدين !== undefined ? p.عدد_المستفيدين : 
+              (p.beneficiaries_count !== undefined ? p.beneficiaries_count : 
+              (p.beneficiaries !== undefined ? p.beneficiaries : p.عدد_المستفيدين_المستهدفين));
   return val !== undefined && val !== null && val !== '' ? val : 'غير محدد';
 };
 
 const getProjectDesc = (p) => {
   if (!p) return 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
   if (typeof p === 'string') return p;
-  return p.ملاحظات_وضبط_الجودة || p.quality_notes || p.description || p.notes || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+  if (Array.isArray(p)) return p[16] || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
+  return p.ملاحظات_وضبط_الجودة || p.quality_notes || p.description || p.notes || p.تفاصيل_المشروع || 'مشروع تنموي مستدام تابع لخلية الأعمال الإنسانية.';
 };
 
 const getProjectCategory = (p) => {
   if (!p) return '';
   if (typeof p === 'string') return '';
+  if (Array.isArray(p)) return p[6] || '';
   return String(p.تصنيف_المشروع_الموسمي || p.project_category || p.category || p.is_seasonal || '').trim();
 };
 
@@ -77,6 +87,7 @@ export default function ProgramDetail() {
     fetch(`https://humanitarian-cell-frontend.onrender.com/api/programs/${numericId}`)
       .then(res => res.json())
       .then(data => {
+        console.log("بيانات البرنامج المستلمة من قاعدة البيانات:", data); // لفحص الهيكل كاملاً في المتصفح (F12)
         setProgram(data)
         setLoading(false)
       })
@@ -89,17 +100,17 @@ export default function ProgramDetail() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0b132b] text-white">
-        <div className="text-xl font-bold">جاري تحميل تفاصيل البرنامج وماريعه...</div>
+        <div className="text-xl font-bold">جاري تحميل تفاصيل البرنامج وماريعه من قاعدة البيانات...</div>
       </div>
     )
   }
 
-  if (!program || (!program.name && !program.program_name)) {
+  if (!program || (!program.name && !program.program_name && !program.title)) {
     return (
       <div className="program-detail-page min-h-screen flex flex-col justify-between pt-29 bg-[#0b132b]">
         <Header />
         <div className="text-center py-24">
-          <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود</h1>
+          <h1 className="text-4xl font-black mb-4 text-white">البرنامج غير موجود أو تعذر جلب البيانات</h1>
           <button
             onClick={() => navigate('/programs')}
             className="px-6 py-3 bg-[#16a34a] text-white rounded-xl font-bold cursor-pointer"
@@ -114,12 +125,12 @@ export default function ProgramDetail() {
 
   const color = program.color || '#eab308'
   const logoSrc = program.logo || programLogos[programId] || '/rafid-logo.png'
-  const rawProjects = program.projects || []
+  const rawProjects = program.projects || program.items || program.data || []
 
-  // استخراج التصنيفات المتاحة
+  // استخراج الفئات المتاحة
   const categories = ['all', ...new Set(rawProjects.map(p => getProjectCategory(p)).filter(Boolean))];
 
-  // فلترة المشاريع بناءً على التصنيف المختار
+  // فلترة المشاريع
   const filteredProjects = activeTab === 'all' 
     ? rawProjects 
     : rawProjects.filter(p => getProjectCategory(p).toLowerCase() === activeTab.toLowerCase());
@@ -145,13 +156,13 @@ export default function ProgramDetail() {
 
           <ScrollReveal delay={0.2}>
             <h1 className="text-5xl md:text-6xl font-black leading-tight mb-5 text-white">
-              {program.name || program.program_name}
+              {program.name || program.program_name || program.title}
             </h1>
           </ScrollReveal>
 
           <ScrollReveal delay={0.3}>
             <p className="text-lg text-[#b0b8c8] max-w-3xl leading-relaxed">
-              {program.description || 'برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال ومتابعة المشاريع التنموية والموسمية.'}
+              {program.description || program.details || 'برنامج استراتيجي يهدف لتحقيق التنمية المستدامة والأثر المجتمعي الفعال ومتابعة المشاريع التنموية والموسمية.'}
             </p>
           </ScrollReveal>
         </section>
@@ -298,9 +309,9 @@ export default function ProgramDetail() {
               </div>
             </div>
 
-            {(selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link) && (
+            {(selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link || selectedProject.map_url) && (
               <a 
-                href={selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link} 
+                href={selectedProject.رابط_الموقع_في_خرائط_جوجل || selectedProject.google_maps_link || selectedProject.map_url} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block text-center py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all"
