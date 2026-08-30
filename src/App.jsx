@@ -14,6 +14,8 @@ import ProgramsPage from './components/ProgramsPage';
 import ProgramDetail from './components/ProgramDetail';
 import PartnersPortal from './components/PartnersPortal';
 import { programsData } from './data/programsData';
+import FAQ from './pages/FAQ';
+
 import ScrollToTop from './components/ScrollToTop'; 
 import ReportsAndFeedback from './components/ReportsAndFeedback'; // تأكدي من مسار الملف
 import { Bot, Send, Paperclip, X, Sparkles } from 'lucide-react';
@@ -285,6 +287,7 @@ function App() {
         <Route path="/programs" element={<ProgramsPage />} />
         <Route path="/program/:programId" element={<ProgramDetail programs={programsData} />} />
         <Route path="/reports-feedback" element={<ReportsAndFeedback />} />
+        <Route path="/faq" element={<FAQ />} />
         <Route path="/projects" element={
           <div>
             <Header />

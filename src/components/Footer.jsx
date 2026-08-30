@@ -14,7 +14,6 @@ const Footer = () => {
   const handleSubscribe = async (e) => {
     e.preventDefault();
     try {
-      // استخدمي الرابط الذي أثبتنا نجاحه في الـ Console
       const response = await fetch('https://humanitarian-cell-frontend.onrender.com/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,6 +58,8 @@ const Footer = () => {
               <li><HashLink smooth to="/#about"><i className="fas fa-chevron-left"></i> من نحن</HashLink></li>
               <li><Link to="/projects" onClick={() => window.scrollTo(0,0)}><i className="fas fa-chevron-left"></i> المشاريع</Link></li>
               <li><Link to="/news" onClick={() => window.scrollTo(0,0)}><i className="fas fa-chevron-left"></i> الأخبار والتقارير</Link></li>
+              {/* تمت إضافة رابط الأسئلة الشائعة هنا */}
+              <li><Link to="/faq" onClick={() => window.scrollTo(0,0)}><i className="fas fa-chevron-left"></i> الأسئلة الشائعة</Link></li>
             </ul>
           </div>
 
