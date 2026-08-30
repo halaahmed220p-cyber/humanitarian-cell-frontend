@@ -10,7 +10,7 @@ const ProgramDetail = () => {
 
   useEffect(() => {
     // تصحيح رابط الـ Backend الخاص بـ Render (مع التأكد من استخدام اسم خدمة الـ backend الصحيح)
-    const API_BASE_URL = 'https://humanitarian-cell-backend.onrender.com';
+    const API_BASE_URL = 'https://humanitarian-cell-frontend.onrender.com';
 
     fetch(`${API_BASE_URL}/api/news`)
       .then((res) => {
