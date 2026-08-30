@@ -14,7 +14,7 @@ import ProgramsPage from './components/ProgramsPage';
 import ProgramDetail from './components/ProgramDetail';
 import PartnersPortal from './components/PartnersPortal';
 import { programsData } from './data/programsData';
-import FAQ from './pages/FAQ';
+import FAQ from './components/FAQ';
 
 import ScrollToTop from './components/ScrollToTop'; 
 import ReportsAndFeedback from './components/ReportsAndFeedback'; // تأكدي من مسار الملف
