@@ -33,15 +33,13 @@ const pool = new Pool({
 app.get('/', (req, res) => res.send('Server is running and API is active!'));
 
 // تفعيل CORS و JSON
-// تفعيل CORS و JSON بشكل متكامل
 app.use(cors({
-  origin: ['https://humanitarian-cell-frontend.vercel.app', 'http://localhost:5173', 'http://localhost:3000'], 
+  origin: 'https://humanitarian-cell-frontend.vercel.app', // رابط موقعك على Vercel حصرياً
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
-
-
+app.use(express.json());
 
 // ==========================================
 // 1. مسارات البرامج ومشاريعها الخاصة (Programs & Sub-Projects)
