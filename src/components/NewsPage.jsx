@@ -136,7 +136,7 @@ export default function NewsPage() {
         /* ===== الهيرو التفاعلي واللوحة العلوية ===== */
         .hero {
           position: relative;
-          padding: 5rem 2rem 4rem;
+          padding: 4rem 2rem 5rem;
           background: linear-gradient(135deg, var(--hac-navy-dark) 0%, var(--hac-navy) 50%, var(--hac-navy-light) 100%);
           overflow: hidden;
           text-align: center;
@@ -172,7 +172,7 @@ export default function NewsPage() {
         .hero-content {
           position: relative;
           z-index: 2;
-          max-width: 1100px;
+          max-width: 1200px;
           margin: 0 auto;
         }
         .hero-badge {
@@ -184,27 +184,33 @@ export default function NewsPage() {
           color: var(--hac-gold);
           font-size: 0.85rem;
           font-weight: 600;
-          margin-bottom: 1.2rem;
+          margin-bottom: 1rem;
           backdrop-filter: blur(10px);
         }
         .hero h1 {
-          font-size: 2.8rem;
+          font-size: 2.6rem;
           font-weight: 900;
           color: white;
           margin-bottom: 0.8rem;
-          line-height: 1.3;
+          line-height: 1.4;
+          max-width: 900px;
+          margin-left: auto;
+          margin-right: auto;
         }
         .hero-subtitle {
-          font-size: 1.1rem;
-          color: rgba(255,255,255,0.7);
+          font-size: 1.05rem;
+          color: rgba(255,255,255,0.75);
           margin-bottom: 3.5rem;
           font-weight: 300;
+          max-width: 800px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         /* ===== شبكة بطاقات الأقسام الستة العلوية ===== */
         .portal-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
           gap: 2rem;
           margin-bottom: 3rem;
           text-align: right;
@@ -225,14 +231,14 @@ export default function NewsPage() {
         }
         .portal-card-top {
           background: linear-gradient(135deg, var(--hac-navy-dark), var(--hac-navy));
-          height: 160px;
+          height: 150px;
           display: flex;
           align-items: center;
           justify-content: center;
           position: relative;
         }
         .portal-card-icon {
-          font-size: 3.5rem;
+          font-size: 3.2rem;
         }
         .portal-card-body {
           padding: 1.8rem;
@@ -618,7 +624,7 @@ export default function NewsPage() {
         }
       `}} />
 
-      {/* ===== الهيرو مع لوحة الأقسام الستة المطابقة للصورة ===== */}
+      {/* ===== الهيرو العلوي مع العنوان والوصف والبطاقات تحته ===== */}
       <div className="hero">
         <div className="hero-particles">
           {particles.map((p) => (
@@ -639,7 +645,7 @@ export default function NewsPage() {
           <h1>الأخبار والنشرات والتقارير والقصص الإنسانية</h1>
           <p className="hero-subtitle">بوابة موحدة للمحتوى المؤسسي، مع فصل واضح بين الخبر، البيان، التقرير، القصة الإنسانية والمواد القابلة للتنزيل.</p>
 
-          {/* شبكة الأقسام الستة */}
+          {/* شبكة الأقسام الستة الكحلية تظهر مباشرة تحت النص */}
           <div className="portal-grid">
             
             {/* 1. قصص إنسانية */}
@@ -722,7 +728,7 @@ export default function NewsPage() {
 
           </div>
 
-          {/* شريط التنقل السريع السفلي المطابق للصورة */}
+          {/* شريط التنقل السريع السفلي */}
           <div className="quick-nav-bar">
             <a href="#news" className="quick-nav-pill">
               <span>🖼️</span> الوسائط والمعرض
