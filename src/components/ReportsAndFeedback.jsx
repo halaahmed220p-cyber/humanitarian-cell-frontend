@@ -99,7 +99,7 @@ const ReportsAndFeedback = () => {
               <MessageSquarePlus size={30} color="#c9a84c" />
             </div>
             <h2 style={{ color: '#0b1d3a', fontSize: '26px', fontWeight: 'bold', marginBottom: '10px' }}>
-              الآراء والمقترحات والبلاغات
+              الآراء والبلاغات
             </h2>
             <p style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.6' }}>
               نحن نرحب بمقترحاتكم ونأخذ بلاغاتكم الإنسانية والخدمية بجدية تامة لتعزيز سرعة وكفاءة العمل الميداني.
