@@ -238,7 +238,20 @@ app.get('/api/news/latest', async (req, res) => {
 
 app.get('/api/news', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM news WHERE is_urgent = false OR is_urgent IS NULL ORDER BY date_published DESC');
+    const { category } = req.query;
+    
+    let query = 'SELECT * FROM news WHERE (is_urgent = false OR is_urgent IS NULL)';
+    const queryParams = [];
+
+    // إذا تم إرسال تصنيف في الطلب، يتم إضافته للاستعلام
+    if (category) {
+      queryParams.push(category);
+      query += ` AND category = $${queryParams.length}`;
+    }
+
+    query += ' ORDER BY date_published DESC';
+
+    const result = await pool.query(query, queryParams);
     res.json(result.rows);
   } catch (err) {
     console.error(err);

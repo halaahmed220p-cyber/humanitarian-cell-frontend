@@ -4,7 +4,7 @@ export default function NewsPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [particles, setParticles] = useState([]);
   
-  // حالة التحكم بالعرض الانتقالي بين الصفحات (main = الرئيسية، reports = التقارير، stories = قصص إنسانية، news = النشرات والأخبار)
+  // حالة التحكم بالعرض الانتقالي بين الصفحات (main = الرئيسية، reports = التقارير، stories = قصص إنسانية، news = النشرات والأخبار، press = المركز الصحفي، data = البيانات، media = الوسائط)
   const [currentView, setCurrentView] = useState('main');
   
   // حالات تخزين البيانات القادمة من السيرفر
@@ -29,24 +29,36 @@ export default function NewsPage() {
     }
   };
 
-  // جلب البيانات من السيرفر
+  // جلب البيانات من السيرفر وتصنيفها ديناميكياً
   useEffect(() => {
-    const API_BASE_URL = 'https://humanitarian-cell-backend.onrender.com';
+    const API_BASE_URL = 'https://humanitarian-cell-frontend.onrender.com';
 
-    fetch(`${API_BASE_URL}/api/news`)
-      .then((res) => {
-        if (!res.ok) throw new Error('فشل في جلب بيانات الأخبار');
-        return res.json();
-      })
-      .then((data) => {
-        setNewsData(data);
-        setLoadingNews(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoadingNews(false);
-      });
+    // جلب النشرات والأخبار والقصص والمركز الصحفي من جدول news الموحد مع تمرير التصنيف
+    const fetchCategoryData = async (category, setter, setLoading) => {
+      try {
+        const url = category ? `${API_BASE_URL}/api/news?category=${category}` : `${API_BASE_URL}/api/news`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('فشل في جلب البيانات');
+        const data = await res.json();
+        setter(data);
+        if (setLoading) setLoading(false);
+      } catch (err) {
+        if (setLoading) setLoading(false);
+      }
+    };
 
+    // جلب المحتوى العام أو حسب العرض الحالي
+    setLoadingNews(true);
+    let endpointCategory = '';
+    if (currentView === 'stories') endpointCategory = 'stories';
+    else if (currentView === 'news') endpointCategory = 'news';
+    else if (currentView === 'press') endpointCategory = 'press';
+    else if (currentView === 'data') endpointCategory = 'data';
+    else if (currentView === 'media') endpointCategory = 'media';
+
+    fetchCategoryData(endpointCategory, setNewsData, setLoadingNews);
+
+    // جلب التقارير
     fetch(`${API_BASE_URL}/api/reports`) 
       .then((res) => {
         if (!res.ok) throw new Error('فشل في جلب بيانات التقارير');
@@ -62,7 +74,7 @@ export default function NewsPage() {
       .catch((err) => {
         setLoadingReports(false);
       });
-  }, []);
+  }, [currentView]);
 
   // توليد الجزيئات
   useEffect(() => {
@@ -388,7 +400,7 @@ export default function NewsPage() {
               </div>
             </div>
 
-            {/* بطاقة التقارير (عند الضغط عليها تفتح صفحة التقارير المستقلة مثل الصورة الثانية) */}
+            {/* بطاقة التقارير */}
             <div className="portal-card" onClick={() => setCurrentView('reports')}>
               <div className="portal-card-top"><span className="portal-card-icon">📊</span></div>
               <div className="portal-card-body">
@@ -411,7 +423,7 @@ export default function NewsPage() {
             </div>
 
             {/* بطاقة المركز الصحفي */}
-            <div className="portal-card" onClick={() => setCurrentView('news')}>
+            <div className="portal-card" onClick={() => setCurrentView('press')}>
               <div className="portal-card-top"><span className="portal-card-icon">📰</span></div>
               <div className="portal-card-body">
                 <span className="portal-card-category">المركز الإعلامي</span>
@@ -422,7 +434,7 @@ export default function NewsPage() {
             </div>
 
             {/* بطاقة البيانات */}
-            <div className="portal-card" onClick={() => setCurrentView('reports')}>
+            <div className="portal-card" onClick={() => setCurrentView('data')}>
               <div className="portal-card-top"><span className="portal-card-icon">🗄️</span></div>
               <div className="portal-card-body">
                 <span className="portal-card-category">المركز الإعلامي</span>
@@ -433,7 +445,7 @@ export default function NewsPage() {
             </div>
 
             {/* بطاقة الوسائط */}
-            <div className="portal-card" onClick={() => setCurrentView('news')}>
+            <div className="portal-card" onClick={() => setCurrentView('media')}>
               <div className="portal-card-top"><span className="portal-card-icon">🖼️</span></div>
               <div className="portal-card-body">
                 <span className="portal-card-category">المركز الإعلامي</span>
@@ -447,15 +459,17 @@ export default function NewsPage() {
 
           {/* شريط التنقل السفلي السريع */}
           <div className="quick-nav-bar">
-            <button className="quick-nav-pill" onClick={() => setCurrentView('news')}><span>🖼️</span> الوسائط والمعرض</button>
+            <button className="quick-nav-pill" onClick={() => setCurrentView('media')}><span>🖼️</span> الوسائط والمعرض</button>
             <button className="quick-nav-pill" onClick={() => setCurrentView('stories')}><span>📖</span> قصص إنسانية</button>
             <button className="quick-nav-pill" onClick={() => setCurrentView('reports')}><span>📊</span> التقارير</button>
             <button className="quick-nav-pill" onClick={() => setCurrentView('news')}><span>📢</span> النشرات الإعلامية</button>
+            <button className="quick-nav-pill" onClick={() => setCurrentView('press')}><span>📰</span> المركز الصحفي</button>
+            <button className="quick-nav-pill" onClick={() => setCurrentView('data')}><span>🗄️</span> البيانات</button>
           </div>
         </div>
       )}
 
-      {/* ===== صفحة التقارير المستقلة (تظهر تماماً عند الضغط على التقارير مطابقة للصورة الثانية) ===== */}
+      {/* ===== صفحة التقارير المستقلة ===== */}
       {currentView === 'reports' && (
         <section className="section reports-section">
           <div className="section-header">
@@ -503,28 +517,38 @@ export default function NewsPage() {
         </section>
       )}
 
-      {/* ===== صفحة الأخبار والنشرات والقصص الإنسانية المستقلة ===== */}
-      {(currentView === 'stories' || currentView === 'news') && (
+      {/* ===== صفحة عرض الأخبار والنشرات والقصص والمركز الصحفي والبيانات والوسائط المستقلة القادمة من قاعدة البيانات ===== */}
+      {['stories', 'news', 'press', 'data', 'media'].includes(currentView) && (
         <section className="section">
           <div className="section-header">
             <span className="section-label">تغطية حية</span>
-            <h2 className="section-title">{currentView === 'stories' ? 'قصص إنسانية من الميدان' : 'النشرات والأخبار الإعلامية'}</h2>
+            <h2 className="section-title">
+              {currentView === 'stories' && 'قصص إنسانية من الميدان'}
+              {currentView === 'news' && 'النشرات الإعلامية والأخبار'}
+              {currentView === 'press' && 'المركز الصحفي'}
+              {currentView === 'data' && 'البيانات والمؤشرات'}
+              {currentView === 'media' && 'معرض الوسائط'}
+            </h2>
             <p className="section-desc">نوثق بالكلمة والصورة أثر المساعدات وتفاصيل المشاريع الإغاثية لحظة بلحظة.</p>
           </div>
 
           {loadingNews ? (
-            <div className="status-message">جاري تحميل المحتوى...</div>
+            <div className="status-message">جاري تحميل المحتوى من قاعدة البيانات...</div>
+          ) : newsData.length === 0 ? (
+            <div className="status-message">لا توجد عناصر مضافة في هذا القسم حالياً.</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '2rem' }}>
-              {newsData.map((news) => (
-                <div key={news.id} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)' }}>
-                  <div style={{ height: '220px', position: 'relative' }}>
-                    <img src={news.image_url || news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
+              {newsData.map((item) => (
+                <div key={item.id} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.03)' }}>
+                  {item.image_url && (
+                    <div style={{ height: '220px', position: 'relative' }}>
+                      <img src={item.image_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
                   <div style={{ padding: '1.8rem' }}>
-                    <div style={{ color: 'var(--hac-gold-dark)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.6rem' }}>🗓️ {formatDate(news.date_published || news.date)}</div>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--hac-navy)', marginBottom: '0.8rem' }}>{news.title}</h3>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--hac-text-light)', lineHeight: 1.6 }}>{news.excerpt}</p>
+                    <div style={{ color: 'var(--hac-gold-dark)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.6rem' }}>🗓️ {formatDate(item.date_published || item.date)}</div>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--hac-navy)', marginBottom: '0.8rem' }}>{item.title}</h3>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--hac-text-light)', lineHeight: 1.6 }}>{item.excerpt || item.content}</p>
                   </div>
                 </div>
               ))}
