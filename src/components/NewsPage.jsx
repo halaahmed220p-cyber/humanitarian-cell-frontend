@@ -76,7 +76,7 @@ export default function NewsPage() {
 
   // 2. توليد جزيئات الخلفية التفاعلية
   useEffect(() => {
-    const generatedParticles = Array.from({ length: 25 }).map((_, index) => ({
+    const generatedParticles = Array.from({ length: 20 }).map((_, index) => ({
       id: index,
       left: `${Math.random() * 100}%`,
       delay: `${Math.random() * 8}s`,
@@ -133,7 +133,7 @@ export default function NewsPage() {
           line-height: 1.7;
         }
 
-        /* ===== الهيرو التفاعلي واللوحة العلوية ===== */
+        /* ===== القسم العلوي الكحلي (الهيرو النظيف) ===== */
         .hero {
           position: relative;
           padding: 4rem 2rem 5rem;
@@ -164,7 +164,7 @@ export default function NewsPage() {
           animation: float-particle 8s infinite ease-in-out;
         }
         @keyframes float-particle {
-          0%, 100% { opacity: 0; transform: translateY(75vh) scale(0); }
+          0%, 100% { opacity: 0; transform: translateY(50vh) scale(0); }
           10% { opacity: 0.6; }
           50% { opacity: 0.3; transform: translateY(-10vh) scale(1.2); }
           90% { opacity: 0.6; }
@@ -172,7 +172,7 @@ export default function NewsPage() {
         .hero-content {
           position: relative;
           z-index: 2;
-          max-width: 1200px;
+          max-width: 1000px;
           margin: 0 auto;
         }
         .hero-badge {
@@ -184,54 +184,56 @@ export default function NewsPage() {
           color: var(--hac-gold);
           font-size: 0.85rem;
           font-weight: 600;
-          margin-bottom: 1rem;
+          margin-bottom: 1.2rem;
           backdrop-filter: blur(10px);
         }
         .hero h1 {
-          font-size: 2.6rem;
+          font-size: 2.8rem;
           font-weight: 900;
           color: white;
-          margin-bottom: 0.8rem;
-          line-height: 1.4;
-          max-width: 900px;
-          margin-left: auto;
-          margin-right: auto;
+          margin-bottom: 1rem;
+          line-height: 1.35;
         }
         .hero-subtitle {
-          font-size: 1.05rem;
+          font-size: 1.1rem;
           color: rgba(255,255,255,0.75);
-          margin-bottom: 3.5rem;
           font-weight: 300;
           max-width: 800px;
-          margin-left: auto;
-          margin-right: auto;
+          margin: 0 auto;
         }
 
-        /* ===== شبكة بطاقات الأقسام الستة العلوية ===== */
+        /* ===== قسم البطاقات الستة الخارجية (على الخلفية البيضاء/الفاتحة) ===== */
+        .portal-section {
+          max-width: 1400px;
+          margin: -2rem auto 0 auto; /* تداخل خفيف وأيقوني مع الهيرو أو فاصله دقيق */
+          padding: 3rem 2rem 2rem 2rem;
+          position: relative;
+          z-index: 5;
+        }
         .portal-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
           gap: 2rem;
-          margin-bottom: 3rem;
+          margin-bottom: 2.5rem;
           text-align: right;
         }
         .portal-card {
           background: #ffffff;
           border-radius: 20px;
           overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
           transition: transform 0.3s ease, box-shadow 0.3s ease;
-          border: 1px solid rgba(196, 163, 90, 0.15);
+          border: 1px solid rgba(196, 163, 90, 0.2);
           display: flex;
           flex-direction: column;
         }
         .portal-card:hover {
           transform: translateY(-8px);
-          box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+          box-shadow: 0 18px 45px rgba(26, 42, 74, 0.15);
         }
         .portal-card-top {
           background: linear-gradient(135deg, var(--hac-navy-dark), var(--hac-navy));
-          height: 150px;
+          height: 140px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -285,10 +287,10 @@ export default function NewsPage() {
           justify-content: center;
           gap: 1rem;
           flex-wrap: wrap;
-          margin-top: 1rem;
+          margin-top: 1.5rem;
         }
         .quick-nav-pill {
-          background: rgba(255, 255, 255, 0.95);
+          background: white;
           border: 1px solid rgba(196, 163, 90, 0.3);
           padding: 0.6rem 1.4rem;
           border-radius: 50px;
@@ -300,7 +302,7 @@ export default function NewsPage() {
           color: var(--hac-navy);
           cursor: pointer;
           transition: all 0.2s;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.04);
           text-decoration: none;
         }
         .quick-nav-pill:hover {
@@ -310,8 +312,8 @@ export default function NewsPage() {
         }
 
         /* ===== الهيكلة العامة للتصميم المنسق ===== */
-        .section { max-width: 1400px; margin: 0 auto; padding: 5rem 2rem; }
-        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section { max-width: 1400px; margin: 0 auto; padding: 4rem 2rem; }
+        .section-header { text-align: center; margin-bottom: 3.5rem; }
         .section-label {
           display: inline-block;
           padding: 0.5rem 2rem;
@@ -323,8 +325,8 @@ export default function NewsPage() {
           font-weight: 600;
           margin-bottom: 1rem;
         }
-        .section-title { font-size: 2.5rem; font-weight: 800; color: var(--hac-navy); margin-bottom: 1rem; }
-        .section-desc { font-size: 1.1rem; color: var(--hac-text-light); max-width: 600px; margin: 0 auto; }
+        .section-title { font-size: 2.3rem; font-weight: 800; color: var(--hac-navy); margin-bottom: 1rem; }
+        .section-desc { font-size: 1.05rem; color: var(--hac-text-light); max-width: 600px; margin: 0 auto; }
 
         /* ===== الفلاتر المخصصة ===== */
         .filters-bar { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin-bottom: 3rem; flex-wrap: wrap; }
@@ -624,7 +626,7 @@ export default function NewsPage() {
         }
       `}} />
 
-      {/* ===== الهيرو العلوي مع العنوان والوصف والبطاقات تحته ===== */}
+      {/* ===== 1. الهيرو الكحلي العلوي (يحتوي العنوان والوصف فقط) ===== */}
       <div className="hero">
         <div className="hero-particles">
           {particles.map((p) => (
@@ -644,110 +646,103 @@ export default function NewsPage() {
           <div className="hero-badge">المركز الإعلامي</div>
           <h1>الأخبار والنشرات والتقارير والقصص الإنسانية</h1>
           <p className="hero-subtitle">بوابة موحدة للمحتوى المؤسسي، مع فصل واضح بين الخبر، البيان، التقرير، القصة الإنسانية والمواد القابلة للتنزيل.</p>
-
-          {/* شبكة الأقسام الستة الكحلية تظهر مباشرة تحت النص */}
-          <div className="portal-grid">
-            
-            {/* 1. قصص إنسانية */}
-            <div className="portal-card">
-              <div className="portal-card-top">
-                <span className="portal-card-icon">📖</span>
-              </div>
-              <div className="portal-card-body">
-                <span className="portal-card-category">المركز الإعلامي</span>
-                <h3 className="portal-card-title">قصص إنسانية</h3>
-                <p className="portal-card-desc">قصص وتجارب إنسانية من الميدان</p>
-                <a href="#news" className="portal-card-link">استكشف القسم ←</a>
-              </div>
-            </div>
-
-            {/* 2. التقارير */}
-            <div className="portal-card">
-              <div className="portal-card-top">
-                <span className="portal-card-icon">📊</span>
-              </div>
-              <div className="portal-card-body">
-                <span className="portal-card-category">المركز الإعلامي</span>
-                <h3 className="portal-card-title">التقارير</h3>
-                <p className="portal-card-desc">تقارير الأثر والشفافية والنداء</p>
-                <a href="#reports" className="portal-card-link">استكشف القسم ←</a>
-              </div>
-            </div>
-
-            {/* 3. النشرات الإعلامية */}
-            <div className="portal-card">
-              <div className="portal-card-top">
-                <span className="portal-card-icon">📢</span>
-              </div>
-              <div className="portal-card-body">
-                <span className="portal-card-category">المركز الإعلامي</span>
-                <h3 className="portal-card-title">النشرات الإعلامية</h3>
-                <p className="portal-card-desc">واجهة نشر رسمية للبيانات والإعلانات المؤسسية</p>
-                <a href="#news" className="portal-card-link">استكشف القسم ←</a>
-              </div>
-            </div>
-
-            {/* 4. المركز الصحفي */}
-            <div className="portal-card">
-              <div className="portal-card-top">
-                <span className="portal-card-icon">📰</span>
-              </div>
-              <div className="portal-card-body">
-                <span className="portal-card-category">المركز الإعلامي</span>
-                <h3 className="portal-card-title">المركز الصحفي</h3>
-                <p className="portal-card-desc">مصدر موحد للمواد الصحفية والإعلامية</p>
-                <a href="#news" className="portal-card-link">استكشف القسم ←</a>
-              </div>
-            </div>
-
-            {/* 5. البيانات */}
-            <div className="portal-card">
-              <div className="portal-card-top">
-                <span className="portal-card-icon">🗄️</span>
-              </div>
-              <div className="portal-card-body">
-                <span className="portal-card-category">المركز الإعلامي</span>
-                <h3 className="portal-card-title">البيانات</h3>
-                <p className="portal-card-desc">بيانات ومؤشرات قابلة للعرض بحسب الصلاحيات</p>
-                <a href="#reports" className="portal-card-link">استكشف القسم ←</a>
-              </div>
-            </div>
-
-            {/* 6. الوسائط */}
-            <div className="portal-card">
-              <div className="portal-card-top">
-                <span className="portal-card-icon">🖼️</span>
-              </div>
-              <div className="portal-card-body">
-                <span className="portal-card-category">المركز الإعلامي</span>
-                <h3 className="portal-card-title">الوسائط</h3>
-                <p className="portal-card-desc">صور وفيديوهات ومواد إعلامية قابلة للاستعراض</p>
-                <a href="#news" className="portal-card-link">استكشف القسم ←</a>
-              </div>
-            </div>
-
-          </div>
-
-          {/* شريط التنقل السريع السفلي */}
-          <div className="quick-nav-bar">
-            <a href="#news" className="quick-nav-pill">
-              <span>🖼️</span> الوسائط والمعرض
-            </a>
-            <a href="#news" className="quick-nav-pill">
-              <span>📖</span> قصص إنسانية
-            </a>
-            <a href="#reports" className="quick-nav-pill">
-              <span>📊</span> التقارير
-            </a>
-            <a href="#news" className="quick-nav-pill">
-              <span>📢</span> النشرات الإعلامية
-            </a>
-          </div>
-
         </div>
       </div>
 
-      {/* ===== قسم الأخبار والمستجدات ===== */}
+      {/* ===== 2. الخروج من المربع الكحلي: قسم البطاقات الست بجانب بعضها البعض ===== */}
+      <div className="portal-section">
+        <div className="portal-grid">
+          
+          {/* 1. قصص إنسانية */}
+          <div className="portal-card fade-in">
+            <div className="portal-card-top">
+              <span className="portal-card-icon">📖</span>
+            </div>
+            <div className="portal-card-body">
+              <span className="portal-card-category">المركز الإعلامي</span>
+              <h3 className="portal-card-title">قصص إنسانية</h3>
+              <p className="portal-card-desc">قصص وتجارب إنسانية مؤثرة من الميدان</p>
+              <a href="#news" className="portal-card-link">استكشف القسم ←</a>
+            </div>
+          </div>
+
+          {/* 2. التقارير */}
+          <div className="portal-card fade-in">
+            <div className="portal-card-top">
+              <span className="portal-card-icon">📊</span>
+            </div>
+            <div className="portal-card-body">
+              <span className="portal-card-category">المركز الإعلامي</span>
+              <h3 className="portal-card-title">التقارير</h3>
+              <p className="portal-card-desc">تقارير الأثر والشفافية والنداء الإنساني</p>
+              <a href="#reports" className="portal-card-link">استكشف القسم ←</a>
+            </div>
+          </div>
+
+          {/* 3. النشرات الإعلامية */}
+          <div className="portal-card fade-in">
+            <div className="portal-card-top">
+              <span className="portal-card-icon">📢</span>
+            </div>
+            <div className="portal-card-body">
+              <span className="portal-card-category">المركز الإعلامي</span>
+              <h3 className="portal-card-title">النشرات الإعلامية</h3>
+              <p className="portal-card-desc">واجهة نشر رسمية للبيانات والإعلانات</p>
+              <a href="#news" className="portal-card-link">استكشف القسم ←</a>
+            </div>
+          </div>
+
+          {/* 4. المركز الصحفي */}
+          <div className="portal-card fade-in">
+            <div className="portal-card-top">
+              <span className="portal-card-icon">📰</span>
+            </div>
+            <div className="portal-card-body">
+              <span className="portal-card-category">المركز الإعلامي</span>
+              <h3 className="portal-card-title">المركز الصحفي</h3>
+              <p className="portal-card-desc">مصدر موحد للمواد الصحفية والإعلامية</p>
+              <a href="#news" className="portal-card-link">استكشف القسم ←</a>
+            </div>
+          </div>
+
+          {/* 5. البيانات */}
+          <div className="portal-card fade-in">
+            <div className="portal-card-top">
+              <span className="portal-card-icon">🗄️</span>
+            </div>
+            <div className="portal-card-body">
+              <span className="portal-card-category">المركز الإعلامي</span>
+              <h3 className="portal-card-title">البيانات</h3>
+              <p className="portal-card-desc">بيانات ومؤشرات قابلة للعرض بحسب الصلاحيات</p>
+              <a href="#reports" className="portal-card-link">استكشف القسم ←</a>
+            </div>
+          </div>
+
+          {/* 6. الوسائط */}
+          <div className="portal-card fade-in">
+            <div className="portal-card-top">
+              <span className="portal-card-icon">🖼️</span>
+            </div>
+            <div className="portal-card-body">
+              <span className="portal-card-category">المركز الإعلامي</span>
+              <h3 className="portal-card-title">الوسائط</h3>
+              <p className="portal-card-desc">صور وفيديوهات ومواد إعلامية للاستعراض</p>
+              <a href="#news" className="portal-card-link">استكشف القسم ←</a>
+            </div>
+          </div>
+
+        </div>
+
+        {/* شريط التنقل السريع */}
+        <div className="quick-nav-bar fade-in">
+          <a href="#news" className="quick-nav-pill"><span>🖼️</span> الوسائط والمعرض</a>
+          <a href="#news" className="quick-nav-pill"><span>📖</span> قصص إنسانية</a>
+          <a href="#reports" className="quick-nav-pill"><span>📊</span> التقارير</a>
+          <a href="#news" className="quick-nav-pill"><span>📢</span> النشرات الإعلامية</a>
+        </div>
+      </div>
+
+      {/* ===== 3. قسم الأخبار والمستجدات ===== */}
       <section className="section" id="news">
         <div className="section-header fade-in">
           <span className="section-label">تغطية حية</span>
@@ -833,7 +828,7 @@ export default function NewsPage() {
         </div>
       )}
 
-      {/* ===== قسم التقارير والدراسات ===== */}
+      {/* ===== 4. قسم التقارير والدراسات ===== */}
       <section className="section reports-section" id="reports">
         <div className="section-header fade-in">
           <span className="section-label">إصدارات رسمية</span>
